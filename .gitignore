@@ -1,0 +1,38 @@
+# Built application files
+*.apk
+*.aab
+
+# Compiled files
+*.dex
+*.class
+
+# Gradle files
+.gradle/
+build/
+*/build/          # <-- важно: игнорировать build-папки во всех модулях
+local.properties
+
+# IDE files
+.idea/
+*.iml
+.kotlin/
+.cxx/
+.externalNativeBuild
+
+# Logs & profiling
+*.log
+*.hprof
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Keystore & sensitive data
+*.jks
+*.keystore
+google-services.json
+
+# Кэш и временные файлы
+.cache/
+.navigation/
+captures/
