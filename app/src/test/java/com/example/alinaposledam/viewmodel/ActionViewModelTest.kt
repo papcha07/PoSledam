@@ -1,5 +1,6 @@
 package com.example.alinaposledam.viewmodel
 
+import domain.NotificationSettingsInteractor
 import domain.interactor.AnnouncementInteractor
 import io.mockk.mockk
 import kotlinx.coroutines.flow.StateFlow
@@ -14,12 +15,15 @@ class ActionViewModelTest {
     private lateinit var actionViewModel: ActionViewModel
     private val announcementInteractor: AnnouncementInteractor = mockk(relaxed = true)
     private val yandexInteractor: YandexInteractor = mockk(relaxed = true)
+    private val notificationSettingsInteractor: NotificationSettingsInteractor =
+        mockk(relaxed = true)
 
     @Before
     fun setUp() {
         actionViewModel = ActionViewModel(
             announcementInteractor = announcementInteractor,
-            yandexInteractor = yandexInteractor
+            yandexInteractor = yandexInteractor,
+            notificationSettingsInteractor = notificationSettingsInteractor
         )
     }
 
