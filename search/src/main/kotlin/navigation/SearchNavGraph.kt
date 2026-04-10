@@ -12,6 +12,7 @@ import ui.DetailPetScreen
 import ui.FilterViewModel
 import ui.components.FiltersScreen
 import ui.components.SearchScreen
+import ui.profile.SearchProfileScreen
 
 sealed class SearchRoute(val route: String) {
     object SearchScreen : SearchRoute("searchMain")
@@ -74,7 +75,8 @@ fun NavGraphBuilder.searchNavGraph(navController: NavController, route: String =
                 koinViewModel(viewModelStoreOwner = parentEntry)
 
             val petId = backStackEntry.arguments?.getString("petId") ?: return@composable
-            val announcementType = backStackEntry.arguments?.getInt("announcementType") ?: return@composable
+            val announcementType =
+                backStackEntry.arguments?.getInt("announcementType") ?: return@composable
 
 
 
@@ -93,29 +95,36 @@ fun NavGraphBuilder.searchNavGraph(navController: NavController, route: String =
         }
 
         composable(
-            route = "${SearchRoute.ProfileScreen.route}?name={name}&avatar={avatar}",
+            route = "${SearchRoute.ProfileScreen.route}?name={name}&avatar={avatar}&desc={}",
             arguments = listOf(
                 navArgument("name") { type = NavType.StringType },
                 navArgument("avatar") {
                     type = NavType.StringType
                     defaultValue = ""
                     nullable = true
+                },
+                navArgument("description") {
+                    type = NavType.StringType
+                    defaultValue = ""
+                    nullable = false
                 }
+
             )
         ) { backStackEntry ->
             val name = backStackEntry.arguments?.getString("name") ?: ""
             val avatar = backStackEntry.arguments?.getString("avatar")
+            val description = backStackEntry.arguments?.getString("description")
 
-            val profile = ui.SearchProfileUi(
-                name = name,
-                description = "",
-                avatarUrl = avatar?.takeIf { it.isNotBlank() },
-                contacts = emptyList()
-            )
-            ui.SearchProfileScreen(
-                profile = profile,
-                onBackClick = { navController.popBackStack() }
-            )
+//            val profile = ui.SearchProfileUi(
+//                name = name,
+//                description = "",
+//                avatarUrl = avatar?.takeIf { it.isNotBlank() },
+//                contacts = emptyList()
+//            )
+//            SearchProfileScreen(
+//                profile = profile,
+//                onBackClick = { navController.popBackStack() }
+//            )
         }
     }
 }
