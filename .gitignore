@@ -30,7 +30,6 @@ Thumbs.db
 # Keystore & sensitive data
 *.jks
 *.keystore
-google-services.json
 
 # Кэш и временные файлы
 .cache/
