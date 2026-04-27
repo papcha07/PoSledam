@@ -1,5 +1,5 @@
 package com.example.alinaposledam.worker
 
-interface WorkerRepository {
+interface WorkerInteractor {
     suspend fun sendLocation()
 }

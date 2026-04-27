@@ -2,6 +2,8 @@ package com.example.alinaposledam
 
 import android.app.Application
 import android.util.Log
+import androidx.work.Configuration
+import com.example.alinaposledam.worker.factory.KoinWorkerFactory
 import com.google.firebase.FirebaseApp
 import dataStoreModule
 import di.getActionViewModel
@@ -29,7 +31,7 @@ import ui.di.getAuthViewModel
 import ui.di.getConverter
 import ui.di.getMainModule
 
-class App : Application() {
+class App : Application(), Configuration.Provider {
     override fun onCreate() {
         super.onCreate()
 
@@ -37,7 +39,6 @@ class App : Application() {
         com.yandex.mapkit.MapKitFactory.initialize(this)
         val app = FirebaseApp.initializeApp(this)
         Log.d("FCM_CHECK", "FirebaseApp = $app")
-
 
         startKoin {
             androidContext(this@App)
@@ -72,5 +73,12 @@ class App : Application() {
                 )
             )
         }
+
+
     }
+
+    override val workManagerConfiguration: Configuration
+        get() = Configuration.Builder()
+            .setWorkerFactory(KoinWorkerFactory(this))
+            .build()
 }
