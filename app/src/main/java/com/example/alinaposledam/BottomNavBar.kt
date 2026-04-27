@@ -33,9 +33,9 @@ sealed class BottomNavScreen(val route: String, @DrawableRes val icon: Int) {
 }
 
 private val bottomBarLeafRoutes = setOf(
-    "mainScreen",   // старт в mainNavGraph
-    "searchMain",   // старт в searchNavGraph
-    "profileMain"   // старт в profileNavGraph (назови так свой корневой экран профиля)
+    "mainScreen",
+    "searchMain",
+    "profileMain"
 )
 
 

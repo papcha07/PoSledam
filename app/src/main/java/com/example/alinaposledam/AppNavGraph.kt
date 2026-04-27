@@ -20,7 +20,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.example.alinaposledam.services.PushNotificationService
 import com.google.firebase.messaging.FirebaseMessaging
 import navigation.authNavGraph
 import navigation.mainNavGraph
@@ -35,15 +34,6 @@ private val bottomBarLeafRoutes = setOf(
     "profileMain"
 )
 
-private fun sendTokenToServer() {
-    val notificationService = PushNotificationService()
-    FirebaseMessaging.getInstance().token
-        .addOnSuccessListener { token ->
-            Log.d("FCM_TOKEN", "token = $token")
-            notificationService.onNewToken(token)
-        }
-}
-
 @Composable
 fun AppNavGraph() {
     val navController = rememberNavController()
@@ -51,7 +41,6 @@ fun AppNavGraph() {
     val currentRoute = navBackStackEntry?.destination?.route
     val showBottomBar = currentRoute in bottomBarLeafRoutes
 
-    // Определяем стартовый граф в зависимости от наличия токена
     var startDestination by remember { mutableStateOf<String?>(null) }
     val koin = getKoin()
 
@@ -63,9 +52,6 @@ fun AppNavGraph() {
         } else {
             "main"
         }
-
-        // Отправляем FCM-токен только после инициализации
-        sendTokenToServer()
     }
 
     Scaffold(
@@ -73,7 +59,6 @@ fun AppNavGraph() {
         containerColor = Color.White
     ) { innerPadding ->
         if (startDestination == null) {
-            // Простой сплэш-плейсхолдер, пока решаем, куда идти
             Box(
                 modifier = Modifier
                     .fillMaxSize()

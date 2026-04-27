@@ -39,17 +39,6 @@ class App : Application() {
         Log.d("FCM_CHECK", "FirebaseApp = $app")
 
 
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
-//            val channel = NotificationChannel(
-//                "location",
-//                "Location",
-//                NotificationManager.IMPORTANCE_LOW
-//            )
-//            val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-//            notificationManager.createNotificationChannel(channel)
-//        }
-
-
         startKoin {
             androidContext(this@App)
             modules(
