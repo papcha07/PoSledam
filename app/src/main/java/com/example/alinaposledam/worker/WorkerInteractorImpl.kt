@@ -1,6 +1,7 @@
 package com.example.alinaposledam.worker
 
 import android.content.Context
+import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import java.util.concurrent.TimeUnit
@@ -10,13 +11,23 @@ class WorkerInteractorImpl(
 ) : WorkerInteractor {
 
     private val workManager = WorkManager.getInstance(context)
-    override suspend fun sendLocation() {
-        val locationBuilder = PeriodicWorkRequestBuilder<LocationWorker>(
+    override fun sendLocation() {
+
+        val request = PeriodicWorkRequestBuilder<LocationWorker>(
             repeatInterval = 15,
             repeatIntervalTimeUnit = TimeUnit.MINUTES,
             flexTimeInterval = 15,
             flexTimeIntervalUnit = TimeUnit.MINUTES
+        ).build()
+
+        workManager.enqueueUniquePeriodicWork(
+            LOCATION_WORK_NAME,
+            ExistingPeriodicWorkPolicy.UPDATE,
+            request
         )
-        workManager.enqueue(locationBuilder.build())
+    }
+
+    companion object {
+        private const val LOCATION_WORK_NAME = "location_work"
     }
 }

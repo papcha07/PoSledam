@@ -1,6 +1,5 @@
 package com.example.alinaposledam
 
-import android.util.Log
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.foundation.layout.Box
@@ -20,11 +19,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.google.firebase.messaging.FirebaseMessaging
+import com.example.alinaposledam.location.RequestLocationPermission
+import com.example.alinaposledam.worker.WorkerInteractor
 import navigation.authNavGraph
 import navigation.mainNavGraph
 import navigation.profileNavGraph
 import navigation.searchNavGraph
+import org.koin.compose.koinInject
 import org.koin.java.KoinJavaComponent.getKoin
 import storage.TokenRepository
 
@@ -33,6 +34,7 @@ private val bottomBarLeafRoutes = setOf(
     "searchMain",
     "profileMain"
 )
+
 
 @Composable
 fun AppNavGraph() {
@@ -43,16 +45,42 @@ fun AppNavGraph() {
 
     var startDestination by remember { mutableStateOf<String?>(null) }
     val koin = getKoin()
+    val workerInteractor: WorkerInteractor = koinInject()
+
+
+    var isAuthorized by remember { mutableStateOf(false) }
+    var hasLocationPermission by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         val tokenRepository: TokenRepository = koin.get()
         val token = tokenRepository.getToken()
-        startDestination = if (token.isNullOrBlank()) {
-            "auth"
+
+        if (token.isNullOrBlank()) {
+            startDestination = "auth"
+            isAuthorized = false
         } else {
-            "main"
+            startDestination = "main"
+            isAuthorized = true
         }
     }
+
+    if (isAuthorized) {
+        RequestLocationPermission(
+            onPermissionGranted = {
+                hasLocationPermission = true
+            },
+            onPermissionDenied = {
+                hasLocationPermission = false
+            }
+        )
+    }
+
+    LaunchedEffect(hasLocationPermission, isAuthorized) {
+        if (isAuthorized && hasLocationPermission) {
+            workerInteractor.sendLocation()
+        }
+    }
+
 
     Scaffold(
         bottomBar = { if (showBottomBar) BottomNavBar(navController) },

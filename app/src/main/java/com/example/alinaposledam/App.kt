@@ -69,7 +69,8 @@ class App : Application(), Configuration.Provider {
                     dataStoreModule,
                     userInfoRepository,
                     getStreetService(),
-                    coreDi
+                    coreDi,
+                    getWorkerModule()
                 )
             )
         }
@@ -79,6 +80,6 @@ class App : Application(), Configuration.Provider {
 
     override val workManagerConfiguration: Configuration
         get() = Configuration.Builder()
-            .setWorkerFactory(KoinWorkerFactory(this))
+            .setWorkerFactory(KoinWorkerFactory())
             .build()
 }

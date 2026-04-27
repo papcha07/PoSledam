@@ -43,7 +43,6 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.example.core.R
 import domain.models.StreetPetPreviewModel
-import ui.components.RequestLocationPermission
 import ui.components.other.NearPetCardComponent
 import ui.components.profilebar.ProfileBarComponent
 import ui.model.ArticleInfo
@@ -83,16 +82,6 @@ fun MainScreen(
 
     val userInfoState by mainScreenViewModel.userInfoState.collectAsState()
     val markIsReadState by mainScreenViewModel.markNotificationState.collectAsState()
-
-    RequestLocationPermission(
-        onPermissionGranted = {
-            mainScreenViewModel.sendCurrentLocation()
-        },
-        onPermissionDenied = {
-            Log.d("Permission", "Location permission denied.")
-        }
-    )
-
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
