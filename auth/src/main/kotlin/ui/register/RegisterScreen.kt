@@ -40,9 +40,9 @@ import androidx.compose.ui.unit.sp
 import com.example.core.R
 import kotlinx.coroutines.delay
 import ui.AuthViewModel
-import ui.components.ButtonComponent
-import ui.components.default_component.SocialTextFieldComponent
+import ui.components.AuthButton
 import ui.components.TextFieldComponent
+import ui.components.default_component.SocialTextFieldComponent
 import ui.model.RegisterScreenState
 import ui.model.TextFieldData
 import ui.model.getContact
@@ -166,7 +166,8 @@ fun RegisterBottomComponent(
         )
 
         Column(
-            modifier = Modifier.padding(horizontal = 16.dp)
+            modifier = Modifier
+                .padding(horizontal = 16.dp)
         ) {
             when (currentPage.value) {
                 0 -> {
@@ -178,18 +179,20 @@ fun RegisterBottomComponent(
                 }
             }
             Spacer(Modifier.height(52.dp))
-            ButtonComponent(
-                modifier = Modifier.height(54.dp),
+
+            AuthButton(
                 color = buttonPrimary,
                 text = if (currentPage.value == 1) "Завершить" else "Продолжить",
-                textColor = Color.White,
-                enabled = true,
-                radius = 17.dp
+                textColor = Color.White
             ) {
-                if (currentPage.value == 1) {
-                    authViewModel.register()
-                } else {
-                    authViewModel.onNextClicked()
+                when (currentPage.value) {
+                    1 -> {
+                        authViewModel.register()
+                    }
+
+                    else -> {
+                        authViewModel.onNextClicked()
+                    }
                 }
             }
         }
@@ -282,21 +285,30 @@ fun SocialMediaComponent(
         Spacer(Modifier.height(24.dp))
         SocialTextFieldComponent(
             value = userState.value.getContact(0),
-            textFieldData = ui.components.default_component.TextFieldData("", "Вставьте ссылку на VK"),
+            textFieldData = ui.components.default_component.TextFieldData(
+                "",
+                "Вставьте ссылку на VK"
+            ),
             onValueChange = authViewModel::addVk,
             icon = R.drawable.ic_vk
         )
         Spacer(Modifier.height(8.dp))
         SocialTextFieldComponent(
             value = userState.value.getContact(1),
-            textFieldData = ui.components.default_component.TextFieldData("", "Вставьте ссылку на Telegram"),
+            textFieldData = ui.components.default_component.TextFieldData(
+                "",
+                "Вставьте ссылку на Telegram"
+            ),
             onValueChange = authViewModel::addTelegram,
             icon = R.drawable.ic_tg
         )
         Spacer(Modifier.height(8.dp))
         SocialTextFieldComponent(
             value = userState.value.getContact(2),
-            textFieldData = ui.components.default_component.TextFieldData("", "Вставьте ссылку на Whatsapp"),
+            textFieldData = ui.components.default_component.TextFieldData(
+                "",
+                "Вставьте ссылку на Whatsapp"
+            ),
             onValueChange = authViewModel::addWhatsApp,
             icon = R.drawable.ic_whatsapp
         )

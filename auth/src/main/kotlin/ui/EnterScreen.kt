@@ -22,7 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.example.core.R
-import ui.components.AuthButtonComponent
+import ui.components.AuthButton
 import ui.theme.Primary
 import ui.theme.buttonPrimary
 
@@ -115,27 +115,24 @@ fun CardPreviewComponent(
                 fontSize = 20.sp
             )
             Spacer(modifier = Modifier.height(44.dp))
-            AuthButtonComponent(
-                modifier = Modifier.height(54.dp),
+
+            AuthButton(
                 color = buttonPrimary,
                 text = "Войти",
-                textColor = Color.White,
-                enabled = true,
-                radius = 25.dp
+                textColor = Color.White
             ) {
                 goToLoginScreen()
             }
-            AuthButtonComponent(
-                modifier = Modifier.height(54.dp),
+            Spacer(Modifier.height(16.dp))
+            AuthButton(
                 color = Color(0xFFF5F5F5),
                 text = "Зарегистрироваться",
-                textColor = Color.Black,
-                enabled = true,
-                radius = 25.dp,
+                textColor = Color.Black
             ) {
                 viewModel.resetPage()
                 goToRegisterScreen()
             }
+
         }
     }
 }
