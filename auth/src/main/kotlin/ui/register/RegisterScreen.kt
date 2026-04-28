@@ -74,6 +74,7 @@ fun RegisterScreen(
                 .fillMaxHeight(1.8f / 2f),
             registerViewModel = registerViewModel,
             goPreviewScreen = goPreviewScreen
+
         )
 
         when (registerUiState) {
@@ -81,8 +82,7 @@ fun RegisterScreen(
             RegisterScreenState.Loading -> CircularProgressIndicator(
                 modifier = Modifier.align(Alignment.Center)
             )
-
-            RegisterScreenState.Success -> goPreviewScreen()
+            RegisterScreenState.Success -> goToLoginScreen()
             is RegisterScreenState.Error -> {
                 AnimatedToast((registerUiState as RegisterScreenState.Error).message)
             }

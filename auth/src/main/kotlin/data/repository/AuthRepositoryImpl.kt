@@ -1,6 +1,7 @@
 package data.repository
 
 import ApiResponse
+import android.util.Log
 import apiService.AuthService
 import domain.model.LoginInfo
 import domain.repository.AuthRepository
@@ -35,10 +36,12 @@ class AuthRepositoryImpl(
                     }
                 )
             )
+            Log.d("RegisterViewModel", resultOfResponse.toString())
+
 
             when (resultOfResponse) {
                 is ApiResponse.Error -> Pair(false, resultOfResponse.errorCode)
-                is ApiResponse.Success<RegisterResponse> -> Pair(true, null)
+                is ApiResponse.Success<Unit> -> Pair(true, null)
             }
         }
     }

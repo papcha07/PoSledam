@@ -3,7 +3,6 @@ package ui
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -33,9 +32,9 @@ class RegisterViewModel(
         viewModelScope.launch {
             Log.d("AuthViewModel", "register() called")
             _registerUiState.emit(RegisterScreenState.Loading)
-            delay(5000)
             val registerResult = authInteractor.register(_userDataInfoState.value)
             val success = registerResult.first
+            Log.d("RegisterViewModel", success.toString())
             if (success) {
                 _registerUiState.emit(RegisterScreenState.Success)
                 return@launch
