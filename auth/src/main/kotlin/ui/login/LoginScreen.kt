@@ -76,6 +76,11 @@ fun LoginScreen(
                 RegisterScreenState.Success -> {
                     goToMainProfile()
                 }
+
+                else -> {
+
+                }
+
             }
         }
     }

@@ -30,7 +30,7 @@ import ui.theme.buttonPrimary
 fun EnterScreen(
     navigateToLoginScreen: () -> Unit,
     navigateToRegisterScreen: () -> Unit,
-    authViewModel: AuthViewModel
+    registerViewModel: RegisterViewModel
 ) {
     ConstraintLayout(
         modifier = Modifier
@@ -54,7 +54,7 @@ fun EnterScreen(
                 end.linkTo(parent.end)
                 bottom.linkTo(parent.bottom)
             },
-            viewModel = authViewModel,
+            registerViewModel = registerViewModel,
             goToRegisterScreen = {
                 navigateToRegisterScreen()
             },
@@ -92,7 +92,7 @@ fun SvgOverlay(modifier: Modifier) {
 @Composable
 fun CardPreviewComponent(
     modifier: Modifier,
-    viewModel: AuthViewModel,
+    registerViewModel: RegisterViewModel,
     goToRegisterScreen: () -> Unit,
     goToLoginScreen: () -> Unit
 ) {
@@ -129,7 +129,7 @@ fun CardPreviewComponent(
                 text = "Зарегистрироваться",
                 textColor = Color.Black
             ) {
-                viewModel.resetPage()
+                registerViewModel.resetPage()
                 goToRegisterScreen()
             }
 

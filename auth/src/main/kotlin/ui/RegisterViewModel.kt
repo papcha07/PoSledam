@@ -3,8 +3,11 @@ package ui
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -26,11 +29,15 @@ class RegisterViewModel(
     private val _registerUiState = MutableStateFlow<RegisterScreenState>(RegisterScreenState.Idle)
     val registerUiState = _registerUiState.asStateFlow()
 
+    private val _errorState = MutableSharedFlow<String>()
+    val errorState = _errorState.asSharedFlow()
+
 
     fun registerUser() {
         viewModelScope.launch {
             Log.d("AuthViewModel", "register() called")
             _registerUiState.value = RegisterScreenState.Loading
+            delay(5000)
             val registerResult = authInteractor.register(_userDataInfoState.value)
             val success = registerResult.first
             if (success) {
@@ -115,7 +122,7 @@ class RegisterViewModel(
 
     private fun showRegisterMessage(message: String) {
         viewModelScope.launch {
-            _registerUiState.value = RegisterScreenState.Error(message)
+            _errorState.emit(message)
         }
     }
 

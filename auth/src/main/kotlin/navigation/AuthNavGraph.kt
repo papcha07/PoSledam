@@ -9,6 +9,7 @@ import org.koin.androidx.compose.koinViewModel
 import ui.AuthViewModel
 import ui.EnterScreen
 import ui.OnBoardingScreen
+import ui.RegisterViewModel
 import ui.login.LoginScreen
 import ui.register.RegisterScreen
 
@@ -36,10 +37,10 @@ fun NavGraphBuilder.authNavGraph(navController: NavController, route: String = "
             val parentEntry = remember(backStackEntry) {
                 navController.getBackStackEntry(route)
             }
-            val authViewModel: AuthViewModel = koinViewModel(viewModelStoreOwner = parentEntry)
+            val registerViewModel: RegisterViewModel = koinViewModel(viewModelStoreOwner = parentEntry)
 
             EnterScreen(
-                authViewModel = authViewModel,
+                registerViewModel = registerViewModel,
                 navigateToLoginScreen = {
                     navController.navigate(AuthRoute.Login.route)
                 },
@@ -62,10 +63,10 @@ fun NavGraphBuilder.authNavGraph(navController: NavController, route: String = "
             val parentEntry = remember(backStackEntry) {
                 navController.getBackStackEntry(route)
             }
-            val authViewModel: AuthViewModel = koinViewModel(viewModelStoreOwner = parentEntry)
+            val registerViewModel: RegisterViewModel = koinViewModel(viewModelStoreOwner = parentEntry)
 
             RegisterScreen(
-                viewModel = authViewModel,
+                registerViewModel = registerViewModel,
                 goToLoginScreen = {
                     navController.navigate(AuthRoute.Login.route)
                 },
