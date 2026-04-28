@@ -26,22 +26,18 @@ class RegisterViewModel(
     val userDataInfoState: StateFlow<UserDataInfo> = _userDataInfoState.asStateFlow()
 
 
-    private val _registerUiState = MutableStateFlow<RegisterScreenState>(RegisterScreenState.Idle)
-    val registerUiState = _registerUiState.asStateFlow()
-
-    private val _errorState = MutableSharedFlow<String>()
-    val errorState = _errorState.asSharedFlow()
-
+    private val _registerUiState = MutableSharedFlow<RegisterScreenState>()
+    val registerUiState = _registerUiState.asSharedFlow()
 
     fun registerUser() {
         viewModelScope.launch {
             Log.d("AuthViewModel", "register() called")
-            _registerUiState.value = RegisterScreenState.Loading
+            _registerUiState.emit(RegisterScreenState.Loading)
             delay(5000)
             val registerResult = authInteractor.register(_userDataInfoState.value)
             val success = registerResult.first
             if (success) {
-                _registerUiState.value = RegisterScreenState.Success
+                _registerUiState.emit(RegisterScreenState.Success)
                 return@launch
             }
 
@@ -122,7 +118,7 @@ class RegisterViewModel(
 
     private fun showRegisterMessage(message: String) {
         viewModelScope.launch {
-            _errorState.emit(message)
+            _registerUiState.emit(RegisterScreenState.Error(message))
         }
     }
 

@@ -59,15 +59,13 @@ fun RegisterScreen(
     goToLoginScreen: () -> Unit,
     goPreviewScreen: () -> Unit
 ) {
-    var toastMessage by remember { mutableStateOf<String?>(null) }
-    val errorState by registerViewModel.errorState.collectAsState("")
-
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.White)
     ) {
-        val registerUiState by registerViewModel.registerUiState.collectAsState()
+        val registerUiState by registerViewModel.registerUiState.collectAsState("")
+
         SvgOverlay(Modifier.fillMaxSize())
         RegisterBottomComponent(
             modifier = Modifier
@@ -85,6 +83,9 @@ fun RegisterScreen(
             )
 
             RegisterScreenState.Success -> goPreviewScreen()
+            is RegisterScreenState.Error -> {
+                AnimatedToast((registerUiState as RegisterScreenState.Error).message)
+            }
         }
     }
 }
