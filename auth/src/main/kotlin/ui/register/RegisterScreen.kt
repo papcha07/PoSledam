@@ -17,7 +17,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
@@ -140,30 +142,45 @@ fun RegisterBottomComponent(
             .background(color = Color.White)
             .padding(top = 24.dp)
     ) {
-        Image(
+        Box(
             modifier = Modifier
                 .align(Alignment.TopStart)
+                .padding(start = 16.dp)
+                .size(48.dp)
+                .clip(CircleShape)
                 .clickable {
                     if (currentPage.value == 0) {
                         goPreviewScreen()
                     } else {
                         authViewModel.onBackClicker()
                     }
-                }
-                .padding(start = 16.dp),
-            painter = painterResource(R.drawable.ic_circle_back),
-            contentDescription = "back"
-        )
-        Image(
+                },
+            contentAlignment = Alignment.Center
+        ) {
+            Image(
+                painter = painterResource(R.drawable.ic_circle_back),
+                contentDescription = "back",
+                modifier = Modifier.size(40.dp)
+            )
+        }
+
+        Box(
             modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(end = 16.dp)
+                .size(48.dp)
+                .clip(CircleShape)
                 .clickable {
                     goPreviewScreen()
-                }
-                .align(Alignment.TopEnd)
-                .padding(end = 16.dp),
-            painter = painterResource(R.drawable.ic_close),
-            contentDescription = "close"
-        )
+                },
+            contentAlignment = Alignment.Center
+        ) {
+            Image(
+                painter = painterResource(R.drawable.ic_close),
+                contentDescription = "close",
+                modifier = Modifier.size(40.dp)
+            )
+        }
 
         Column(
             modifier = Modifier
@@ -205,7 +222,6 @@ fun UserInformationComponent(
     authViewModel: AuthViewModel
 ) {
     val userState = authViewModel.userDataInfoState.collectAsState()
-
     Column(
         modifier = modifier
             .padding(top = 70.dp)
@@ -227,7 +243,6 @@ fun UserInformationComponent(
             modifier = Modifier
                 .fillMaxWidth()
         ) {
-
             TextFieldComponent(
                 value = userState.value.email,
                 textFieldData = TextFieldData("Почта", "Введите почту"),
