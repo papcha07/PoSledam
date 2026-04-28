@@ -4,8 +4,10 @@ import ApiResponse
 import apiService.AuthService
 import domain.model.LoginInfo
 import domain.repository.AuthRepository
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.withContext
 import model.auth.request.LoginRequest
 import model.auth.request.RegisterRequest
 import model.auth.request.SocialMedia
@@ -18,24 +20,26 @@ class AuthRepositoryImpl(
 ) : AuthRepository {
 
     override suspend fun register(registerInfo: UserDataInfo): Pair<Boolean, Int?> {
-        val resultOfResponse = apiService.register(
-            registerRequest = RegisterRequest(
-                email = registerInfo.email,
-                password = registerInfo.password,
-                firstName = registerInfo.name,
-                description = registerInfo.description,
-                contacts = registerInfo.contacts.map { contact ->
-                    SocialMedia(
-                        contactType = contact.contactType ?: 0,
-                        url = contact.url
-                    )
-                }
+        return withContext(Dispatchers.IO) {
+            val resultOfResponse = apiService.register(
+                registerRequest = RegisterRequest(
+                    email = registerInfo.email,
+                    password = registerInfo.password,
+                    firstName = registerInfo.name,
+                    description = registerInfo.description,
+                    contacts = registerInfo.contacts.map { contact ->
+                        SocialMedia(
+                            contactType = contact.contactType ?: 0,
+                            url = contact.url
+                        )
+                    }
+                )
             )
-        )
 
-        return when (resultOfResponse) {
-            is ApiResponse.Error -> Pair(false, resultOfResponse.errorCode)
-            is ApiResponse.Success<RegisterResponse> -> Pair(true, null)
+            when (resultOfResponse) {
+                is ApiResponse.Error -> Pair(false, resultOfResponse.errorCode)
+                is ApiResponse.Success<RegisterResponse> -> Pair(true, null)
+            }
         }
     }
 
