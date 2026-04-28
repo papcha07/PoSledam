@@ -26,7 +26,6 @@ fun getAuthInteractor() = module {
     factory<AuthInteractor> {
         AuthInteractorImpl(
             authRepository = get(),
-            tokenRepository = get()
         )
     }
 }
