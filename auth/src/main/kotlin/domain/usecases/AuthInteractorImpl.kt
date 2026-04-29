@@ -12,6 +12,5 @@ class AuthInteractorImpl(
     override suspend fun register(registerInfo: UserDataInfo) =
         authRepository.register(registerInfo)
 
-    override suspend fun login(loginInfo: LoginInfo): Flow<Pair<Boolean, Int?>> =
-        authRepository.login(loginInfo)
+    override suspend fun login(loginInfo: LoginInfo): Pair<Boolean, Int?> = authRepository.login(loginInfo)
 }

@@ -6,14 +6,11 @@ import apiService.AuthService
 import domain.model.LoginInfo
 import domain.repository.AuthRepository
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.withContext
 import model.auth.request.LoginRequest
 import model.auth.request.RegisterRequest
 import model.auth.request.SocialMedia
 import model.auth.response.LoginResponse
-import model.auth.response.RegisterResponse
 import ui.model.UserDataInfo
 
 class AuthRepositoryImpl(
@@ -47,20 +44,22 @@ class AuthRepositoryImpl(
     }
 
 
-    override suspend fun login(loginInfo: LoginInfo): Flow<Pair<Boolean, Int?>> = flow {
-        val result = apiService.login(
-            loginRequest = LoginRequest(
-                email = loginInfo.email,
-                password = loginInfo.password
+    override suspend fun login(loginInfo: LoginInfo): Pair<Boolean, Int?> {
+        return withContext(Dispatchers.IO) {
+            val result = apiService.login(
+                loginRequest = LoginRequest(
+                    email = loginInfo.email,
+                    password = loginInfo.password
+                )
             )
-        )
-        when (result) {
-            is ApiResponse.Error -> {
-                emit(Pair(false, result.errorCode))
-            }
+            when (result) {
+                is ApiResponse.Error -> {
+                    Pair(false, result.errorCode)
+                }
 
-            is ApiResponse.Success<LoginResponse> -> {
-                emit(Pair(true, null))
+                is ApiResponse.Success<LoginResponse> -> {
+                    Pair(true, null)
+                }
             }
         }
     }
