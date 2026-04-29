@@ -1,4 +1,4 @@
-package ui
+package ui.other
 
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
@@ -34,7 +34,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.example.core.R
-import ui.model.OnboardingData
+import ui.model.data.OnboardingData
 import ui.theme.ActivePagerState
 import ui.theme.EnterButton
 import ui.theme.Primary

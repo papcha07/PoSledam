@@ -10,7 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import ui.model.TextFieldData
+import ui.model.data.TextFieldData
 import ui.theme.Ser
 import ui.theme.registerEditTextColor
 import ui.theme.textHint

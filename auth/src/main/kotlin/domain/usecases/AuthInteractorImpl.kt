@@ -2,8 +2,7 @@ package usecases
 
 import domain.model.LoginInfo
 import domain.repository.AuthRepository
-import kotlinx.coroutines.flow.Flow
-import ui.model.UserDataInfo
+import ui.model.data.UserDataInfo
 
 class AuthInteractorImpl(
     private val authRepository: AuthRepository,

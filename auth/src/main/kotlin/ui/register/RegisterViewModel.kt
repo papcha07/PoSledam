@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import ui.model.UserDataInfo
+import ui.model.data.UserDataInfo
 import ui.model.state.AuthScreenState
 import usecases.AuthInteractor
 

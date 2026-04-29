@@ -41,13 +41,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.core.R
 import kotlinx.coroutines.delay
-import ui.RegisterViewModel
 import ui.components.AuthButton
 import ui.components.TextFieldComponent
 import ui.components.default_component.SocialTextFieldComponent
-import ui.model.RegisterScreenState
-import ui.model.TextFieldData
-import ui.model.getContact
+import ui.model.data.TextFieldData
+import ui.model.data.getContact
+import ui.model.state.AuthScreenState
 import ui.theme.Primary
 import ui.theme.buttonPrimary
 import ui.theme.textHint
@@ -78,13 +77,14 @@ fun RegisterScreen(
         )
 
         when (registerUiState) {
-            RegisterScreenState.Idle -> {}
-            RegisterScreenState.Loading -> CircularProgressIndicator(
+            AuthScreenState.Idle -> {}
+            AuthScreenState.Loading -> CircularProgressIndicator(
                 modifier = Modifier.align(Alignment.Center)
             )
-            RegisterScreenState.Success -> goToLoginScreen()
-            is RegisterScreenState.Error -> {
-                AnimatedToast((registerUiState as RegisterScreenState.Error).message)
+
+            AuthScreenState.Success -> goToLoginScreen()
+            is AuthScreenState.Error -> {
+                AnimatedToast((registerUiState as AuthScreenState.Error).message)
             }
         }
     }

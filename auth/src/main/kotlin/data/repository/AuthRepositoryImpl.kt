@@ -11,7 +11,7 @@ import model.auth.request.LoginRequest
 import model.auth.request.RegisterRequest
 import model.auth.request.SocialMedia
 import model.auth.response.LoginResponse
-import ui.model.UserDataInfo
+import ui.model.data.UserDataInfo
 
 class AuthRepositoryImpl(
     private val apiService: AuthService,

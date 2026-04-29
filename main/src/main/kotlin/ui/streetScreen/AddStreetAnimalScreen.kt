@@ -34,7 +34,7 @@ import ui.components.CurrentLocationMap
 import ui.components.EventDateComponent
 import ui.components.other.TextFieldComponent
 import ui.components.slider.PhotosPager
-import ui.model.TextFieldData
+import ui.model.data.TextFieldData
 import ui.register.AnimatedToast
 import ui.theme.addressText
 import ui.theme.backgroundColor

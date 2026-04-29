@@ -6,11 +6,11 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import org.koin.androidx.compose.koinViewModel
-import ui.EnterScreen
-import ui.OnBoardingScreen
-import ui.RegisterViewModel
+import ui.other.EnterScreen
+import ui.other.OnBoardingScreen
 import ui.login.LoginScreen
 import ui.register.RegisterScreen
+import ui.register.RegisterViewModel
 
 sealed class AuthRoute(val route: String) {
     object OnBoarding : AuthRoute("onBoarding")

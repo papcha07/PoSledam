@@ -1,8 +1,6 @@
 package domain.interactor
 
 import ApiResponse
-import domain.models.AdvertInfo
-import ui.model.UserDataInfo
 import ui.model.UserDataUiInfo
 
 interface MainInteractor {

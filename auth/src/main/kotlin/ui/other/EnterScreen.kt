@@ -1,4 +1,4 @@
-package ui
+package ui.other
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.example.core.R
 import ui.components.AuthButton
+import ui.register.RegisterViewModel
 import ui.theme.Primary
 import ui.theme.buttonPrimary
 

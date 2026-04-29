@@ -1,7 +1,7 @@
 package usecases
 
 import domain.model.LoginInfo
-import ui.model.UserDataInfo
+import ui.model.data.UserDataInfo
 
 interface AuthInteractor {
     suspend fun register(registerInfo: UserDataInfo): Pair<Boolean, Int?>
