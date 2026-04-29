@@ -13,7 +13,7 @@ data class Loading(
     val isLoading: Boolean = false
 )
 
-class AuthViewModel(
+class LoginViewModel(
     private val authInteractor: AuthInteractor
 ) : ViewModel() {
     private val _loginUiState = MutableSharedFlow<AuthScreenState>()
@@ -21,9 +21,9 @@ class AuthViewModel(
 
     fun login(loginInfo: LoginInfo) {
         viewModelScope.launch {
+            _loginUiState.emit(AuthScreenState.Loading)
             val loginResult = authInteractor.login(loginInfo)
             val isSuccess = loginResult.first
-
             if (isSuccess) {
                 _loginUiState.emit(AuthScreenState.Success)
                 return@launch

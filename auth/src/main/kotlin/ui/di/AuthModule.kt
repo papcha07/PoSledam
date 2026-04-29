@@ -5,8 +5,8 @@ import domain.repository.AuthRepository
 import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
-import ui.login.AuthViewModel
 import ui.RegisterViewModel
+import ui.login.LoginViewModel
 import ui.other.Converter
 import usecases.AuthInteractor
 import usecases.AuthInteractorImpl
@@ -33,7 +33,7 @@ fun getAuthInteractor() = module {
 
 fun getAuthViewModel() = module {
     viewModel {
-        AuthViewModel(
+        LoginViewModel(
             authInteractor = get()
         )
     }
