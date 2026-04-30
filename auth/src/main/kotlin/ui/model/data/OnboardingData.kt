@@ -1,4 +1,4 @@
-package ui.model
+package ui.model.data
 data class OnboardingData(
     val title: String,
     val description: String,

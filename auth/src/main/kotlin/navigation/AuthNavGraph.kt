@@ -6,11 +6,11 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import org.koin.androidx.compose.koinViewModel
-import ui.AuthViewModel
-import ui.EnterScreen
-import ui.OnBoardingScreen
+import ui.other.EnterScreen
+import ui.other.OnBoardingScreen
 import ui.login.LoginScreen
 import ui.register.RegisterScreen
+import ui.register.RegisterViewModel
 
 sealed class AuthRoute(val route: String) {
     object OnBoarding : AuthRoute("onBoarding")
@@ -36,10 +36,11 @@ fun NavGraphBuilder.authNavGraph(navController: NavController, route: String = "
             val parentEntry = remember(backStackEntry) {
                 navController.getBackStackEntry(route)
             }
-            val authViewModel: AuthViewModel = koinViewModel(viewModelStoreOwner = parentEntry)
+            val registerViewModel: RegisterViewModel =
+                koinViewModel(viewModelStoreOwner = parentEntry)
 
             EnterScreen(
-                authViewModel = authViewModel,
+                registerViewModel = registerViewModel,
                 navigateToLoginScreen = {
                     navController.navigate(AuthRoute.Login.route)
                 },
@@ -62,12 +63,16 @@ fun NavGraphBuilder.authNavGraph(navController: NavController, route: String = "
             val parentEntry = remember(backStackEntry) {
                 navController.getBackStackEntry(route)
             }
-            val authViewModel: AuthViewModel = koinViewModel(viewModelStoreOwner = parentEntry)
+            val registerViewModel: RegisterViewModel =
+                koinViewModel(viewModelStoreOwner = parentEntry)
 
             RegisterScreen(
-                viewModel = authViewModel,
+                registerViewModel = registerViewModel,
                 goToLoginScreen = {
-                    navController.navigate(AuthRoute.Login.route)
+                    navController.navigate(AuthRoute.Login.route) {
+                        popUpTo(0) { inclusive = true }
+                        launchSingleTop = true
+                    }
                 },
                 goPreviewScreen = {
                     navController.popBackStack()

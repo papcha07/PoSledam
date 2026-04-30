@@ -25,7 +25,6 @@ import kotlinx.coroutines.withContext
 import model.auth.request.LoginRequest
 import model.auth.request.RegisterRequest
 import model.auth.response.LoginResponse
-import model.auth.response.RegisterResponse
 import model.errorResponse.ErrorResponse
 import storage.TokenRepository
 import java.io.File
@@ -35,7 +34,7 @@ class AuthService(
     private val tokenRepository: TokenRepository
 ) {
 
-    suspend fun register(registerRequest: RegisterRequest): ApiResponse<RegisterResponse> {
+    suspend fun register(registerRequest: RegisterRequest): ApiResponse<Unit> {
         return try {
             val response = client.submitFormWithBinaryData(
                 url = "api/auth/register",
@@ -51,7 +50,7 @@ class AuthService(
                 }
             )
             if (response.status.isSuccess()) {
-                ApiResponse.Success(response.body<RegisterResponse>())
+                ApiResponse.Success(Unit)
             } else {
                 val response = response.body<ErrorResponse>()
                 Log.d("errorRegisterResponse", response.toString())
@@ -67,6 +66,7 @@ class AuthService(
             }
 
         } catch (e: Exception) {
+            Log.d("RegisterViewModel", e.message.toString())
             ApiResponse.Error(-1)
         }
     }

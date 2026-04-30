@@ -18,18 +18,14 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.focusModifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -43,11 +39,10 @@ import androidx.compose.ui.unit.sp
 import com.example.core.R
 import domain.model.LoginInfo
 import org.koin.androidx.compose.koinViewModel
-import ui.AuthViewModel
 import ui.components.ButtonComponent
 import ui.components.TextFieldComponent
-import ui.model.RegisterScreenState
-import ui.model.TextFieldData
+import ui.model.data.TextFieldData
+import ui.model.state.AuthScreenState
 import ui.register.AnimatedToast
 import ui.theme.EnterOverlayColor
 import ui.theme.buttonPrimary
@@ -55,71 +50,45 @@ import ui.theme.buttonPrimary
 @Composable
 fun LoginScreen(
     modifier: Modifier = Modifier,
-    viewModel: AuthViewModel = koinViewModel(),
+    viewModel: LoginViewModel = koinViewModel(),
     goToMainProfile: () -> Unit
 ) {
-    val loadingState = viewModel.loadingState.collectAsState()
-    var toastMessage by remember { mutableStateOf<String?>(null) }
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(color = Color.White)
+    ) {
+        val loginUiState by viewModel.loginUiState.collectAsState("")
 
-
-    LaunchedEffect(Unit) {
-        viewModel.loginUiState.collect { state ->
-            when (state) {
-                is RegisterScreenState.Error -> {
-                    toastMessage = state.message
-                }
-
-                RegisterScreenState.Loading -> {
-
-                }
-
-                RegisterScreenState.Success -> {
-                    goToMainProfile()
-                }
-            }
-        }
-    }
-
-    Scaffold(modifier = modifier.background(color = Color.White), containerColor = Color.White)
-    { innerPadding ->
-        Box(
+        LoginBackground(Modifier.fillMaxSize())
+        EnterBottomComponent(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-                .background(color = Color.White)
-        ) {
-            LoginBackground(Modifier.fillMaxSize())
-            EnterBottomComponent(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .align(Alignment.BottomCenter)
-                    .fillMaxHeight(2.4f / 4f),
-                onLogin = { info ->
-                    viewModel.login(info)
-                },
-                googleEnter = {
+                .fillMaxWidth()
+                .align(Alignment.BottomCenter)
+                .fillMaxHeight(2.4f / 4f),
+            onLogin = { info ->
+                viewModel.login(info)
+            },
+            googleEnter = {
 
-                }
-            )
-            toastMessage?.let { msg ->
-                AnimatedToast(
-                    message = msg,
-                    backgroundColor = Color(0xFFCE93D8),
-                    textColor = Color.White,
-                    modifier = Modifier
-                        .align(Alignment.TopCenter)
-                        .padding(top = 48.dp),
-                    onDismiss = {
-                        toastMessage = null
-                    }
-                )
             }
-            if (loadingState.value.isLoading) {
-                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+        )
+
+        when (loginUiState) {
+            AuthScreenState.Idle -> {}
+            AuthScreenState.Loading -> CircularProgressIndicator(
+                modifier = Modifier.align(Alignment.Center)
+            )
+
+            AuthScreenState.Success -> {
+                goToMainProfile()
+            }
+
+            is AuthScreenState.Error -> {
+                AnimatedToast((loginUiState as AuthScreenState.Error).message)
             }
         }
     }
-
 }
 
 

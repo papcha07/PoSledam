@@ -41,13 +41,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.core.R
 import kotlinx.coroutines.delay
-import ui.AuthViewModel
 import ui.components.AuthButton
 import ui.components.TextFieldComponent
 import ui.components.default_component.SocialTextFieldComponent
-import ui.model.RegisterScreenState
-import ui.model.TextFieldData
-import ui.model.getContact
+import ui.model.data.TextFieldData
+import ui.model.data.getContact
+import ui.model.state.AuthScreenState
 import ui.theme.Primary
 import ui.theme.buttonPrimary
 import ui.theme.textHint
@@ -55,72 +54,39 @@ import ui.theme.textHint
 
 @Composable
 fun RegisterScreen(
-    viewModel: AuthViewModel,
+    registerViewModel: RegisterViewModel,
     goToLoginScreen: () -> Unit,
     goPreviewScreen: () -> Unit
 ) {
-
-    var toastMessage by remember { mutableStateOf<String?>(null) }
-    val loadingState = viewModel.loadingState.collectAsState()
-
-    LaunchedEffect(Unit) {
-        viewModel.registerUiState.collect { event ->
-            when (event) {
-                is RegisterScreenState.Error -> {
-                    toastMessage = event.message
-                }
-
-                is RegisterScreenState.Success -> {
-                    goToLoginScreen()
-                    viewModel.resetPage()
-                }
-
-                RegisterScreenState.Loading -> {
-
-                }
-            }
-        }
-    }
-
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.White)
     ) {
+        val registerUiState by registerViewModel.registerUiState.collectAsState("")
 
         SvgOverlay(Modifier.fillMaxSize())
-
         RegisterBottomComponent(
             modifier = Modifier
                 .fillMaxWidth()
                 .align(Alignment.BottomCenter)
                 .fillMaxHeight(1.8f / 2f),
-            authViewModel = viewModel
-        ) {
-            goPreviewScreen()
-        }
+            registerViewModel = registerViewModel,
+            goPreviewScreen = goPreviewScreen
 
-        toastMessage?.let { msg ->
-            AnimatedToast(
-                message = msg,
-                backgroundColor = Color(0xFFCE93D8),
-                textColor = Color.White,
-                modifier = Modifier
-                    .align(Alignment.TopCenter)
-                    .padding(top = 48.dp),
-                onDismiss = {
-                    toastMessage = null
-                }
-            )
-        }
+        )
 
-        if (loadingState.value.isLoading) {
-            CircularProgressIndicator(
+        when (registerUiState) {
+            AuthScreenState.Idle -> {}
+            AuthScreenState.Loading -> CircularProgressIndicator(
                 modifier = Modifier.align(Alignment.Center)
             )
+
+            AuthScreenState.Success -> goToLoginScreen()
+            is AuthScreenState.Error -> {
+                AnimatedToast((registerUiState as AuthScreenState.Error).message)
+            }
         }
-
-
     }
 }
 
@@ -128,11 +94,11 @@ fun RegisterScreen(
 @Composable
 fun RegisterBottomComponent(
     modifier: Modifier = Modifier,
-    authViewModel: AuthViewModel,
+    registerViewModel: RegisterViewModel,
     goPreviewScreen: () -> Unit
 ) {
 
-    val currentPage = authViewModel.currentPage.collectAsState()
+    val currentPage = registerViewModel.currentPage.collectAsState()
 
     Box(
         modifier = modifier
@@ -152,7 +118,7 @@ fun RegisterBottomComponent(
                     if (currentPage.value == 0) {
                         goPreviewScreen()
                     } else {
-                        authViewModel.onBackClicker()
+                        registerViewModel.onBackClicker()
                     }
                 },
             contentAlignment = Alignment.Center
@@ -188,11 +154,11 @@ fun RegisterBottomComponent(
         ) {
             when (currentPage.value) {
                 0 -> {
-                    UserInformationComponent(authViewModel = authViewModel)
+                    UserInformationComponent(registerViewModel = registerViewModel)
                 }
 
                 1 -> {
-                    SocialMediaComponent(authViewModel = authViewModel)
+                    SocialMediaComponent(registerViewModel = registerViewModel)
                 }
             }
             Spacer(Modifier.height(52.dp))
@@ -204,11 +170,11 @@ fun RegisterBottomComponent(
             ) {
                 when (currentPage.value) {
                     1 -> {
-                        authViewModel.register()
+                        registerViewModel.registerUser()
                     }
 
                     else -> {
-                        authViewModel.onNextClicked()
+                        registerViewModel.onNextClicked()
                     }
                 }
             }
@@ -219,9 +185,9 @@ fun RegisterBottomComponent(
 @Composable
 fun UserInformationComponent(
     modifier: Modifier = Modifier,
-    authViewModel: AuthViewModel
+    registerViewModel: RegisterViewModel
 ) {
-    val userState = authViewModel.userDataInfoState.collectAsState()
+    val userState = registerViewModel.userDataInfoState.collectAsState()
     Column(
         modifier = modifier
             .padding(top = 70.dp)
@@ -246,25 +212,25 @@ fun UserInformationComponent(
             TextFieldComponent(
                 value = userState.value.email,
                 textFieldData = TextFieldData("Почта", "Введите почту"),
-                onValueChange = authViewModel::setEmail
+                onValueChange = registerViewModel::setEmail
             )
             Spacer(Modifier.height(8.dp))
             TextFieldComponent(
                 value = userState.value.password,
                 textFieldData = TextFieldData("Пароль", "Введите пароль"),
-                onValueChange = authViewModel::setPassword
+                onValueChange = registerViewModel::setPassword
             )
             Spacer(Modifier.height(8.dp))
             TextFieldComponent(
                 value = userState.value.name,
                 textFieldData = TextFieldData("Ваше имя", "Введите имя"),
-                onValueChange = authViewModel::setName
+                onValueChange = registerViewModel::setName
             )
             Spacer(Modifier.height(8.dp))
             TextFieldComponent(
                 value = userState.value.description,
                 textFieldData = TextFieldData("Описание", "Напишите небольшой текст о себе"),
-                onValueChange = authViewModel::setDescription
+                onValueChange = registerViewModel::setDescription
             )
         }
     }
@@ -273,9 +239,9 @@ fun UserInformationComponent(
 @Composable
 fun SocialMediaComponent(
     modifier: Modifier = Modifier,
-    authViewModel: AuthViewModel
+    registerViewModel: RegisterViewModel
 ) {
-    val userState = authViewModel.userDataInfoState.collectAsState()
+    val userState = registerViewModel.userDataInfoState.collectAsState()
 
     Column(
         modifier = modifier
@@ -304,7 +270,7 @@ fun SocialMediaComponent(
                 "",
                 "Вставьте ссылку на VK"
             ),
-            onValueChange = authViewModel::addVk,
+            onValueChange = registerViewModel::addVk,
             icon = R.drawable.ic_vk
         )
         Spacer(Modifier.height(8.dp))
@@ -314,7 +280,7 @@ fun SocialMediaComponent(
                 "",
                 "Вставьте ссылку на Telegram"
             ),
-            onValueChange = authViewModel::addTelegram,
+            onValueChange = registerViewModel::addTelegram,
             icon = R.drawable.ic_tg
         )
         Spacer(Modifier.height(8.dp))
@@ -324,7 +290,7 @@ fun SocialMediaComponent(
                 "",
                 "Вставьте ссылку на Whatsapp"
             ),
-            onValueChange = authViewModel::addWhatsApp,
+            onValueChange = registerViewModel::addWhatsApp,
             icon = R.drawable.ic_whatsapp
         )
     }

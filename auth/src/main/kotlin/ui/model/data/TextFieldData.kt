@@ -1,4 +1,4 @@
-package ui.model
+package ui.model.data
 
 data class TextFieldData(
     val label: String,

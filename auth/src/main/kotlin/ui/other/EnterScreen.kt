@@ -1,4 +1,4 @@
-package ui
+package ui.other
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.example.core.R
 import ui.components.AuthButton
+import ui.register.RegisterViewModel
 import ui.theme.Primary
 import ui.theme.buttonPrimary
 
@@ -30,7 +31,7 @@ import ui.theme.buttonPrimary
 fun EnterScreen(
     navigateToLoginScreen: () -> Unit,
     navigateToRegisterScreen: () -> Unit,
-    authViewModel: AuthViewModel
+    registerViewModel: RegisterViewModel
 ) {
     ConstraintLayout(
         modifier = Modifier
@@ -54,7 +55,7 @@ fun EnterScreen(
                 end.linkTo(parent.end)
                 bottom.linkTo(parent.bottom)
             },
-            viewModel = authViewModel,
+            registerViewModel = registerViewModel,
             goToRegisterScreen = {
                 navigateToRegisterScreen()
             },
@@ -92,7 +93,7 @@ fun SvgOverlay(modifier: Modifier) {
 @Composable
 fun CardPreviewComponent(
     modifier: Modifier,
-    viewModel: AuthViewModel,
+    registerViewModel: RegisterViewModel,
     goToRegisterScreen: () -> Unit,
     goToLoginScreen: () -> Unit
 ) {
@@ -129,7 +130,7 @@ fun CardPreviewComponent(
                 text = "Зарегистрироваться",
                 textColor = Color.Black
             ) {
-                viewModel.resetPage()
+                registerViewModel.resetPage()
                 goToRegisterScreen()
             }
 
