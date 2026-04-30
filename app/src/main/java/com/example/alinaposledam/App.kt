@@ -3,7 +3,7 @@ package com.example.alinaposledam
 import android.app.Application
 import android.util.Log
 import androidx.work.Configuration
-import com.example.alinaposledam.worker.factory.KoinWorkerFactory
+import com.example.alinaposledam.worker.location_worker.factory.KoinWorkerFactory
 import com.google.firebase.FirebaseApp
 import dataStoreModule
 import di.getActionViewModel

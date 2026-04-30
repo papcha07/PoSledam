@@ -20,6 +20,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -28,6 +29,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -50,45 +52,76 @@ import ui.theme.buttonPrimary
 @Composable
 fun LoginScreen(
     modifier: Modifier = Modifier,
-    viewModel: LoginViewModel = koinViewModel(),
-    goToMainProfile: () -> Unit
+    state: AuthScreenState = AuthScreenState.Idle,
+    onLogin: (LoginInfo) -> Unit,
+    googleEnter: () -> Unit = {}
 ) {
     Box(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .background(color = Color.White)
     ) {
-        val loginUiState by viewModel.loginUiState.collectAsState("")
+        LoginBackground(
+            modifier = Modifier.fillMaxSize()
+        )
 
-        LoginBackground(Modifier.fillMaxSize())
         EnterBottomComponent(
             modifier = Modifier
                 .fillMaxWidth()
                 .align(Alignment.BottomCenter)
                 .fillMaxHeight(2.4f / 4f),
-            onLogin = { info ->
-                viewModel.login(info)
-            },
-            googleEnter = {
-
-            }
+            onLogin = onLogin,
+            googleEnter = googleEnter
         )
 
-        when (loginUiState) {
-            AuthScreenState.Idle -> {}
-            AuthScreenState.Loading -> CircularProgressIndicator(
-                modifier = Modifier.align(Alignment.Center)
-            )
+        when (state) {
+            AuthScreenState.Idle -> Unit
 
-            AuthScreenState.Success -> {
-                goToMainProfile()
+            AuthScreenState.Loading -> {
+                CircularProgressIndicator(
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .testTag("login_loading")
+                )
             }
 
+            AuthScreenState.Success -> Unit
+
             is AuthScreenState.Error -> {
-                AnimatedToast((loginUiState as AuthScreenState.Error).message)
+                AnimatedToast(
+                    message = state.message
+                )
             }
         }
     }
+}
+
+
+@Composable
+fun LoginRoute(
+    modifier: Modifier = Modifier,
+    viewModel: LoginViewModel = koinViewModel(),
+    goToMainProfile: () -> Unit
+) {
+    val loginUiState by viewModel.loginUiState.collectAsState(
+        initial = AuthScreenState.Idle
+    )
+
+    LaunchedEffect(loginUiState) {
+        if (loginUiState is AuthScreenState.Success) {
+            goToMainProfile()
+        }
+    }
+
+    LoginScreen(
+        modifier = modifier,
+        state = loginUiState,
+        onLogin = viewModel::login,
+        googleEnter = {
+
+        }
+    )
+
 }
 
 
@@ -185,15 +218,18 @@ fun EnterBottomComponent(
         ) {
             textFields.forEachIndexed { index, data ->
                 TextFieldComponent(
-                    value = values[index].value,
+                    modifier = Modifier.testTag("${index}_field"),
                     textFieldData = data,
+                    value = values[index].value,
                 ) {
                     values[index].value = it
                 }
                 Spacer(Modifier.height(8.dp))
             }
             ButtonComponent(
-                modifier = Modifier.height(54.dp),
+                modifier = Modifier
+                    .testTag("login_button")
+                    .height(54.dp),
                 color = buttonPrimary,
                 text = "Войти",
                 textColor = Color.White,

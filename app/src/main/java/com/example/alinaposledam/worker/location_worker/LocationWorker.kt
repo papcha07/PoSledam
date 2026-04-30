@@ -1,4 +1,4 @@
-package com.example.alinaposledam.worker
+package com.example.alinaposledam.worker.location_worker
 
 import android.content.Context
 import android.util.Log

@@ -6,9 +6,9 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import org.koin.androidx.compose.koinViewModel
+import ui.login.LoginRoute
 import ui.other.EnterScreen
 import ui.other.OnBoardingScreen
-import ui.login.LoginScreen
 import ui.register.RegisterScreen
 import ui.register.RegisterViewModel
 
@@ -51,7 +51,7 @@ fun NavGraphBuilder.authNavGraph(navController: NavController, route: String = "
         }
 
         composable(AuthRoute.Login.route) {
-            LoginScreen() {
+            LoginRoute {
                 navController.navigate("main") {
                     popUpTo("auth") { inclusive = true }
                     launchSingleTop = true

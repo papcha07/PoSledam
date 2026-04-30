@@ -35,6 +35,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -346,6 +347,7 @@ fun AnimatedToast(
     ) {
         Box(
             modifier = modifier
+                .testTag("toast_message")
                 .padding(16.dp)
                 .fillMaxWidth()
                 .wrapContentHeight()

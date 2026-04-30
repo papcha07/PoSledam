@@ -17,13 +17,14 @@ import ui.theme.textHint
 
 @Composable
 fun TextFieldComponent(
+    modifier: Modifier = Modifier,
     value: String,
     textFieldData: TextFieldData,
     onValueChange: (String) -> Unit,
 ) {
 
     TextField(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(10.dp)),
         value = value,

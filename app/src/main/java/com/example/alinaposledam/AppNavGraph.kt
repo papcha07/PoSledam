@@ -20,7 +20,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.alinaposledam.location.RequestLocationPermission
-import com.example.alinaposledam.worker.WorkerInteractor
+import com.example.alinaposledam.worker.location_worker.WorkerInteractor
 import navigation.authNavGraph
 import navigation.mainNavGraph
 import navigation.profileNavGraph

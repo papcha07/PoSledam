@@ -24,5 +24,16 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x ./gradlew
 
+      - name: Run unit tests
+        run: ./gradlew testDebugUnitTest
+
       - name: Build Debug APK
         run: ./gradlew assembleDebug
+
+      - name: Run UI tests
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 35
+          target: google_apis
+          arch: x86_64
+          script: ./gradlew connectedDebugAndroidTest
