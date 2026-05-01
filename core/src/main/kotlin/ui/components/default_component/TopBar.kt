@@ -43,7 +43,7 @@ fun ToolBar(
             .fillMaxWidth()
             .background(Color.White)
             .statusBarsPadding() // <-- вот это
-            .padding(horizontal = 16.dp)
+            .padding(horizontal = 16.dp, vertical = 18.dp)
     ) {
 
         if (toolBarInfo.backArrow) {
@@ -70,8 +70,7 @@ fun ToolBar(
                 modifier = Modifier.align(Alignment.Center)
             )
         }
-        // Заголовок
-        // Действие
+
         toolBarInfo.actionIcon?.let { iconRes ->
             IconButton(
                 onClick = {
