@@ -26,6 +26,7 @@ import ui.components.AnimalCard
 import ui.components.PetButton
 import ui.components.default_component.TabRowSelection
 import ui.components.placeholder.EmptyAnimalList
+import ui.components.placeholder.ErrorPlaceholder
 import ui.components.profilebar.ProfileBarComponent
 import ui.model.TabRowInfo
 import ui.theme.backgroundColor
@@ -153,9 +154,7 @@ fun PetLazyRow(
             }
 
             ProfileScreenState.Failed -> {
-                Box(Modifier.testTag("failed")) {
-
-                }
+                ErrorPlaceholder(modifier = Modifier.align(Alignment.Center))
             }
 
             ProfileScreenState.Idle -> {

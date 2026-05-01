@@ -11,7 +11,7 @@ import org.koin.androidx.compose.koinViewModel
 import ui.DetailPetScreen
 import ui.FilterViewModel
 import ui.components.FiltersScreen
-import ui.components.SearchScreen
+import ui.SearchScreen
 import ui.profile.PersonDto
 import ui.profile.SearchProfileScreen
 import java.net.URLEncoder

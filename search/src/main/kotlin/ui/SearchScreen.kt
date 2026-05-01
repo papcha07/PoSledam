@@ -1,4 +1,4 @@
-package ui.components
+package ui
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -21,7 +21,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -42,12 +41,10 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.core.R
 import domain.models.PetUiPreview
-import ui.BASE_URL
-import ui.FilterChipUi
-import ui.FilterViewModel
 import ui.components.default_component.TabRowSelection
 import ui.components.default_component.ToolBar
 import ui.components.default_component.ToolBarInfo
+import ui.components.placeholder.ErrorPlaceholder
 import ui.model.TabRowInfo
 import ui.models.SearchState
 import ui.theme.addressSearchColor
@@ -368,15 +365,9 @@ fun FoundPetsScreen(
             }
 
             is SearchState.Error -> {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text("Ошибка: ${state.message}")
-                    Spacer(Modifier.height(16.dp))
-                    Button(onClick = { viewModel.findFoundPets() }) {
-                        Text("Повторить")
-                    }
-                }
+                ErrorPlaceholder(
+                    modifier = Modifier.align(Alignment.Center)
+                )
             }
         }
     }
@@ -428,15 +419,9 @@ fun MissingPetsScreen(
             }
 
             is SearchState.Error -> {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text("Ошибка: ${state.message}")
-                    Spacer(Modifier.height(16.dp))
-                    Button(onClick = { viewModel.findMissingPets() }) {
-                        Text("Повторить")
-                    }
-                }
+                ErrorPlaceholder(
+                    modifier = Modifier.align(Alignment.Center)
+                )
             }
         }
     }
@@ -452,8 +437,10 @@ fun PetsList(
     isFoundTab: Boolean
 ) {
     val currentTabCategory = viewModel.currentTab.collectAsState()
-    val hasMore = if (isFoundTab) viewModel.hasMoreFound.collectAsState() else viewModel.hasMoreMissing.collectAsState()
-    val isLoadingMore = if (isFoundTab) viewModel.isLoadingMoreFound.collectAsState() else viewModel.isLoadingMoreMissing.collectAsState()
+    val hasMore =
+        if (isFoundTab) viewModel.hasMoreFound.collectAsState() else viewModel.hasMoreMissing.collectAsState()
+    val isLoadingMore =
+        if (isFoundTab) viewModel.isLoadingMoreFound.collectAsState() else viewModel.isLoadingMoreMissing.collectAsState()
 
     val listState = rememberLazyListState()
 
