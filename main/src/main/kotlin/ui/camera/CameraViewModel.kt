@@ -1,4 +1,4 @@
-package ui.cameraScreen
+package ui.camera
 
 import android.net.Uri
 import android.util.Log
@@ -98,7 +98,6 @@ class CameraViewModel(
         _advertState.update {
             it.copy(eventDateUtc = utcFormat.format(now))
         }
-        Log.d("UTC-FORMAT", _advertState.value.eventDateUtc)
     }
 
     fun loadMyLocation() {
@@ -135,7 +134,7 @@ class CameraViewModel(
                 }
 
                 -1 -> {
-                    _toastState.emit("Проверьтре соединение с интернетом")
+                    _toastState.emit("Проверьте соединение с интернетом")
                 }
             }
         }

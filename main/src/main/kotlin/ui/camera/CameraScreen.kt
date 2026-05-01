@@ -1,4 +1,4 @@
-package ui.cameraScreen
+package ui.camera
 
 import android.content.Context
 import android.net.Uri

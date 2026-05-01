@@ -1,4 +1,4 @@
-package ui.cameraScreen
+package ui.camera
 
 import androidx.camera.view.LifecycleCameraController
 import androidx.camera.view.PreviewView
@@ -13,7 +13,6 @@ fun CameraPreview(
     controller: LifecycleCameraController,
     modifier: Modifier = Modifier
 ) {
-
     val lifecycleOwner = LocalLifecycleOwner.current
     AndroidView(
         modifier = modifier.fillMaxSize(),

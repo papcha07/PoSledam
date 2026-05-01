@@ -1,4 +1,4 @@
-package ui.streetScreen
+package ui.street
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
