@@ -13,6 +13,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -27,7 +28,7 @@ import ui.components.ButtonComponent
 import ui.components.CurrentLocationMap
 import ui.components.EventDateComponent
 import ui.components.other.TextFieldComponent
-import ui.components.slider.PhotosPager
+import ui.components.streetPager.StreetPhotoPager
 import ui.model.data.TextFieldData
 import ui.screen.camera.CameraViewModel
 import ui.theme.addressText
@@ -42,26 +43,28 @@ fun AddStreetAnimalScreen(
 ) {
     val advertState = cameraViewModel.advertState.collectAsState()
     val urisState = cameraViewModel.uris.collectAsState()
+    val scrollState = rememberScrollState()
+
+    LaunchedEffect(Unit) {
+        cameraViewModel.loadMyLocation()
+    }
 
     Box(modifier = modifier.fillMaxSize()) {
         Column(
             modifier = modifier
                 .background(color = backgroundColor)
                 .fillMaxSize()
-                .verticalScroll(rememberScrollState())
+                .verticalScroll(scrollState),
         ) {
-            PhotosPager(
-                modifier = Modifier.height(290.dp),
+            StreetPhotoPager(
                 photos = urisState.value,
-                onAddPhotoClick = onBack,
-                onRemovePhotoClick = { uri -> cameraViewModel.removePhoto(uri) }
+                returnToCameraScreen = onBack
             )
             Spacer(Modifier.height(4.dp))
             InformationComponent(
                 addDescription = cameraViewModel::addDescription,
                 advertState = advertState.value,
             )
-            Spacer(Modifier.height(16.dp))
         }
 
         PublishButtonRow(
@@ -108,14 +111,13 @@ private fun PublishButtonRow(
 fun InformationComponent(
     modifier: Modifier = Modifier,
     addDescription: (String) -> Unit,
-    updateCoordinate: (Double, Double) -> Unit,
     advertState: AdvertInfo
 ) {
 
     Box(
         modifier = modifier
             .background(color = Color.White, shape = RoundedCornerShape(20.dp))
-            .fillMaxWidth()
+            .fillMaxSize()
     ) {
         Column(
             modifier = Modifier
@@ -146,7 +148,7 @@ fun InformationComponent(
             CurrentLocationMap(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(160.dp)
+                    .height(180.dp)
                     .clip(RoundedCornerShape(12.dp)),
                 currentLocation = if (hasLocation) Point(
                     advertState.lat,
