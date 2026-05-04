@@ -15,9 +15,10 @@ import domain.repository.StreetRepository
 import org.koin.android.ext.koin.androidApplication
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
-import ui.camera.CameraViewModel
-import ui.mainScreen.MainScreenViewModel
-import ui.street.StreetPetViewModel
+import ui.other.timeUtils.DateTimeUtils
+import ui.screen.camera.CameraViewModel
+import ui.screen.mainScreen.MainScreenViewModel
+import ui.screen.street.StreetPetViewModel
 
 fun getMainModule() = module {
 

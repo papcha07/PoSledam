@@ -1,4 +1,4 @@
-package ui.camera
+package ui.screen.camera
 
 import androidx.camera.view.LifecycleCameraController
 import androidx.camera.view.PreviewView

@@ -1,4 +1,4 @@
-package ui.street
+package ui.screen.street
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box

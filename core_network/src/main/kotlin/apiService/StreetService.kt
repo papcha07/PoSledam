@@ -12,6 +12,8 @@ import io.ktor.client.request.get
 import io.ktor.http.Headers
 import io.ktor.http.HttpHeaders
 import io.ktor.http.isSuccess
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.io.File
 
 class StreetService(private val client: HttpClient) {
@@ -32,38 +34,36 @@ class StreetService(private val client: HttpClient) {
         streetAnimalRequest: StreetAnimalRequest,
         fileList: List<File>
     ): Int {
-        try {
-            val response = client.submitFormWithBinaryData(
-                url = "api/street-pet-announcement",
-                formData = formData {
-                    append("petType", streetAnimalRequest.petType)
-                    append("Location.Latitude", streetAnimalRequest.lat)
-                    append("Location.Longitude", streetAnimalRequest.lon)
-                    append("eventDate", streetAnimalRequest.eventDate)
-                    append("placeDescription", streetAnimalRequest.placeDescription)
-                    fileList.forEach { file ->
-                        append(
-                            key = "Images",
-                            value = file.readBytes(),
-                            headers = Headers.build {
-                                append(HttpHeaders.ContentType, "image/jpeg")
-                                append(
-                                    HttpHeaders.ContentDisposition,
-                                    "filename=\"${file.name}\""
-                                )
-                            }
-                        )
+        return withContext(Dispatchers.IO) {
+            try {
+                val response = client.submitFormWithBinaryData(
+                    url = "api/street-pet-announcement",
+                    formData = formData {
+                        append("petType", streetAnimalRequest.petType)
+                        append("Location.Latitude", streetAnimalRequest.lat)
+                        append("Location.Longitude", streetAnimalRequest.lon)
+                        append("eventDate", streetAnimalRequest.eventDate)
+                        append("placeDescription", streetAnimalRequest.placeDescription)
+                        fileList.forEach { file ->
+                            append(
+                                key = "Images",
+                                value = file.readBytes(),
+                                headers = Headers.build {
+                                    append(HttpHeaders.ContentType, "image/jpeg")
+                                    append(
+                                        HttpHeaders.ContentDisposition,
+                                        "filename=\"${file.name}\""
+                                    )
+                                }
+                            )
+                        }
                     }
-                }
-            )
-            if (response.status.isSuccess()) {
-                return 200
-            } else {
-                return 400
+                )
+                if (response.status.isSuccess()) 200 else 400
+            } catch (e: Exception) {
+                Log.d("createStreetAnimal", e.toString())
+                -1
             }
-        } catch (e: Exception) {
-            Log.d("createStreetAnimal", e.toString())
-            return -1
         }
 
     }

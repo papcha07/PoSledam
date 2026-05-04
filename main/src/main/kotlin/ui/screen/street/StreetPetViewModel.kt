@@ -1,4 +1,4 @@
-package ui.street
+package ui.screen.street
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
@@ -39,9 +39,5 @@ class StreetPetViewModel(
             Log.d("animalScreenState", animalScreenState.value.toString())
         }
     }
-
-
-
-
 
 }

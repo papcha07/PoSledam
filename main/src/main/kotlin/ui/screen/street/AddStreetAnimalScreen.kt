@@ -1,4 +1,4 @@
-package ui.street
+package ui.screen.street
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -23,13 +23,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.yandex.mapkit.geometry.Point
 import domain.models.AdvertInfo
-import ui.camera.CameraViewModel
 import ui.components.ButtonComponent
 import ui.components.CurrentLocationMap
 import ui.components.EventDateComponent
 import ui.components.other.TextFieldComponent
 import ui.components.slider.PhotosPager
 import ui.model.data.TextFieldData
+import ui.screen.camera.CameraViewModel
 import ui.theme.addressText
 import ui.theme.backgroundColor
 import ui.theme.buttonPrimary
@@ -70,7 +70,6 @@ fun AddStreetAnimalScreen(
                 .fillMaxWidth(),
             onClick = cameraViewModel::createStreetAdvert
         )
-
     }
 
 }
@@ -109,6 +108,7 @@ private fun PublishButtonRow(
 fun InformationComponent(
     modifier: Modifier = Modifier,
     addDescription: (String) -> Unit,
+    updateCoordinate: (Double, Double) -> Unit,
     advertState: AdvertInfo
 ) {
 
@@ -152,7 +152,9 @@ fun InformationComponent(
                     advertState.lat,
                     advertState.lon
                 ) else null,
-                onLocationResolved = { _, _ -> }
+                onLocationResolved = { lat, lon ->
+
+                }
             )
             Spacer(Modifier.height(10.dp))
             Text(

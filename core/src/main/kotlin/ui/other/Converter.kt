@@ -8,7 +8,6 @@ import java.io.File
 import java.io.FileOutputStream
 
 class Converter(private val context: Context) {
-
     suspend fun convertToFile(uri: String): File = withContext(Dispatchers.IO) {
         val newUri = uri.toUri()
         val mimeType = context.contentResolver.getType(newUri) ?: "image/jpeg"
@@ -26,5 +25,4 @@ class Converter(private val context: Context) {
         }
         file
     }
-
 }

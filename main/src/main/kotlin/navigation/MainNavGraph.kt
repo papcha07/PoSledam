@@ -9,15 +9,15 @@ import androidx.navigation.navigation
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
 import org.koin.core.parameter.parametersOf
-import ui.NotificationScreen
-import ui.camera.CameraScreen
-import ui.camera.CameraViewModel
-import ui.mainScreen.MainScreen
-import ui.mainScreen.MainScreenViewModel
+import ui.screen.NotificationScreen
+import ui.screen.camera.CameraScreen
+import ui.screen.camera.CameraViewModel
+import ui.screen.mainScreen.MainScreen
+import ui.screen.mainScreen.MainScreenViewModel
 import ui.other.DebouncerManager
-import ui.street.AddStreetAnimalScreen
-import ui.street.StreetPetScreen
-import ui.street.StreetPetViewModel
+import ui.screen.street.AddStreetAnimalScreen
+import ui.screen.street.StreetPetScreen
+import ui.screen.street.StreetPetViewModel
 
 sealed class MainRoute(val route: String) {
     object MainScreen : MainRoute("mainScreen")
