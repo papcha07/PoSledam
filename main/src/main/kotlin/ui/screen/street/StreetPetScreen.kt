@@ -27,9 +27,9 @@ import ui.components.placeholder.ErrorPlaceholder
 import ui.components.street.StreetGridPets
 import ui.theme.backgroundColor
 
+
 @Composable
-fun StreetPetScreen(
-    modifier: Modifier = Modifier,
+fun StreetPetRoute(
     streetPetViewModel: StreetPetViewModel,
     returnToMainScreen: () -> Unit,
     openFilterSettings: () -> Unit
@@ -37,8 +37,23 @@ fun StreetPetScreen(
     LaunchedEffect(Unit) {
         streetPetViewModel.getStreetAnimals()
     }
+    val uiState by streetPetViewModel.animalScreenState.collectAsStateWithLifecycle()
 
-    val streetAnimalsState by streetPetViewModel.animalScreenState.collectAsStateWithLifecycle()
+    StreetPetScreen(
+        streetPetScreenState = uiState,
+        returnToMainScreen = returnToMainScreen,
+        openFilterSettings = openFilterSettings,
+    )
+}
+
+@Composable
+fun StreetPetScreen(
+    modifier: Modifier = Modifier,
+    streetPetScreenState: StreetPetScreenState,
+    returnToMainScreen: () -> Unit,
+    openFilterSettings: () -> Unit
+) {
+
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -56,7 +71,7 @@ fun StreetPetScreen(
             onActionClick = openFilterSettings
         )
         Spacer(Modifier.height(10.dp))
-        StreetPetSection(streetPetScreenState = streetAnimalsState)
+        StreetPetSection(streetPetScreenState = streetPetScreenState)
     }
 }
 

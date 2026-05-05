@@ -16,7 +16,7 @@ import ui.screen.camera.CameraViewModel
 import ui.screen.mainScreen.MainScreen
 import ui.screen.mainScreen.MainScreenViewModel
 import ui.screen.street.AddStreetAnimalScreen
-import ui.screen.street.StreetPetScreen
+import ui.screen.street.StreetPetRoute
 import ui.screen.street.StreetPetViewModel
 
 sealed class MainRoute(val route: String) {
@@ -91,7 +91,7 @@ fun NavGraphBuilder.mainNavGraph(navController: NavController, route: String = "
             }
             val streetViewModel: StreetPetViewModel =
                 koinViewModel(viewModelStoreOwner = parentEntry)
-            StreetPetScreen(
+            StreetPetRoute(
                 streetPetViewModel = streetViewModel,
                 openFilterSettings = {},
                 returnToMainScreen = { navController.popBackStack() }
