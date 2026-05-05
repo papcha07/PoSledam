@@ -40,6 +40,7 @@ android {
 }
 
 dependencies {
+    implementation("androidx.work:work-runtime-ktx:2.10.0")
     implementation ("androidx.navigation:navigation-compose:2.7.3")
     implementation(project(":core_network"))
     implementation(project(":auth"))
@@ -48,6 +49,7 @@ dependencies {
     implementation(project(":core"))
     implementation(project(":core_datastore"))
     implementation(project(":search"))
+    implementation("io.insert-koin:koin-androidx-compose:3.4.2")
     implementation(libs.koin.core)
     implementation(libs.koin.android)
     implementation(libs.androidx.core.ktx)

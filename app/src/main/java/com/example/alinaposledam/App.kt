@@ -2,6 +2,8 @@ package com.example.alinaposledam
 
 import android.app.Application
 import android.util.Log
+import androidx.work.Configuration
+import com.example.alinaposledam.worker.location_worker.factory.KoinWorkerFactory
 import com.google.firebase.FirebaseApp
 import dataStoreModule
 import di.getActionViewModel
@@ -29,7 +31,7 @@ import ui.di.getAuthViewModel
 import ui.di.getConverter
 import ui.di.getMainModule
 
-class App : Application() {
+class App : Application(), Configuration.Provider {
     override fun onCreate() {
         super.onCreate()
 
@@ -37,18 +39,6 @@ class App : Application() {
         com.yandex.mapkit.MapKitFactory.initialize(this)
         val app = FirebaseApp.initializeApp(this)
         Log.d("FCM_CHECK", "FirebaseApp = $app")
-
-
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
-//            val channel = NotificationChannel(
-//                "location",
-//                "Location",
-//                NotificationManager.IMPORTANCE_LOW
-//            )
-//            val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-//            notificationManager.createNotificationChannel(channel)
-//        }
-
 
         startKoin {
             androidContext(this@App)
@@ -79,9 +69,17 @@ class App : Application() {
                     dataStoreModule,
                     userInfoRepository,
                     getStreetService(),
-                    coreDi
+                    coreDi,
+                    getWorkerModule()
                 )
             )
         }
+
+
     }
+
+    override val workManagerConfiguration: Configuration
+        get() = Configuration.Builder()
+            .setWorkerFactory(KoinWorkerFactory())
+            .build()
 }

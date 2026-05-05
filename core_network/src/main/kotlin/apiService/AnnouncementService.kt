@@ -36,7 +36,7 @@ class AnnouncementService(private val client: HttpClient) {
     ): SendResult = withContext(Dispatchers.IO) {
         try {
             val type =
-                if (type == AnnouncementType.Miss) "missing-announcement" else "find-announcement"
+                if (type == AnnouncementType.Miss) MISS else FIND
             val response = client.post("api/$type") {
                 setBody(buildFindAnnouncementForm(announcementRequest, files))
                 Log.d("sendAnnouncementService", announcementRequest.toString())
@@ -58,7 +58,7 @@ class AnnouncementService(private val client: HttpClient) {
     suspend fun getUserPets(type: AnnouncementType): ApiResponse<List<UserPetInfoResponse>> {
         try {
             val announcementType =
-                if (type == AnnouncementType.Miss) "missing-announcement" else "find-announcement"
+                if (type == AnnouncementType.Miss) MISS else FIND
             val response = client.get("api/$announcementType/me/feed")
             when {
                 response.status.isSuccess() -> {
@@ -80,7 +80,7 @@ class AnnouncementService(private val client: HttpClient) {
     ): ApiResponse<FoundPetResponse> {
         return try {
             val announcement =
-                if (announcementType == AnnouncementType.Miss) "missing-announcement" else "find-announcement"
+                if (announcementType == AnnouncementType.Miss) MISS else FIND
             val response = client.get("api/$announcement/${foundRequest.id}")
             when {
                 response.status.isSuccess() -> {
@@ -88,6 +88,7 @@ class AnnouncementService(private val client: HttpClient) {
                     Log.d("FoundPetResponse", body.toString())
                     ApiResponse.Success(body)
                 }
+
                 else -> ApiResponse.Error(400)
             }
         } catch (e: Exception) {
@@ -186,5 +187,11 @@ class AnnouncementService(private val client: HttpClient) {
                 }
             }
         )
+    }
+
+
+    companion object {
+        private const val MISS = "missing-announcement"
+        private const val FIND = "find-announcement"
     }
 }

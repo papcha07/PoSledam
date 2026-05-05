@@ -58,6 +58,7 @@ dependencies {
     implementation("androidx.compose.material3:material3")
 
     implementation ("androidx.constraintlayout:constraintlayout-compose:1.1.0")
+    implementation(libs.androidx.compose.foundation.layout)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

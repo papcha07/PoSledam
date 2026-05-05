@@ -18,7 +18,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -26,12 +25,11 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.focusModifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -43,11 +41,10 @@ import androidx.compose.ui.unit.sp
 import com.example.core.R
 import domain.model.LoginInfo
 import org.koin.androidx.compose.koinViewModel
-import ui.AuthViewModel
 import ui.components.ButtonComponent
 import ui.components.TextFieldComponent
-import ui.model.RegisterScreenState
-import ui.model.TextFieldData
+import ui.model.data.TextFieldData
+import ui.model.state.AuthScreenState
 import ui.register.AnimatedToast
 import ui.theme.EnterOverlayColor
 import ui.theme.buttonPrimary
@@ -55,70 +52,75 @@ import ui.theme.buttonPrimary
 @Composable
 fun LoginScreen(
     modifier: Modifier = Modifier,
-    viewModel: AuthViewModel = koinViewModel(),
-    goToMainProfile: () -> Unit
+    state: AuthScreenState = AuthScreenState.Idle,
+    onLogin: (LoginInfo) -> Unit,
+    googleEnter: () -> Unit = {}
 ) {
-    val loadingState = viewModel.loadingState.collectAsState()
-    var toastMessage by remember { mutableStateOf<String?>(null) }
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .background(color = Color.White)
+    ) {
+        LoginBackground(
+            modifier = Modifier.fillMaxSize()
+        )
 
-
-    LaunchedEffect(Unit) {
-        viewModel.loginUiState.collect { state ->
-            when (state) {
-                is RegisterScreenState.Error -> {
-                    toastMessage = state.message
-                }
-
-                RegisterScreenState.Loading -> {
-
-                }
-
-                RegisterScreenState.Success -> {
-                    goToMainProfile()
-                }
-            }
-        }
-    }
-
-    Scaffold(modifier = modifier.background(color = Color.White), containerColor = Color.White)
-    { innerPadding ->
-        Box(
+        EnterBottomComponent(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-                .background(color = Color.White)
-        ) {
-            LoginBackground(Modifier.fillMaxSize())
-            EnterBottomComponent(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .align(Alignment.BottomCenter)
-                    .fillMaxHeight(2.4f / 4f),
-                onLogin = { info ->
-                    viewModel.login(info)
-                },
-                googleEnter = {
+                .fillMaxWidth()
+                .align(Alignment.BottomCenter)
+                .fillMaxHeight(2.4f / 4f),
+            onLogin = onLogin,
+            googleEnter = googleEnter
+        )
 
-                }
-            )
-            toastMessage?.let { msg ->
-                AnimatedToast(
-                    message = msg,
-                    backgroundColor = Color(0xFFCE93D8),
-                    textColor = Color.White,
+        when (state) {
+            AuthScreenState.Idle -> Unit
+
+            AuthScreenState.Loading -> {
+                CircularProgressIndicator(
                     modifier = Modifier
-                        .align(Alignment.TopCenter)
-                        .padding(top = 48.dp),
-                    onDismiss = {
-                        toastMessage = null
-                    }
+                        .align(Alignment.Center)
+                        .testTag("login_loading")
                 )
             }
-            if (loadingState.value.isLoading) {
-                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+
+            AuthScreenState.Success -> Unit
+
+            is AuthScreenState.Error -> {
+                AnimatedToast(
+                    message = state.message
+                )
             }
         }
     }
+}
+
+
+@Composable
+fun LoginRoute(
+    modifier: Modifier = Modifier,
+    viewModel: LoginViewModel = koinViewModel(),
+    goToMainProfile: () -> Unit
+) {
+    val loginUiState by viewModel.loginUiState.collectAsState(
+        initial = AuthScreenState.Idle
+    )
+
+    LaunchedEffect(loginUiState) {
+        if (loginUiState is AuthScreenState.Success) {
+            goToMainProfile()
+        }
+    }
+
+    LoginScreen(
+        modifier = modifier,
+        state = loginUiState,
+        onLogin = viewModel::login,
+        googleEnter = {
+
+        }
+    )
 
 }
 
@@ -216,15 +218,18 @@ fun EnterBottomComponent(
         ) {
             textFields.forEachIndexed { index, data ->
                 TextFieldComponent(
-                    value = values[index].value,
+                    modifier = Modifier.testTag("${index}_field"),
                     textFieldData = data,
+                    value = values[index].value,
                 ) {
                     values[index].value = it
                 }
                 Spacer(Modifier.height(8.dp))
             }
             ButtonComponent(
-                modifier = Modifier.height(54.dp),
+                modifier = Modifier
+                    .testTag("login_button")
+                    .height(54.dp),
                 color = buttonPrimary,
                 text = "Войти",
                 textColor = Color.White,

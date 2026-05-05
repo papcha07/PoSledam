@@ -11,7 +11,10 @@ import org.koin.androidx.compose.koinViewModel
 import ui.DetailPetScreen
 import ui.FilterViewModel
 import ui.components.FiltersScreen
-import ui.components.SearchScreen
+import ui.SearchScreen
+import ui.profile.PersonDto
+import ui.profile.SearchProfileScreen
+import java.net.URLEncoder
 
 sealed class SearchRoute(val route: String) {
     object SearchScreen : SearchRoute("searchMain")
@@ -74,9 +77,8 @@ fun NavGraphBuilder.searchNavGraph(navController: NavController, route: String =
                 koinViewModel(viewModelStoreOwner = parentEntry)
 
             val petId = backStackEntry.arguments?.getString("petId") ?: return@composable
-            val announcementType = backStackEntry.arguments?.getInt("announcementType") ?: return@composable
-
-
+            val announcementType =
+                backStackEntry.arguments?.getInt("announcementType") ?: return@composable
 
             DetailPetScreen(
                 viewModel = filtersViewModel,
@@ -84,38 +86,46 @@ fun NavGraphBuilder.searchNavGraph(navController: NavController, route: String =
                 announcementType = announcementType,
                 goBackClick = { navController.popBackStack() },
                 onOwnerClick = { creator ->
-                    val name = java.net.URLEncoder.encode(creator.firstName, "UTF-8")
+                    val name = URLEncoder.encode(creator.firstName, "UTF-8")
                     val avatarPath = (creator.avatarPath ?: "").trimStart('/')
-                    val avatar = java.net.URLEncoder.encode(avatarPath, "UTF-8")
+                    val avatar = URLEncoder.encode(avatarPath, "UTF-8")
                     navController.navigate("searchProfile?name=$name&avatar=$avatar")
                 }
             )
         }
 
         composable(
-            route = "${SearchRoute.ProfileScreen.route}?name={name}&avatar={avatar}",
+            route = "${SearchRoute.ProfileScreen.route}?name={name}&avatar={avatar}&desc={}",
             arguments = listOf(
                 navArgument("name") { type = NavType.StringType },
                 navArgument("avatar") {
                     type = NavType.StringType
                     defaultValue = ""
                     nullable = true
+                },
+                navArgument("description") {
+                    type = NavType.StringType
+                    defaultValue = ""
+                    nullable = false
                 }
+
             )
         ) { backStackEntry ->
             val name = backStackEntry.arguments?.getString("name") ?: ""
             val avatar = backStackEntry.arguments?.getString("avatar")
+            val description = backStackEntry.arguments?.getString("description")
 
-            val profile = ui.SearchProfileUi(
+            val personDto = PersonDto(
                 name = name,
-                description = "",
-                avatarUrl = avatar?.takeIf { it.isNotBlank() },
-                contacts = emptyList()
+                uri = "TODO()",
+                description = description,
+                vkUri = "vk.com",
+                tgUri = "tg.com"
             )
-            ui.SearchProfileScreen(
-                profile = profile,
-                onBackClick = { navController.popBackStack() }
+            SearchProfileScreen(
+                personDto = personDto
             )
+
         }
     }
 }

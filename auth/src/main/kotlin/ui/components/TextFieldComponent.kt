@@ -10,20 +10,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import ui.model.TextFieldData
+import ui.model.data.TextFieldData
 import ui.theme.Ser
 import ui.theme.registerEditTextColor
 import ui.theme.textHint
 
 @Composable
 fun TextFieldComponent(
+    modifier: Modifier = Modifier,
     value: String,
     textFieldData: TextFieldData,
     onValueChange: (String) -> Unit,
 ) {
 
     TextField(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(10.dp)),
         value = value,

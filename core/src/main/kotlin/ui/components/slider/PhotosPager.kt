@@ -70,7 +70,6 @@ fun PhotosPager(
                                 .align(Alignment.TopEnd)
                                 .clickable { onRemovePhotoClick(uri) }
                         ) {
-                            // Иконку крестика можно добавить позже, сейчас это прозрачная зона клика
                         }
                     }
                 }

@@ -15,7 +15,6 @@ class LocationProvider(
 ) {
 
     private val client = LocationServices.getFusedLocationProviderClient(context)
-
     @SuppressLint("MissingPermission")
     suspend fun getCurrentLocation(): Location? = suspendCancellableCoroutine { cont ->
         val token = object : CancellationToken() {

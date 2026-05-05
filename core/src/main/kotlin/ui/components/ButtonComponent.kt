@@ -30,25 +30,24 @@ fun ButtonComponent(
     radius: Dp,
     onClick: () -> Unit
 ) {
-    Box(
+    Button(
+        onClick = onClick,
+        enabled = enabled,
+        colors = ButtonDefaults.buttonColors(
+            containerColor = color,
+            contentColor = textColor,
+            disabledContainerColor = Color(0xFFE0E0E0),
+            disabledContentColor = Color.White
+        ),
+        shape = RoundedCornerShape(radius),
         modifier = modifier
-            .size(175.dp, 40.dp),
-        contentAlignment = Alignment.Center
+            .size(175.dp, 40.dp)
     ) {
-        Button(
-            onClick = onClick,
-            colors = ButtonDefaults.buttonColors(containerColor = color),
-            shape = RoundedCornerShape(radius),
-            enabled = enabled,
-            modifier = Modifier.fillMaxSize()
-        ) {
-            Text(
-                text = text,
-                textAlign = TextAlign.Center,
-                fontSize = 16.sp,
-                color = textColor
-            )
-        }
+        Text(
+            text = text,
+            textAlign = TextAlign.Center,
+            fontSize = 16.sp
+        )
     }
 }
 

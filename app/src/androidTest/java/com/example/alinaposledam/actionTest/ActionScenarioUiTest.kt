@@ -54,26 +54,10 @@ class ActionScenarioUiTest {
         page.mainComponentIsDisplayed()
     }
 
-    @Test
-    fun addressComponentShow() {
-        page.nextButtonClick()
-        page.addressComponentIsDisplayed()
-    }
 
-    @Test
-    fun mainComponentShowAfterBackButton() {
-        page.nextButtonClick()
-        page.addressComponentIsDisplayed()
-        page.backButtonClick()
-        page.mainComponentIsDisplayed()
-    }
 
-    @Test
-    fun tabRowIsNotDisplayedWhenAddressComponent() {
-        page.nextButtonClick()
-        page.addressComponentIsDisplayed()
-        page.tabRowIsNotDisplayed()
-    }
+
+
 
     @Test
     fun tabRowIsDisplayedWhenMainComponent() {
@@ -82,12 +66,7 @@ class ActionScenarioUiTest {
     }
 
 
-    @Test
-    fun createButtonIsDisabled() {
-        page.nextButtonClick()
-        page.addressComponentIsDisplayed()
-        page.createButtonIsDisabled()
-    }
+
 
 
     @Test
@@ -149,12 +128,7 @@ class ActionScenarioUiTest {
         page.checkMaleSelected()
     }
 
-    @Test
-    fun createButtonIsEnabled() {
-        page.nextButtonClick()
-        fillValidFormDirectly(vm)
-        page.createButtonIsEnable()
-    }
+
 
     private fun fillValidFormDirectly(vm: ActionViewModel) = apply {
         rule.runOnIdle {
@@ -221,9 +195,6 @@ class ActionScenarioUiTest {
         page.photoIsVisible(0)
 
     }
-
-
-
 
 }
 

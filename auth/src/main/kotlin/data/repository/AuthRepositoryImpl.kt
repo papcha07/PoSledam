@@ -1,24 +1,24 @@
 package data.repository
 
 import ApiResponse
+import android.util.Log
 import apiService.AuthService
 import domain.model.LoginInfo
 import domain.repository.AuthRepository
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import model.auth.request.LoginRequest
 import model.auth.request.RegisterRequest
 import model.auth.request.SocialMedia
 import model.auth.response.LoginResponse
-import model.auth.response.RegisterResponse
-import ui.model.UserDataInfo
+import ui.model.data.UserDataInfo
 
 class AuthRepositoryImpl(
     private val apiService: AuthService,
 ) : AuthRepository {
 
-    override suspend fun register(registerInfo: UserDataInfo): Flow<Pair<Boolean, Int?>> =
-        flow {
+    override suspend fun register(registerInfo: UserDataInfo): Pair<Boolean, Int?> {
+        return withContext(Dispatchers.IO) {
             val resultOfResponse = apiService.register(
                 registerRequest = RegisterRequest(
                     email = registerInfo.email,
@@ -33,32 +33,33 @@ class AuthRepositoryImpl(
                     }
                 )
             )
-            when (resultOfResponse) {
-                is ApiResponse.Error -> {
-                    emit(Pair(false, resultOfResponse.errorCode))
-                }
+            Log.d("RegisterViewModel", resultOfResponse.toString())
 
-                is ApiResponse.Success<RegisterResponse> -> {
-                    emit(Pair(true, null))
-                }
+
+            when (resultOfResponse) {
+                is ApiResponse.Error -> Pair(false, resultOfResponse.errorCode)
+                is ApiResponse.Success<Unit> -> Pair(true, null)
             }
         }
+    }
 
 
-    override suspend fun login(loginInfo: LoginInfo): Flow<Pair<Boolean, Int?>> = flow {
-        val result = apiService.login(
-            loginRequest = LoginRequest(
-                email = loginInfo.email,
-                password = loginInfo.password
+    override suspend fun login(loginInfo: LoginInfo): Pair<Boolean, Int?> {
+        return withContext(Dispatchers.IO) {
+            val result = apiService.login(
+                loginRequest = LoginRequest(
+                    email = loginInfo.email,
+                    password = loginInfo.password
+                )
             )
-        )
-        when (result) {
-            is ApiResponse.Error -> {
-                emit(Pair(false, result.errorCode))
-            }
+            when (result) {
+                is ApiResponse.Error -> {
+                    Pair(false, result.errorCode)
+                }
 
-            is ApiResponse.Success<LoginResponse> -> {
-                emit(Pair(true, null))
+                is ApiResponse.Success<LoginResponse> -> {
+                    Pair(true, null)
+                }
             }
         }
     }
