@@ -1,4 +1,4 @@
-package ui.cameraScreen
+package ui.screen.camera
 
 import android.net.Uri
 import androidx.compose.foundation.Image

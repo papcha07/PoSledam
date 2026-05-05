@@ -12,19 +12,23 @@ import io.ktor.client.request.get
 import io.ktor.http.Headers
 import io.ktor.http.HttpHeaders
 import io.ktor.http.isSuccess
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.io.File
 
 class StreetService(private val client: HttpClient) {
 
     suspend fun getStreetAnimals(): ApiResponse<List<StreetAnimalResponse>> {
-        return try {
-            val response = client.get("api/street-pet-announcement/feed")
-            if (response.status.isSuccess()) {
-                val body = response.body<List<StreetAnimalResponse>>()
-                ApiResponse.Success(body)
-            } else ApiResponse.Error(400)
-        } catch (e: Exception) {
-            ApiResponse.Error(-1)
+        return withContext(Dispatchers.IO) {
+            try {
+                val response = client.get("api/street-pet-announcement/feed")
+                if (response.status.isSuccess()) {
+                    val body = response.body<List<StreetAnimalResponse>>()
+                    ApiResponse.Success(body)
+                } else ApiResponse.Error(400)
+            } catch (e: Exception) {
+                ApiResponse.Error(-1)
+            }
         }
     }
 
@@ -32,38 +36,36 @@ class StreetService(private val client: HttpClient) {
         streetAnimalRequest: StreetAnimalRequest,
         fileList: List<File>
     ): Int {
-        try {
-            val response = client.submitFormWithBinaryData(
-                url = "api/street-pet-announcement",
-                formData = formData {
-                    append("petType", streetAnimalRequest.petType)
-                    append("Location.Latitude", streetAnimalRequest.lat)
-                    append("Location.Longitude", streetAnimalRequest.lon)
-                    append("eventDate", streetAnimalRequest.eventDate)
-                    append("placeDescription", streetAnimalRequest.placeDescription)
-                    fileList.forEach { file ->
-                        append(
-                            key = "Images",
-                            value = file.readBytes(),
-                            headers = Headers.build {
-                                append(HttpHeaders.ContentType, "image/jpeg")
-                                append(
-                                    HttpHeaders.ContentDisposition,
-                                    "filename=\"${file.name}\""
-                                )
-                            }
-                        )
+        return withContext(Dispatchers.IO) {
+            try {
+                val response = client.submitFormWithBinaryData(
+                    url = "api/street-pet-announcement",
+                    formData = formData {
+                        append("petType", streetAnimalRequest.petType)
+                        append("Location.Latitude", streetAnimalRequest.lat)
+                        append("Location.Longitude", streetAnimalRequest.lon)
+                        append("eventDate", streetAnimalRequest.eventDate)
+                        append("placeDescription", streetAnimalRequest.placeDescription)
+                        fileList.forEach { file ->
+                            append(
+                                key = "Images",
+                                value = file.readBytes(),
+                                headers = Headers.build {
+                                    append(HttpHeaders.ContentType, "image/jpeg")
+                                    append(
+                                        HttpHeaders.ContentDisposition,
+                                        "filename=\"${file.name}\""
+                                    )
+                                }
+                            )
+                        }
                     }
-                }
-            )
-            if (response.status.isSuccess()) {
-                return 200
-            } else {
-                return 400
+                )
+                if (response.status.isSuccess()) 200 else 400
+            } catch (e: Exception) {
+                Log.d("createStreetAnimal", e.toString())
+                -1
             }
-        } catch (e: Exception) {
-            Log.d("createStreetAnimal", e.toString())
-            return -1
         }
 
     }

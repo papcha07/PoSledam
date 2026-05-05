@@ -1,10 +1,10 @@
-package ui.streetScreen
+package ui.screen.street
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import domain.interactor.StreetPetInteractor
 import domain.models.StreetPetPreviewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -15,33 +15,29 @@ sealed class StreetPetScreenState {
     data object Failed : StreetPetScreenState()
     data object Empty : StreetPetScreenState()
     data object Idle : StreetPetScreenState()
+    data object Loading : StreetPetScreenState()
 }
 
 class StreetPetViewModel(
     private val streetPetInteractor: StreetPetInteractor
 ) : ViewModel() {
-
     private val _animalScreenState =
         MutableStateFlow<StreetPetScreenState>(StreetPetScreenState.Idle)
     val animalScreenState = _animalScreenState.asStateFlow()
 
+
     fun getStreetAnimals() {
         viewModelScope.launch {
-            streetPetInteractor.getStreetAnimals().collect { pair ->
-                val animals = pair.first
-
-                _animalScreenState.value = when {
-                    animals == null -> StreetPetScreenState.Failed
-                    animals.isEmpty() -> StreetPetScreenState.Empty
-                    else -> StreetPetScreenState.Success(animals)
-                }
+            _animalScreenState.value = StreetPetScreenState.Loading
+            delay(200)
+            val streetResult = streetPetInteractor.getStreetAnimals()
+            val animalList = streetResult.first
+            _animalScreenState.value = when {
+                animalList == null -> StreetPetScreenState.Failed
+                animalList.isEmpty() -> StreetPetScreenState.Empty
+                else -> StreetPetScreenState.Success(animalList)
             }
-            Log.d("animalScreenState", animalScreenState.value.toString())
         }
     }
-
-
-
-
 
 }

@@ -9,9 +9,8 @@ import apiService.models.street_models.StreetAnimalResponse
 import domain.models.AdvertInfo
 import domain.models.StreetPetPreviewModel
 import domain.repository.StreetRepository
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
 import ui.other.Converter
+import ui.other.timeUtils.DateTimeUtils
 import java.time.Duration
 import java.time.Instant
 import java.time.ZoneId
@@ -19,22 +18,23 @@ import java.time.format.DateTimeFormatter
 
 class StreetRepositoryImpl(
     private val streetService: StreetService,
-    private val converter: Converter
+    private val converter: Converter,
 ) : StreetRepository {
+
     @RequiresApi(Build.VERSION_CODES.O)
-    override suspend fun getStreetAnimals(): Flow<Pair<List<StreetPetPreviewModel>?, Int?>> = flow {
+    override suspend fun getStreetAnimals(): Pair<List<StreetPetPreviewModel>?, Int?> {
 
         val response = streetService.getStreetAnimals()
-        when (response) {
+        return when (response) {
             is ApiResponse.Error -> {
-                emit(Pair(null, response.errorCode))
+                Pair(null, response.errorCode)
             }
 
             is ApiResponse.Success<List<StreetAnimalResponse>> -> {
                 val animalList = response.data.map {
                     convertToStreetPreviewModel(it)
                 }
-                emit(Pair(animalList, null))
+                Pair(animalList, null)
             }
         }
     }
@@ -43,12 +43,14 @@ class StreetRepositoryImpl(
         val files = advertInfo.images.map {
             converter.convertToFile(it.toString())
         }
+
+        val currentDate = DateTimeUtils.getUtcFromDevice()
         val response = streetService.createStreetAnimal(
             streetAnimalRequest = StreetAnimalRequest(
                 petType = 2,
                 lat = advertInfo.lat,
                 lon = advertInfo.lon,
-                eventDate = advertInfo.eventDateUtc,
+                eventDate = currentDate,
                 placeDescription = advertInfo.placeDescription
             ),
             fileList = files

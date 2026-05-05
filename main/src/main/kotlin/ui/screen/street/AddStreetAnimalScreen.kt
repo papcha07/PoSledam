@@ -1,4 +1,4 @@
-package ui.streetScreen
+package ui.screen.street
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -15,10 +15,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -28,14 +24,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.yandex.mapkit.geometry.Point
 import domain.models.AdvertInfo
-import ui.cameraScreen.CameraViewModel
 import ui.components.ButtonComponent
 import ui.components.CurrentLocationMap
 import ui.components.EventDateComponent
 import ui.components.other.TextFieldComponent
-import ui.components.slider.PhotosPager
+import ui.components.streetPager.StreetPhotoPager
 import ui.model.data.TextFieldData
-import ui.register.AnimatedToast
+import ui.screen.camera.CameraViewModel
 import ui.theme.addressText
 import ui.theme.backgroundColor
 import ui.theme.buttonPrimary
@@ -46,26 +41,9 @@ fun AddStreetAnimalScreen(
     cameraViewModel: CameraViewModel,
     onBack: () -> Unit
 ) {
-    val urisState = cameraViewModel.uris.collectAsState()
     val advertState = cameraViewModel.advertState.collectAsState()
-    var toastMessage by remember { mutableStateOf<String?>(null) }
-
-
-    when (advertState.value.isPlaced) {
-        true -> {
-            onBack()
-        }
-
-        else -> {
-
-        }
-    }
-
-    LaunchedEffect(Unit) {
-        cameraViewModel.toastState.collect { message ->
-            toastMessage = message
-        }
-    }
+    val urisState = cameraViewModel.uris.collectAsState()
+    val scrollState = rememberScrollState()
 
     LaunchedEffect(Unit) {
         cameraViewModel.loadMyLocation()
@@ -76,38 +54,25 @@ fun AddStreetAnimalScreen(
             modifier = modifier
                 .background(color = backgroundColor)
                 .fillMaxSize()
-                .verticalScroll(rememberScrollState())
+                .verticalScroll(scrollState),
         ) {
-            PhotosPager(
-                modifier = Modifier.height(290.dp),
+            StreetPhotoPager(
                 photos = urisState.value,
-                onAddPhotoClick = onBack,
-                onRemovePhotoClick = { uri -> cameraViewModel.removePhoto(uri) }
+                returnToCameraScreen = onBack
             )
             Spacer(Modifier.height(4.dp))
-            InformationComponent(cameraViewModel = cameraViewModel, advertState = advertState.value)
-            Spacer(Modifier.height(16.dp))
-            PublishButtonRow(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
-                onClick = cameraViewModel::createStreetAdvert
+            InformationComponent(
+                addDescription = cameraViewModel::addDescription,
+                advertState = advertState.value,
             )
         }
 
-        toastMessage?.let { msg ->
-            AnimatedToast(
-                message = msg,
-                backgroundColor = Color(0xFFCE93D8),
-                textColor = Color.White,
-                modifier = Modifier
-                    .align(Alignment.TopCenter)
-                    .padding(top = 48.dp),
-                onDismiss = {
-                    toastMessage = null
-                }
-            )
-        }
+        PublishButtonRow(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .fillMaxWidth(),
+            onClick = cameraViewModel::createStreetAdvert
+        )
     }
 
 }
@@ -118,10 +83,20 @@ private fun PublishButtonRow(
     onClick: () -> Unit
 ) {
     Box(
-        modifier = modifier,
+        modifier = modifier
+            .background(
+                color = Color.White,
+                shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)
+            )
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp)
+            .padding(top = 16.dp, bottom = 34.dp),
         contentAlignment = Alignment.Center
     ) {
         ButtonComponent(
+            modifier = Modifier
+                .height(46.dp)
+                .fillMaxWidth(),
             color = buttonPrimary,
             text = "Опубликовать",
             textColor = Color.White,
@@ -135,14 +110,14 @@ private fun PublishButtonRow(
 @Composable
 fun InformationComponent(
     modifier: Modifier = Modifier,
-    cameraViewModel: CameraViewModel,
+    addDescription: (String) -> Unit,
     advertState: AdvertInfo
 ) {
 
     Box(
         modifier = modifier
             .background(color = Color.White, shape = RoundedCornerShape(20.dp))
-            .fillMaxWidth()
+            .fillMaxSize()
     ) {
         Column(
             modifier = Modifier
@@ -161,7 +136,7 @@ fun InformationComponent(
                     label = "Описание",
                     hint = "Введите описание места"
                 ),
-                onValueChange = cameraViewModel::addDescription
+                onValueChange = addDescription
             )
             Spacer(Modifier.height(24.dp))
             Text(
@@ -169,14 +144,17 @@ fun InformationComponent(
                 fontSize = 16.sp
             )
             Spacer(Modifier.height(12.dp))
-            val hasLocation = advertState.lat != 32.0 || advertState.lon != 32.0
             CurrentLocationMap(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(160.dp)
+                    .height(180.dp)
                     .clip(RoundedCornerShape(12.dp)),
-                currentLocation = if (hasLocation) Point(advertState.lat, advertState.lon) else null,
-                onLocationResolved = { _, _ -> }
+                currentLocation = Point(
+                    advertState.lat,
+                    advertState.lon
+                ),
+                onLocationResolved = { lat, lon ->
+                }
             )
             Spacer(Modifier.height(10.dp))
             Text(

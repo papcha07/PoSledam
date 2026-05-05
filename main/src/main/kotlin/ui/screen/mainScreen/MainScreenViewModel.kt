@@ -1,4 +1,4 @@
-package ui.mainScreen
+package ui.screen.mainScreen
 
 import ApiResponse
 import android.util.Log

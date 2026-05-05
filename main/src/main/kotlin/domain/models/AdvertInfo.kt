@@ -8,8 +8,7 @@ data class AdvertInfo(
     val lat: Double = 32.0,
     val lon: Double = 32.0,
     val eventDate: String = "",
-    val eventDateUtc: String = "",
     val address: String = "",
     val placeDescription: String = "",
-    val isPlaced: Boolean? = false
+    val isPlaced: Boolean = false
 )

@@ -1,4 +1,4 @@
-package ui
+package ui.screen
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeOut
@@ -43,10 +43,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.core.R
 import domain.model.Notification
+import kotlinx.coroutines.delay
 import toFormattedDate
 import ui.components.default_component.ToolBar
 import ui.components.default_component.ToolBarInfo
-import ui.mainScreen.MainScreenViewModel
+import ui.screen.mainScreen.MainScreenViewModel
 import ui.theme.Purple80
 import ui.theme.backgroundColor
 
@@ -132,7 +133,7 @@ fun NotificationMainComponent(
 
             LaunchedEffect(visible) {
                 if (!visible) {
-                    kotlinx.coroutines.delay(300)
+                    delay(300)
                     mainScreenViewModel.deleteById(item.id)
                 }
             }

@@ -1,4 +1,4 @@
-package ui.cameraScreen
+package ui.screen.camera
 
 import android.content.Context
 import android.net.Uri
@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.BottomSheetScaffold
@@ -88,7 +89,7 @@ fun CameraScreen(
                     .padding(horizontal = 24.dp, vertical = 24.dp)
                     .background(
                         color = Color.Black.copy(alpha = 0.45f),
-                        shape = androidx.compose.foundation.shape.RoundedCornerShape(32.dp)
+                        shape = RoundedCornerShape(32.dp)
                     )
                     .padding(horizontal = 20.dp, vertical = 12.dp)
             ) {
