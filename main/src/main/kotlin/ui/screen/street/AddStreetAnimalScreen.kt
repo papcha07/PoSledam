@@ -144,18 +144,16 @@ fun InformationComponent(
                 fontSize = 16.sp
             )
             Spacer(Modifier.height(12.dp))
-            val hasLocation = advertState.lat != 32.0 || advertState.lon != 32.0
             CurrentLocationMap(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(180.dp)
                     .clip(RoundedCornerShape(12.dp)),
-                currentLocation = if (hasLocation) Point(
+                currentLocation = Point(
                     advertState.lat,
                     advertState.lon
-                ) else null,
+                ),
                 onLocationResolved = { lat, lon ->
-
                 }
             )
             Spacer(Modifier.height(10.dp))

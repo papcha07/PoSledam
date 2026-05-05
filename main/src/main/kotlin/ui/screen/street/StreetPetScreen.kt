@@ -4,14 +4,15 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -21,19 +22,31 @@ import com.example.core.R
 import ui.components.default_component.ToolBar
 import ui.components.default_component.ToolBarInfo
 import ui.components.other.NearPetCardComponent
+import ui.components.placeholder.EmptyAnimalList
+import ui.components.placeholder.ErrorPlaceholder
 import ui.components.street.StreetGridPets
 import ui.theme.backgroundColor
 
 @Composable
 fun StreetPetScreen(
     modifier: Modifier = Modifier,
-    streetPetViewModel: StreetPetViewModel
+    streetPetViewModel: StreetPetViewModel,
+    returnToMainScreen: () -> Unit,
+    openFilterSettings: () -> Unit
 ) {
     Column(
         modifier = modifier
             .fillMaxSize()
             .background(color = backgroundColor)
     ) {
+
+        LaunchedEffect(Unit) {
+            streetPetViewModel.getStreetAnimals()
+        }
+
+        val streetAnimalsState by streetPetViewModel.animalScreenState.collectAsState()
+
+
         ToolBar(
             toolBarInfo = ToolBarInfo(
                 title = "Замеченные питомцы",
@@ -41,55 +54,44 @@ fun StreetPetScreen(
                 backArrowIcon = R.drawable.left_arrow,
                 actionIcon = R.drawable.ic_settings,
             ),
-            onBackClick = {
-
-            },
-            onActionClick = {
-
-            }
+            onBackClick = returnToMainScreen,
+            onActionClick = openFilterSettings
         )
         Spacer(Modifier.height(10.dp))
-        StreetPetSection(streetPetViewModel = streetPetViewModel)
-
+        StreetPetSection(streetPetScreenState = streetAnimalsState)
     }
 }
 
 @Composable
 fun StreetPetSection(
     modifier: Modifier = Modifier,
-    streetPetViewModel: StreetPetViewModel
+    streetPetScreenState: StreetPetScreenState
 ) {
-    LaunchedEffect(Unit) {
-        streetPetViewModel.getStreetAnimals()
-    }
-
-    val streetAnimalsState = streetPetViewModel.animalScreenState.collectAsState()
-
     Box(
         modifier = modifier
             .clip(RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp))
             .background(color = Color.White)
-            .fillMaxHeight()
+            .fillMaxSize()
     ) {
-        Column(
-            Modifier.padding(vertical = 16.dp, horizontal = 16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            when (streetAnimalsState.value) {
-                StreetPetScreenState.Empty -> {
+        val centerModifier = Modifier.align(Alignment.Center)
+        when (streetPetScreenState) {
+            StreetPetScreenState.Empty -> {
+                EmptyAnimalList(modifier = centerModifier)
+            }
 
-                }
+            StreetPetScreenState.Failed -> {
+                ErrorPlaceholder(modifier = centerModifier)
+            }
 
-                StreetPetScreenState.Failed -> {
+            StreetPetScreenState.Idle -> {}
+            StreetPetScreenState.Loading -> CircularProgressIndicator(modifier = centerModifier)
 
-                }
-
-                StreetPetScreenState.Idle -> {
-
-                }
-
-                is StreetPetScreenState.Success -> {
-                    val animalList = (streetAnimalsState.value as StreetPetScreenState.Success).data
+            is StreetPetScreenState.Success -> {
+                Column(
+                    Modifier.padding(vertical = 16.dp, horizontal = 16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    val animalList = streetPetScreenState.data
                     if (animalList.size > 1) {
                         NearPetCardComponent(
                             streetPetPreviewModel = animalList.last()
@@ -107,16 +109,8 @@ fun StreetPetSection(
 
                         }
                     }
-
                 }
             }
-
         }
     }
 }
-
-//@Preview
-//@Composable
-//private fun StreetPetSectionPreview() {
-//    StreetPetSection()
-//}

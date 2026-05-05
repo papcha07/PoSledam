@@ -9,12 +9,12 @@ import androidx.navigation.navigation
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
 import org.koin.core.parameter.parametersOf
+import ui.other.DebouncerManager
 import ui.screen.NotificationScreen
 import ui.screen.camera.CameraScreen
 import ui.screen.camera.CameraViewModel
 import ui.screen.mainScreen.MainScreen
 import ui.screen.mainScreen.MainScreenViewModel
-import ui.other.DebouncerManager
 import ui.screen.street.AddStreetAnimalScreen
 import ui.screen.street.StreetPetScreen
 import ui.screen.street.StreetPetViewModel
@@ -92,7 +92,9 @@ fun NavGraphBuilder.mainNavGraph(navController: NavController, route: String = "
             val streetViewModel: StreetPetViewModel =
                 koinViewModel(viewModelStoreOwner = parentEntry)
             StreetPetScreen(
-                streetPetViewModel = streetViewModel
+                streetPetViewModel = streetViewModel,
+                openFilterSettings = {},
+                returnToMainScreen = { navController.popBackStack() }
             )
         }
 

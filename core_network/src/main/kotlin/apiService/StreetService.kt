@@ -19,14 +19,16 @@ import java.io.File
 class StreetService(private val client: HttpClient) {
 
     suspend fun getStreetAnimals(): ApiResponse<List<StreetAnimalResponse>> {
-        return try {
-            val response = client.get("api/street-pet-announcement/feed")
-            if (response.status.isSuccess()) {
-                val body = response.body<List<StreetAnimalResponse>>()
-                ApiResponse.Success(body)
-            } else ApiResponse.Error(400)
-        } catch (e: Exception) {
-            ApiResponse.Error(-1)
+        return withContext(Dispatchers.IO) {
+            try {
+                val response = client.get("api/street-pet-announcement/feed")
+                if (response.status.isSuccess()) {
+                    val body = response.body<List<StreetAnimalResponse>>()
+                    ApiResponse.Success(body)
+                } else ApiResponse.Error(400)
+            } catch (e: Exception) {
+                ApiResponse.Error(-1)
+            }
         }
     }
 
