@@ -4,6 +4,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.paging.LoadState
+import ui.components.placeholder.EmptyAnimalList
 import ui.components.placeholder.ErrorPlaceholder
 
 @Composable
@@ -27,7 +28,7 @@ fun StreetPetRefreshState(
 
         is LoadState.NotLoading -> {
             if (isEmpty) {
-                ErrorPlaceholder(
+                EmptyAnimalList(
                     modifier = modifier
                 )
             }
