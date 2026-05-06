@@ -23,6 +23,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -48,6 +49,7 @@ import ui.components.default_component.ToolBarInfo
 import ui.components.placeholder.ShimmerImagePlaceholder
 import ui.model.SettingsButton
 import ui.model.SettingsButtonComponent
+import ui.model.UserDataUiInfo
 import ui.model.getContact
 import ui.theme.EditTextColor
 import ui.theme.Ser
@@ -68,6 +70,8 @@ fun ProfileSettingsScreen(
             settingsViewModel.updateImage()
         }
     }
+    val screenState by settingsViewModel.profileInfoState.collectAsState()
+    val notificationsEnabled by settingsViewModel.notificationsEnabled.collectAsState()
 
     LazyColumn(Modifier.fillMaxHeight()) {
         item {
@@ -83,14 +87,21 @@ fun ProfileSettingsScreen(
         }
         item {
             BottomSettingsMainContent(
-                settingsViewModel = settingsViewModel,
+                userDataUi = screenState,
                 exit = {
                     exit()
                     settingsViewModel.logout()
                 },
                 setImage = {
                     launcher.launch("image/*")
-                }
+                },
+                setDescription = settingsViewModel::setDescription,
+                setName = settingsViewModel::setName,
+                addVk = settingsViewModel::addVk,
+                addTg = settingsViewModel::addTelegram,
+                addWhatsApp = settingsViewModel::addWhatsApp,
+                updateNotificationState = settingsViewModel::setNotificationsEnabled,
+                notificationState = notificationsEnabled
             )
         }
 
@@ -101,11 +112,19 @@ fun ProfileSettingsScreen(
 @Composable
 fun BottomSettingsMainContent(
     modifier: Modifier = Modifier,
-    settingsViewModel: ProfileSettingsViewModel,
+    notificationState: Boolean,
+    userDataUi: UserDataUiInfo,
     exit: () -> Unit,
-    setImage: () -> Unit
+    setImage: () -> Unit,
+    setDescription: (String) -> Unit,
+    setName: (String) -> Unit,
+    addVk: (String) -> Unit,
+    addTg: (String) -> Unit,
+    updateNotificationState: (Boolean) -> Unit,
+    addWhatsApp: (String) -> Unit
+
 ) {
-    val screenState = settingsViewModel.profileInfoState.collectAsState()
+
     Box(
         modifier = modifier
             .fillMaxWidth()
@@ -116,9 +135,10 @@ fun BottomSettingsMainContent(
             Modifier.padding(horizontal = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            ProfileImageComponent(settingsViewModel = settingsViewModel) {
-                setImage()
-            }
+            ProfileImageComponent(
+                userDataUi = userDataUi,
+                setImage = setImage
+            )
             Spacer(Modifier.height(8.dp))
             Text(
                 text = "Изменить фото",
@@ -127,15 +147,15 @@ fun BottomSettingsMainContent(
             )
             Spacer(Modifier.height(16.dp))
             SettingsTextField(
-                value = screenState.value.name,
+                value = userDataUi.name,
                 label = "Никнейм",
-                onValueChange = settingsViewModel::setName,
+                onValueChange = setName,
             )
             Spacer(Modifier.height(8.dp))
             SettingsTextField(
-                value = screenState.value.description,
+                value = userDataUi.description,
                 label = "Описание",
-                onValueChange = settingsViewModel::setDescription
+                onValueChange = setDescription
             )
             Spacer(Modifier.height(32.dp))
             Text(
@@ -147,35 +167,32 @@ fun BottomSettingsMainContent(
             Spacer(Modifier.height(16.dp))
 
             SocialTextFieldComponent(
-                value = screenState.value.getContact(0),
+                value = userDataUi.getContact(0),
                 textFieldData = TextFieldData("", "Вставьте ссылку на VK"),
-                onValueChange = settingsViewModel::addVk,
+                onValueChange = addVk,
                 icon = R.drawable.ic_vk
             )
             Spacer(Modifier.height(8.dp))
             SocialTextFieldComponent(
-                value = screenState.value.getContact(1),
+                value = userDataUi.getContact(1),
                 textFieldData = TextFieldData("", "Вставьте ссылку на WhatsApp"),
-                onValueChange = settingsViewModel::addWhatsApp,
+                onValueChange = addWhatsApp,
                 icon = R.drawable.ic_whatsapp
             )
             Spacer(Modifier.height(8.dp))
             SocialTextFieldComponent(
-                value = screenState.value.getContact(2),
+                value = userDataUi.getContact(2),
                 textFieldData = TextFieldData("", "Вставьте ссылку на Telegram"),
-                onValueChange = settingsViewModel::addTelegram,
+                onValueChange = addTg,
                 icon = R.drawable.ic_tg
             )
             Spacer(Modifier.height(32.dp))
-            VerifyComponent() {
-
-            }
+            VerifyComponent(onVerifyClick = {})
             Spacer(Modifier.height(20.dp))
             BottomInfoComponent(
-                profileSettingsViewModel = settingsViewModel,
-                exit = {
-                    exit()
-                }
+                notificationState = notificationState,
+                exit = exit,
+                updateNotificationState = updateNotificationState
             )
         }
     }
@@ -184,8 +201,9 @@ fun BottomSettingsMainContent(
 @Composable
 fun BottomInfoComponent(
     modifier: Modifier = Modifier,
-    profileSettingsViewModel: ProfileSettingsViewModel,
-    exit: () -> (Unit)
+    notificationState: Boolean,
+    updateNotificationState: (Boolean) -> Unit,
+    exit: () -> Unit
 ) {
     val listOfButtons = listOf(
         SettingsButton(
@@ -209,13 +227,12 @@ fun BottomInfoComponent(
             listOfButtons.forEach {
                 SettingsButtonComponent(
                     settingsButton = it,
-                    settingsViewModel = profileSettingsViewModel,
                     contactWithMe = {
 
                     },
-                    exitAction = {
-                        exit()
-                    },
+                    exitAction = exit,
+                    notificationState = notificationState,
+                    updateNotificationState = updateNotificationState
                 )
             }
         }
@@ -226,11 +243,9 @@ fun BottomInfoComponent(
 @Composable
 fun ProfileImageComponent(
     modifier: Modifier = Modifier,
-    settingsViewModel: ProfileSettingsViewModel,
+    userDataUi: UserDataUiInfo,
     setImage: () -> Unit
 ) {
-    val screenState = settingsViewModel.profileInfoState.collectAsState()
-    val uri = screenState.value.uri
 
     Box(
         modifier = modifier
@@ -241,7 +256,7 @@ fun ProfileImageComponent(
     ) {
         SubcomposeAsyncImage(
             model = ImageRequest.Builder(LocalContext.current)
-                .data("$BASE_URL/api/image/${screenState.value.uri}")
+                .data("$BASE_URL/api/image/${userDataUi.uri}")
                 .crossfade(true)
                 .build(),
             contentDescription = "Фотография профиля",
