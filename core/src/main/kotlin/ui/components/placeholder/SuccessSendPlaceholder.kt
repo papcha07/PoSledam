@@ -1,10 +1,21 @@
 package ui.components.placeholder
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -66,6 +77,60 @@ fun SuccessSendPlaceholder(
                 onClick = leftFromAnnouncement,
                 text = "МЯУ"
             )
+        }
+    }
+}
+
+@Composable
+fun SuccessSendPopup(
+    visible: Boolean,
+    title: String,
+    description: String,
+    onDismiss: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    AnimatedVisibility(
+        visible = visible,
+        enter = fadeIn(animationSpec = tween(220)),
+        exit = fadeOut(animationSpec = tween(180))
+    ) {
+        Box(
+            modifier = modifier
+                .fillMaxSize()
+                .background(Color.Black.copy(alpha = 0.75f))
+                .padding(horizontal = 24.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            AnimatedVisibility(
+                visible = visible,
+                enter = fadeIn(animationSpec = tween(220)) +
+                        scaleIn(
+                            initialScale = 0.88f,
+                            animationSpec = spring(
+                                dampingRatio = Spring.DampingRatioMediumBouncy,
+                                stiffness = Spring.StiffnessMediumLow
+                            )
+                        ) +
+                        slideInVertically(
+                            initialOffsetY = { it / 5 },
+                            animationSpec = tween(220)
+                        ),
+                exit = fadeOut(animationSpec = tween(140)) +
+                        scaleOut(
+                            targetScale = 0.92f,
+                            animationSpec = tween(140)
+                        ) +
+                        slideOutVertically(
+                            targetOffsetY = { it / 8 },
+                            animationSpec = tween(140)
+                        )
+            ) {
+                SuccessSendPlaceholder(
+                    title = title,
+                    description = description,
+                    leftFromAnnouncement = onDismiss
+                )
+            }
         }
     }
 }

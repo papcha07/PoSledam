@@ -10,5 +10,9 @@ data class AdvertInfo(
     val eventDate: String = "",
     val address: String = "",
     val placeDescription: String = "",
-    val isPlaced: Boolean = false
+    val isPlaced: Boolean = false,
+    val internetError: Boolean = false,
+    val serverError: Boolean = false,
+    val isLoading: Boolean = false
+
 )

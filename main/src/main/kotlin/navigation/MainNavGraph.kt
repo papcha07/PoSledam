@@ -121,6 +121,7 @@ fun NavGraphBuilder.mainNavGraph(navController: NavController, route: String = "
                 cameraViewModel = cameraViewModel,
                 onBack = {
                     navController.popBackStack()
+                    cameraViewModel.clearViewModel()
                 }
             )
         }
