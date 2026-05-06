@@ -35,10 +35,6 @@ fun ChatScreen(
     }
 }
 
-@Composable
-fun ChatComponent(modifier: Modifier = Modifier) {
-    
-}
 
 @Preview
 @Composable

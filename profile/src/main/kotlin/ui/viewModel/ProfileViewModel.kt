@@ -50,10 +50,4 @@ class ProfileViewModel(
     fun updateMethodValue(value: Int) = _userMethodState.update {
         value
     }
-
-//    init {
-//        getAnimalList()
-//    }
-
-
 }
