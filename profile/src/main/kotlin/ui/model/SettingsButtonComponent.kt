@@ -13,8 +13,6 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -23,7 +21,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.core.R
 import ui.theme.buttonPrimary
-import ui.viewModel.ProfileSettingsViewModel
 
 
 data class SettingsButton(
@@ -42,11 +39,11 @@ data class SettingsButton(
 fun SettingsButtonComponent(
     modifier: Modifier = Modifier,
     settingsButton: SettingsButton,
-    settingsViewModel: ProfileSettingsViewModel,
+    notificationState: Boolean,
     contactWithMe: () -> Unit,
-    exitAction: () -> Unit
+    exitAction: () -> Unit,
+    updateNotificationState: (Boolean) -> Unit
 ) {
-    val notificationsEnabled by settingsViewModel.notificationsEnabled.collectAsState()
     val isSwitcher = settingsButton.type == SettingsButton.ButtonType.isSwitcherButton
 
     val rowModifier = if (isSwitcher) {
@@ -92,8 +89,8 @@ fun SettingsButtonComponent(
             )
         } else if (isSwitcher) {
             Switch(
-                checked = notificationsEnabled,
-                onCheckedChange = { settingsViewModel.setNotificationsEnabled(it) },
+                checked = notificationState,
+                onCheckedChange = updateNotificationState,
                 colors = SwitchDefaults.colors(
                     checkedThumbColor = Color.White,
                     checkedTrackColor = buttonPrimary,

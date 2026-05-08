@@ -42,13 +42,17 @@ fun ProfileScreen(
     profileViewModel: ProfileViewModel,
     profileSettingsViewModel: ProfileSettingsViewModel,
 ) {
-    val userInfoState by profileSettingsViewModel.userInfoState.collectAsState()
-    LaunchedEffect(Unit) {
-        profileViewModel.getAnimalList()
-    }
+
+
     LaunchedEffect(Unit) {
         profileSettingsViewModel.loadUser()
+        profileViewModel.getAnimalList()
     }
+
+    val userInfoState by profileSettingsViewModel.userInfoState.collectAsState()
+    val methodIndex by profileViewModel.userMethodState.collectAsState()
+    val animalListState by profileViewModel.userPetState.collectAsState()
+
     Column(modifier = Modifier.background(backgroundColor)) {
         ProfileBarComponent(
             profileBarState = userInfoState,
@@ -59,8 +63,11 @@ fun ProfileScreen(
             }
         )
         MainContentComponent(
-            profileViewModel = profileViewModel,
+            selectedIndex = methodIndex,
             navigateToActionScreen = navigateToActionScreen,
+            updateMethodIndex = profileViewModel::updateMethodValue,
+            animalListState = animalListState,
+            loadAnimalList = profileViewModel::getAnimalList,
         )
     }
 }
@@ -69,12 +76,12 @@ fun ProfileScreen(
 @Composable
 fun MainContentComponent(
     modifier: Modifier = Modifier,
+    selectedIndex: Int,
+    animalListState: ProfileScreenState,
     navigateToActionScreen: () -> Unit,
-    profileViewModel: ProfileViewModel,
+    updateMethodIndex: (Int) -> Unit,
+    loadAnimalList: () -> Unit,
 ) {
-    val selectedIndex = profileViewModel.userMethodState.collectAsState()
-    val animalList = profileViewModel.userPetState.collectAsState()
-
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -97,22 +104,22 @@ fun MainContentComponent(
                     TabRowInfo("Пропажи"),
                     TabRowInfo("Найденные")
                 ),
-                selectedTabIndex = selectedIndex.value,
+                selectedTabIndex = selectedIndex,
                 onTabSelected = { index ->
-                    profileViewModel.updateMethodValue(index)
-                    profileViewModel.getAnimalList()
+                    updateMethodIndex(index)
+                    loadAnimalList()
                 }
             )
             Spacer(Modifier.height(24.dp))
-            when (selectedIndex.value) {
+            when (selectedIndex) {
                 1 -> PetLazyRow(
-                    profileScreenState = animalList.value,
-                    animalType = selectedIndex.value,
+                    profileScreenState = animalListState,
+                    animalType = selectedIndex,
                 )
 
                 0 -> PetLazyRow(
-                    profileScreenState = animalList.value,
-                    animalType = selectedIndex.value,
+                    profileScreenState = animalListState,
+                    animalType = selectedIndex,
                 )
             }
 
@@ -187,7 +194,6 @@ fun PetLazyRow(
 
             }
         }
-
     }
 }
 
