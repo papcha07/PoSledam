@@ -47,10 +47,10 @@ dependencies {
     implementation(libs.koin.core)
     implementation(libs.koin.android)
     implementation ("io.insert-koin:koin-androidx-compose:3.4.3")
-
+    implementation("androidx.paging:paging-runtime-ktx:3.4.2")
+    implementation("androidx.paging:paging-compose:3.4.2")
     implementation(libs.coil.compose)
     implementation ("androidx.navigation:navigation-compose:2.7.3")
-
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)

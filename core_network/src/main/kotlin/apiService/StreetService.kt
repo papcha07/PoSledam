@@ -9,6 +9,7 @@ import io.ktor.client.call.body
 import io.ktor.client.request.forms.formData
 import io.ktor.client.request.forms.submitFormWithBinaryData
 import io.ktor.client.request.get
+import io.ktor.client.request.parameter
 import io.ktor.http.Headers
 import io.ktor.http.HttpHeaders
 import io.ktor.http.isSuccess
@@ -18,10 +19,20 @@ import java.io.File
 
 class StreetService(private val client: HttpClient) {
 
-    suspend fun getStreetAnimals(): ApiResponse<List<StreetAnimalResponse>> {
+    suspend fun getStreetAnimals(streetRequest: StreetListRequest): ApiResponse<List<StreetAnimalResponse>> {
         return withContext(Dispatchers.IO) {
             try {
-                val response = client.get("api/street-pet-announcement/feed")
+                val response = client.get("api/street-pet-announcement/feed") {
+                    streetRequest.lastDateTime?.let {
+                        parameter("lastDateTime", it)
+                    }
+                    streetRequest.from?.let {
+                        parameter("from", it)
+                    }
+                    streetRequest.type?.let {
+                        parameter("type", it.toString())
+                    }
+                }
                 if (response.status.isSuccess()) {
                     val body = response.body<List<StreetAnimalResponse>>()
                     ApiResponse.Success(body)

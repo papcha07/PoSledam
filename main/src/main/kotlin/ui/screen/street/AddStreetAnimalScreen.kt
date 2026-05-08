@@ -11,10 +11,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -28,8 +30,10 @@ import ui.components.ButtonComponent
 import ui.components.CurrentLocationMap
 import ui.components.EventDateComponent
 import ui.components.other.TextFieldComponent
+import ui.components.placeholder.SuccessSendPopup
 import ui.components.streetPager.StreetPhotoPager
 import ui.model.data.TextFieldData
+import ui.register.AnimatedToast
 import ui.screen.camera.CameraViewModel
 import ui.theme.addressText
 import ui.theme.backgroundColor
@@ -41,7 +45,7 @@ fun AddStreetAnimalScreen(
     cameraViewModel: CameraViewModel,
     onBack: () -> Unit
 ) {
-    val advertState = cameraViewModel.advertState.collectAsState()
+    val advertState by cameraViewModel.advertState.collectAsState()
     val urisState = cameraViewModel.uris.collectAsState()
     val scrollState = rememberScrollState()
 
@@ -63,7 +67,7 @@ fun AddStreetAnimalScreen(
             Spacer(Modifier.height(4.dp))
             InformationComponent(
                 addDescription = cameraViewModel::addDescription,
-                advertState = advertState.value,
+                advertState = advertState,
             )
         }
 
@@ -73,6 +77,25 @@ fun AddStreetAnimalScreen(
                 .fillMaxWidth(),
             onClick = cameraViewModel::createStreetAdvert
         )
+
+        SuccessSendPopup(
+            visible = advertState.isPlaced,
+            title = "Объявление отправлено",
+            description = "Спасибо что отметили животное!\nЭто поможет найти ему дом.",
+            onDismiss = onBack,
+        )
+
+        if (advertState.internetError) {
+            AnimatedToast(message = "Проблемы с интернетом")
+        }
+
+        if (advertState.serverError) {
+            AnimatedToast(message = "Что-то пошло не так")
+        }
+
+        if (advertState.isLoading) {
+            CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+        }
     }
 
 }

@@ -6,25 +6,21 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
 import com.example.core.R
+import domain.models.StreetPetPreviewModel
 import ui.components.default_component.ToolBar
 import ui.components.default_component.ToolBarInfo
-import ui.components.other.NearPetCardComponent
-import ui.components.placeholder.EmptyAnimalList
-import ui.components.placeholder.ErrorPlaceholder
-import ui.components.street.StreetGridPets
+import ui.components.street.StreetPetGrid
+import ui.components.street.StreetPetRefreshState
 import ui.theme.backgroundColor
 
 
@@ -34,13 +30,9 @@ fun StreetPetRoute(
     returnToMainScreen: () -> Unit,
     openFilterSettings: () -> Unit
 ) {
-    LaunchedEffect(Unit) {
-        streetPetViewModel.getStreetAnimals()
-    }
-    val uiState by streetPetViewModel.animalScreenState.collectAsStateWithLifecycle()
-
+    val animals = streetPetViewModel.streetAnimals.collectAsLazyPagingItems()
     StreetPetScreen(
-        streetPetScreenState = uiState,
+        streetPetScreenState = animals,
         returnToMainScreen = returnToMainScreen,
         openFilterSettings = openFilterSettings,
     )
@@ -49,7 +41,7 @@ fun StreetPetRoute(
 @Composable
 fun StreetPetScreen(
     modifier: Modifier = Modifier,
-    streetPetScreenState: StreetPetScreenState,
+    streetPetScreenState: LazyPagingItems<StreetPetPreviewModel>,
     returnToMainScreen: () -> Unit,
     openFilterSettings: () -> Unit
 ) {
@@ -71,65 +63,30 @@ fun StreetPetScreen(
             onActionClick = openFilterSettings
         )
         Spacer(Modifier.height(10.dp))
-        StreetPetSection(streetPetScreenState = streetPetScreenState)
+        StreetPetSection(animals = streetPetScreenState)
     }
 }
 
 @Composable
 fun StreetPetSection(
     modifier: Modifier = Modifier,
-    streetPetScreenState: StreetPetScreenState
+    animals: LazyPagingItems<StreetPetPreviewModel>
 ) {
     Box(
         modifier = modifier
+            .fillMaxSize()
             .clip(RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp))
             .background(Color.White)
-            .fillMaxSize()
     ) {
-        val centerModifier = Modifier.align(Alignment.Center)
+        StreetPetGrid(
+            animals = animals,
+            modifier = Modifier.fillMaxSize()
+        )
 
-        when (streetPetScreenState) {
-            StreetPetScreenState.Empty -> {
-                EmptyAnimalList(modifier = centerModifier)
-            }
-
-            StreetPetScreenState.Failed -> {
-                ErrorPlaceholder(modifier = centerModifier)
-            }
-
-            StreetPetScreenState.Idle -> Unit
-
-            StreetPetScreenState.Loading -> {
-                CircularProgressIndicator(modifier = centerModifier)
-            }
-
-            is StreetPetScreenState.Success -> {
-                val animalList = streetPetScreenState.data
-
-                if (animalList.isEmpty()) {
-                    EmptyAnimalList(modifier = centerModifier)
-                    return@Box
-                }
-
-                val nearestPet = animalList.last()
-                val otherPets = animalList.dropLast(1)
-
-                Column(
-                    modifier = Modifier.padding(vertical = 16.dp, horizontal = 16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    NearPetCardComponent(
-                        streetPetPreviewModel = nearestPet,
-                        navigateToStreetPetScreen = {
-                        }
-                    )
-
-                    if (otherPets.isNotEmpty()) {
-                        Spacer(Modifier.height(16.dp))
-                        StreetGridPets(animalList = otherPets)
-                    }
-                }
-            }
-        }
+        StreetPetRefreshState(
+            refreshState = animals.loadState.refresh,
+            isEmpty = animals.itemCount == 0,
+            modifier = Modifier.align(Alignment.Center)
+        )
     }
 }

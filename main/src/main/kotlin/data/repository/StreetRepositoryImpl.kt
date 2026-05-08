@@ -1,14 +1,20 @@
 package data.repository
 
-import ApiResponse
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
+import androidx.paging.map
 import apiService.StreetService
 import apiService.models.street_models.StreetAnimalRequest
 import apiService.models.street_models.StreetAnimalResponse
+import data.pager.StreetAnimalPagingSource
 import domain.models.AdvertInfo
 import domain.models.StreetPetPreviewModel
 import domain.repository.StreetRepository
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import ui.other.Converter
 import ui.other.timeUtils.DateTimeUtils
 import java.time.Duration
@@ -16,25 +22,27 @@ import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
+@RequiresApi(Build.VERSION_CODES.O)
 class StreetRepositoryImpl(
     private val streetService: StreetService,
     private val converter: Converter,
 ) : StreetRepository {
 
     @RequiresApi(Build.VERSION_CODES.O)
-    override suspend fun getStreetAnimals(): Pair<List<StreetPetPreviewModel>?, Int?> {
-
-        val response = streetService.getStreetAnimals()
-        return when (response) {
-            is ApiResponse.Error -> {
-                Pair(null, response.errorCode)
+    override fun getStreetAnimals(): Flow<PagingData<StreetPetPreviewModel>> {
+        return Pager(
+            config = PagingConfig(
+                pageSize = 20,
+                enablePlaceholders = false
+            ),
+            pagingSourceFactory = {
+                StreetAnimalPagingSource(
+                    service = streetService
+                )
             }
-
-            is ApiResponse.Success<List<StreetAnimalResponse>> -> {
-                val animalList = response.data.map {
-                    convertToStreetPreviewModel(it)
-                }
-                Pair(animalList, null)
+        ).flow.map { pagingData ->
+            pagingData.map { response ->
+                convertToStreetPreviewModel(response)
             }
         }
     }

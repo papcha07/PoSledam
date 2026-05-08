@@ -7,9 +7,7 @@ import androidx.lifecycle.viewModelScope
 import domain.LocationProvider
 import domain.interactor.StreetPetInteractor
 import domain.models.AdvertInfo
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -29,9 +27,6 @@ class CameraViewModel(
 
     private val _advertState = MutableStateFlow(AdvertInfo())
     val advertState = _advertState.asStateFlow()
-
-    private val _toastState = MutableSharedFlow<String>()
-    val toastState = _toastState.asSharedFlow()
 
     fun addPhoto(uri: Uri) {
         _uris.value += uri
@@ -57,6 +52,15 @@ class CameraViewModel(
     private fun setAddress(address: String) {
         _advertState.update {
             it.copy(address = address)
+        }
+    }
+
+    fun clearViewModel() {
+        _advertState.update {
+            AdvertInfo()
+        }
+        _uris.update {
+            listOf()
         }
     }
 
@@ -101,20 +105,32 @@ class CameraViewModel(
 
     fun createStreetAdvert() {
         viewModelScope.launch {
+            _advertState.update {
+                it.copy(
+                    isLoading = true,
+                    isPlaced = false,
+                    internetError = false,
+                    serverError = false
+                )
+            }
             val response = streetInteractor.createStreetAdvert(_advertState.value)
             when (response) {
                 200 -> {
                     _advertState.update {
-                        it.copy(isPlaced = true)
+                        it.copy(isPlaced = true, isLoading = false)
                     }
                 }
 
                 400 -> {
-                    _toastState.emit("Не удалось разместить объявление")
+                    _advertState.update {
+                        it.copy(serverError = true, isLoading = false)
+                    }
                 }
 
                 -1 -> {
-                    _toastState.emit("Проверьте соединение с интернетом")
+                    _advertState.update {
+                        it.copy(internetError = true, isLoading = false)
+                    }
                 }
             }
         }

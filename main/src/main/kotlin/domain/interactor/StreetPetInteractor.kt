@@ -1,10 +1,12 @@
 package domain.interactor
 
+import androidx.paging.PagingData
 import domain.models.AdvertInfo
 import domain.models.StreetPetPreviewModel
+import kotlinx.coroutines.flow.Flow
 
 interface StreetPetInteractor {
-    suspend fun getStreetAnimals(): Pair<List<StreetPetPreviewModel>?, Int?>
+    fun getStreetAnimals(): Flow<PagingData<StreetPetPreviewModel>>
     suspend fun createStreetAdvert(advertInfo: AdvertInfo): Int
 
 }
