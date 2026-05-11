@@ -28,7 +28,7 @@ import com.example.core.R
 fun StreetPhotoPager(
     modifier: Modifier = Modifier,
     photos: List<Uri>,
-    returnToCameraScreen: () -> Unit
+    returnBack: () -> Unit
 ) {
     val pageCount = photos.size
     val pagerState = rememberPagerState { pageCount }
@@ -59,7 +59,7 @@ fun StreetPhotoPager(
                     .size(32.dp)
                     .clip(CircleShape)
                     .clickable {
-                        returnToCameraScreen()
+                        returnBack()
                     }
             ) {
                 Icon(
@@ -80,7 +80,7 @@ fun StreetPhotoPager(
 fun StreetPhotoPagerPreview(modifier: Modifier = Modifier) {
     StreetPhotoPager(
         photos = listOf(),
-        returnToCameraScreen = {
+        returnBack = {
 
         }
     )

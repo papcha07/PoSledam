@@ -9,4 +9,6 @@ interface StreetRepository {
     fun getStreetAnimals(): Flow<PagingData<StreetPetPreviewModel>>
     suspend fun createStreetAdvert(advertInfo: AdvertInfo): Int
 
+    suspend fun getInformationAboutStreetAnimal(id: String) : Pair<>
+
 }

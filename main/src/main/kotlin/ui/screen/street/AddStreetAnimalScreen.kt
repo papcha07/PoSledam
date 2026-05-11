@@ -62,7 +62,7 @@ fun AddStreetAnimalScreen(
         ) {
             StreetPhotoPager(
                 photos = urisState.value,
-                returnToCameraScreen = onBack
+                returnBack = onBack
             )
             Spacer(Modifier.height(4.dp))
             InformationComponent(

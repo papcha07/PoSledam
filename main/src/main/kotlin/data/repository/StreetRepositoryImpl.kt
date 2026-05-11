@@ -47,6 +47,9 @@ class StreetRepositoryImpl(
         }
     }
 
+
+
+
     override suspend fun createStreetAdvert(advertInfo: AdvertInfo): Int {
         val files = advertInfo.images.map {
             converter.convertToFile(it.toString())
