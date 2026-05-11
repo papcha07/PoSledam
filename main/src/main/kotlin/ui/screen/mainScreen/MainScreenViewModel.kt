@@ -5,8 +5,8 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import domain.NotificationInteractor
-import domain.interactor.LocationInteractor
-import domain.interactor.MainInteractor
+import domain.interactor.location.LocationInteractor
+import domain.interactor.main.MainInteractor
 import domain.model.Notification
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow

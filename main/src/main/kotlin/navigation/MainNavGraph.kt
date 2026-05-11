@@ -4,7 +4,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
+import androidx.navigation.NavType
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import androidx.navigation.navigation
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
@@ -25,6 +27,11 @@ sealed class MainRoute(val route: String) {
     object StreetPetsScreen : MainRoute("streetPets")
     object CameraScreen : MainRoute("cameraScreen")
     object PlaceAnimalScreen : MainRoute("placeAnimalScreen")
+    object StreetDetailsScreen : MainRoute("streetDetailsScreen/{id}") {
+        fun createRoute(id: Int): String {
+            return "streetDetailsScreen/$id"
+        }
+    }
 }
 
 
@@ -124,6 +131,18 @@ fun NavGraphBuilder.mainNavGraph(navController: NavController, route: String = "
                     cameraViewModel.clearViewModel()
                 }
             )
+        }
+
+        composable(
+            route = MainRoute.StreetDetailsScreen.route,
+            arguments = listOf(
+                navArgument("id") {
+                    type = NavType.StringType
+                }
+            )
+        ) { backStackEntry ->
+            val id = backStackEntry.arguments?.getString("id")
+
         }
 
 

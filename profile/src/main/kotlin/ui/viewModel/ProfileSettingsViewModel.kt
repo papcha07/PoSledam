@@ -4,7 +4,7 @@ import ApiResponse
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import domain.NotificationSettingsInteractor
-import domain.interactor.MainInteractor
+import domain.interactor.main.MainInteractor
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow

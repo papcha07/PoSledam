@@ -1,4 +1,4 @@
-package domain.interactor
+package domain.interactor.main
 
 import ApiResponse
 import ui.model.UserDataUiInfo

@@ -3,17 +3,12 @@ package domain.models
 data class StreetDetails(
     val street: String,
     val house: String,
-    val imagePath: String? = null,
+    val imagePath: List<String>,
     val creator: Creator,
     val placeDescription: String,
     val lon: Double,
     val lat: Double,
-    val dateInfo: DateInfo,
-)
-
-data class DateInfo(
-    val time: String,
-    val date: String
+    val dateInfo: String,
 )
 
 data class Creator(
@@ -21,6 +16,9 @@ data class Creator(
     val firstName: String,
     val avatarPath: String? = null
 )
+
+
+
 
 
 

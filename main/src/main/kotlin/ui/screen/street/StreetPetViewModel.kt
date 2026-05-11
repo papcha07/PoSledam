@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
-import domain.interactor.StreetPetInteractor
+import domain.interactor.street.StreetPetInteractor
 import domain.models.StreetPetPreviewModel
 import kotlinx.coroutines.flow.Flow
 
