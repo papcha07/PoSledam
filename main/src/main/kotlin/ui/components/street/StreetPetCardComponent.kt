@@ -1,5 +1,6 @@
 package ui.components.street
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -26,11 +27,15 @@ import ui.BASE_URL
 @Composable
 fun StreetPetCardComponent(
     modifier: Modifier = Modifier,
-    streetPetPreviewModel: StreetPetPreviewModel
+    streetPetPreviewModel: StreetPetPreviewModel,
+    openStreetDetails: (String) -> Unit
 ) {
     Box(
         modifier = modifier
             .fillMaxWidth()
+            .clickable {
+                openStreetDetails(streetPetPreviewModel.id)
+            }
     ) {
         Column {
             AsyncImage(
@@ -92,5 +97,7 @@ private fun StreetPetCardComponentPreview() {
             image = "asdasdasd",
             minutesAgo = 20L
         )
-    )
+    ) {
+
+    }
 }

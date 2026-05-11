@@ -20,6 +20,7 @@ import ui.screen.mainScreen.MainScreenViewModel
 import ui.screen.street.AddStreetAnimalScreen
 import ui.screen.street.StreetPetRoute
 import ui.screen.street.StreetPetViewModel
+import ui.screen.street.detailsScreen.StreetPetDetailRouter
 
 sealed class MainRoute(val route: String) {
     object MainScreen : MainRoute("mainScreen")
@@ -28,7 +29,7 @@ sealed class MainRoute(val route: String) {
     object CameraScreen : MainRoute("cameraScreen")
     object PlaceAnimalScreen : MainRoute("placeAnimalScreen")
     object StreetDetailsScreen : MainRoute("streetDetailsScreen/{id}") {
-        fun createRoute(id: Int): String {
+        fun createRoute(id: String): String {
             return "streetDetailsScreen/$id"
         }
     }
@@ -101,7 +102,14 @@ fun NavGraphBuilder.mainNavGraph(navController: NavController, route: String = "
             StreetPetRoute(
                 streetPetViewModel = streetViewModel,
                 openFilterSettings = {},
-                returnToMainScreen = { navController.popBackStack() }
+                returnToMainScreen = { navController.popBackStack() },
+                openStreetDetails = {
+                    navController.navigate(
+                        MainRoute.StreetDetailsScreen.createRoute(
+                            it
+                        )
+                    )
+                }
             )
         }
 
@@ -141,7 +149,13 @@ fun NavGraphBuilder.mainNavGraph(navController: NavController, route: String = "
                 }
             )
         ) { backStackEntry ->
-            val id = backStackEntry.arguments?.getString("id")
+            val streetViewModel: StreetPetViewModel = koinViewModel()
+            val id = backStackEntry.arguments?.getString("id")!!
+
+            StreetPetDetailRouter(
+                streetPetViewModel = streetViewModel,
+                animalId = id
+            )
 
         }
 

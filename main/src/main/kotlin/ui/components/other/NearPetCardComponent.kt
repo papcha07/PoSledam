@@ -1,6 +1,5 @@
 package ui.components.other
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -10,7 +9,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
@@ -31,7 +29,7 @@ import ui.BASE_URL
 fun NearPetCardComponent(
     modifier: Modifier = Modifier,
     streetPetPreviewModel: StreetPetPreviewModel,
-    navigateToStreetPetScreen: () -> Unit
+    openStreetDetails: (String) -> Unit
 ) {
     Column(
         modifier = modifier
@@ -43,7 +41,7 @@ fun NearPetCardComponent(
             )
             .clip(RoundedCornerShape(20.dp))
             .clickable {
-                navigateToStreetPetScreen()
+                openStreetDetails(streetPetPreviewModel.id)
             }
     ) {
         Box(
