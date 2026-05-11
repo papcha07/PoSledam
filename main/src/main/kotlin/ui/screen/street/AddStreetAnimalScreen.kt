@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.yandex.mapkit.geometry.Point
 import domain.models.AdvertInfo
+import ui.components.BackCircleButton
 import ui.components.ButtonComponent
 import ui.components.CurrentLocationMap
 import ui.components.EventDateComponent
@@ -62,7 +63,6 @@ fun AddStreetAnimalScreen(
         ) {
             StreetPhotoPager(
                 photos = urisState.value,
-                returnBack = onBack
             )
             Spacer(Modifier.height(4.dp))
             InformationComponent(
@@ -96,6 +96,13 @@ fun AddStreetAnimalScreen(
         if (advertState.isLoading) {
             CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
         }
+
+        BackCircleButton(
+            onBack = onBack,
+            modifier = Modifier
+                .align(Alignment.TopStart)
+                .padding(top = 30.dp, start = 30.dp)
+        )
     }
 
 }

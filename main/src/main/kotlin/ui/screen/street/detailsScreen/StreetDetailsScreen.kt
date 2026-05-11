@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -16,6 +17,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import domain.models.StreetDetails
+import ui.components.BackCircleButton
 import ui.components.placeholder.ErrorPlaceholder
 import ui.components.streetPager.StreetPhotoPager
 import ui.model.ScreenState
@@ -37,7 +39,9 @@ fun StreetPetDetailRouter(
 
     StreetDetailsScreen(
         detailsState = detailsState,
-        returnBack = {}
+        returnBack = {
+
+        }
     )
 }
 
@@ -84,20 +88,29 @@ fun StreetDetailsBodyComponent(
     streetDetails: StreetDetails,
     returnBack: () -> Unit
 ) {
-    Column(
-        modifier = modifier
-            .background(color = backgroundColor)
-            .fillMaxSize()
-    ) {
-        StreetPhotoPager(
-            photos = streetDetails.imagePath.map {
-                it.toUri()
-            },
-            returnBack = returnBack
-        )
-        Spacer(Modifier.height(4.dp))
-        DescriptionComponent(
-            placeDescription = streetDetails.placeDescription
+    Box(modifier = modifier.fillMaxSize()) {
+        Column(
+            modifier = modifier
+                .background(color = backgroundColor)
+                .fillMaxSize()
+        ) {
+            StreetPhotoPager(
+                photos = streetDetails.imagePath.map {
+                    it.toUri()
+                }
+            )
+            Spacer(Modifier.height(4.dp))
+            DescriptionComponent(
+                placeDescription = streetDetails.placeDescription
+            )
+        }
+
+        BackCircleButton(
+            onBack = returnBack,
+            modifier = Modifier
+                .align(Alignment.TopStart)
+                .padding(top = 30.dp, start = 30.dp)
         )
     }
+
 }

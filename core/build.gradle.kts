@@ -53,6 +53,7 @@ dependencies {
     implementation(libs.androidx.appcompat.resources)
     implementation("androidx.paging:paging-runtime-ktx:3.4.2")
     implementation("androidx.paging:paging-compose:3.4.2")
+    implementation(libs.androidx.foundation.layout)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
