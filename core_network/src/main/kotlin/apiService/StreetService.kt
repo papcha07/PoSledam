@@ -2,6 +2,7 @@ package apiService
 
 import ApiResponse
 import android.util.Log
+import apiService.models.street_models.StreetAnimalDetailsResponse
 import apiService.models.street_models.StreetAnimalRequest
 import apiService.models.street_models.StreetAnimalResponse
 import io.ktor.client.HttpClient
@@ -22,7 +23,7 @@ class StreetService(private val client: HttpClient) {
     suspend fun getStreetAnimals(streetRequest: StreetListRequest): ApiResponse<List<StreetAnimalResponse>> {
         return withContext(Dispatchers.IO) {
             try {
-                val response = client.get("api/street-pet-announcement/feed") {
+                val response = client.get("api/$STREET_URL/feed") {
                     streetRequest.lastDateTime?.let {
                         parameter("lastDateTime", it)
                     }
@@ -43,6 +44,23 @@ class StreetService(private val client: HttpClient) {
         }
     }
 
+    suspend fun getDetailsAboutStreetAnimal(id: String): ApiResponse<StreetAnimalDetailsResponse> {
+        return withContext(Dispatchers.IO) {
+            try {
+                val response = client.get("api/$STREET_URL/$id")
+                if (response.status.isSuccess()) {
+                    val body = response.body<StreetAnimalDetailsResponse>()
+                    ApiResponse.Success(body)
+                } else {
+                    ApiResponse.Error(400)
+                }
+            } catch (e: Exception) {
+                ApiResponse.Error(-1)
+            }
+        }
+    }
+
+
     suspend fun createStreetAnimal(
         streetAnimalRequest: StreetAnimalRequest,
         fileList: List<File>
@@ -50,7 +68,7 @@ class StreetService(private val client: HttpClient) {
         return withContext(Dispatchers.IO) {
             try {
                 val response = client.submitFormWithBinaryData(
-                    url = "api/street-pet-announcement",
+                    url = "api/$STREET_URL",
                     formData = formData {
                         append("petType", streetAnimalRequest.petType)
                         append("Location.Latitude", streetAnimalRequest.lat)
@@ -79,5 +97,9 @@ class StreetService(private val client: HttpClient) {
             }
         }
 
+    }
+
+    companion object {
+        const val STREET_URL = "street-pet-announcement"
     }
 }

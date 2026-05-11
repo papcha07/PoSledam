@@ -28,13 +28,15 @@ import ui.theme.backgroundColor
 fun StreetPetRoute(
     streetPetViewModel: StreetPetViewModel,
     returnToMainScreen: () -> Unit,
-    openFilterSettings: () -> Unit
+    openFilterSettings: () -> Unit,
+    openStreetDetails: (String) -> Unit
 ) {
     val animals = streetPetViewModel.streetAnimals.collectAsLazyPagingItems()
     StreetPetScreen(
         streetPetScreenState = animals,
         returnToMainScreen = returnToMainScreen,
         openFilterSettings = openFilterSettings,
+        openStreetDetails = openStreetDetails
     )
 }
 
@@ -43,7 +45,8 @@ fun StreetPetScreen(
     modifier: Modifier = Modifier,
     streetPetScreenState: LazyPagingItems<StreetPetPreviewModel>,
     returnToMainScreen: () -> Unit,
-    openFilterSettings: () -> Unit
+    openFilterSettings: () -> Unit,
+    openStreetDetails: (String) -> Unit
 ) {
 
     Column(
@@ -63,14 +66,18 @@ fun StreetPetScreen(
             onActionClick = openFilterSettings
         )
         Spacer(Modifier.height(10.dp))
-        StreetPetSection(animals = streetPetScreenState)
+        StreetPetSection(
+            animals = streetPetScreenState,
+            openStreetDetails = openStreetDetails,
+        )
     }
 }
 
 @Composable
 fun StreetPetSection(
     modifier: Modifier = Modifier,
-    animals: LazyPagingItems<StreetPetPreviewModel>
+    animals: LazyPagingItems<StreetPetPreviewModel>,
+    openStreetDetails: (String) -> Unit
 ) {
     Box(
         modifier = modifier
@@ -80,7 +87,8 @@ fun StreetPetSection(
     ) {
         StreetPetGrid(
             animals = animals,
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier.fillMaxSize(),
+            openStreetDetails = openStreetDetails
         )
 
         StreetPetRefreshState(

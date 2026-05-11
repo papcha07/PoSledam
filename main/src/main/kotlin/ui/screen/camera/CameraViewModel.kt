@@ -5,7 +5,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import domain.LocationProvider
-import domain.interactor.StreetPetInteractor
+import domain.interactor.street.StreetPetInteractor
 import domain.models.AdvertInfo
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow

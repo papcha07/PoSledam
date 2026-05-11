@@ -1,4 +1,4 @@
-package domain.interactor
+package domain.interactor.location
 
 import domain.LocationProvider
 import domain.repository.LocationRepository
@@ -18,4 +18,3 @@ class LocationInteractorImpl(
         }
     }
 }
-

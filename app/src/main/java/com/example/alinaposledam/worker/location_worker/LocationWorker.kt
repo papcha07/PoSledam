@@ -4,7 +4,7 @@ import android.content.Context
 import android.util.Log
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
-import domain.interactor.LocationInteractor
+import domain.interactor.location.LocationInteractor
 
 class LocationWorker(
     context: Context,

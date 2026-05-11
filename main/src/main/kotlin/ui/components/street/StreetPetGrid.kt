@@ -18,7 +18,8 @@ import ui.components.other.NearPetCardComponent
 @Composable
 fun StreetPetGrid(
     animals: LazyPagingItems<StreetPetPreviewModel>,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    openStreetDetails: (String) -> Unit
 ) {
     Box(
         modifier = modifier.fillMaxSize()
@@ -45,9 +46,7 @@ fun StreetPetGrid(
                     if (firstAnimal != null) {
                         NearPetCardComponent(
                             streetPetPreviewModel = firstAnimal,
-                            navigateToStreetPetScreen = {
-
-                            }
+                            openStreetDetails = openStreetDetails
                         )
                     }
                 }
@@ -59,7 +58,8 @@ fun StreetPetGrid(
                 val animal = animals[index + 1]
                 if (animal != null) {
                     StreetPetCardComponent(
-                        streetPetPreviewModel = animal
+                        streetPetPreviewModel = animal,
+                        openStreetDetails = openStreetDetails
                     )
                 }
             }

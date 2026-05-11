@@ -6,7 +6,7 @@ import androidx.work.ListenableWorker
 import androidx.work.WorkerFactory
 import androidx.work.WorkerParameters
 import com.example.alinaposledam.worker.location_worker.LocationWorker
-import domain.interactor.LocationInteractor
+import domain.interactor.location.LocationInteractor
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
 
