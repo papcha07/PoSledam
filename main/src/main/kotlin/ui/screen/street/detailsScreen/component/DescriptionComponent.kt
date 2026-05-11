@@ -15,21 +15,24 @@ import ui.theme.textHint
 @Composable
 fun DescriptionComponent(
     modifier: Modifier = Modifier,
-    placeDescription: String
+    placeDescription: String?
 ) {
     Column(
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
     ) {
         Text(
             text = "Где был замечен:",
             fontSize = 16.sp
         )
-        Spacer(Modifier.height(12.dp))
-        Text(
-            text = placeDescription,
-            fontSize = 14.sp,
-            color = textHint
-        )
+        placeDescription?.let {
+            Spacer(Modifier.height(12.dp))
+            Text(
+                text = placeDescription,
+                fontSize = 14.sp,
+                color = textHint
+            )
+        }
     }
 }
 
