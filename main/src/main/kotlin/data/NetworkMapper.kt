@@ -13,7 +13,7 @@ fun StreetAnimalDetailsResponse.toStreetDetails(): StreetDetails {
             firstName = this.creator.firstName,
             avatarPath = this.creator.avatarPath
         ),
-        placeDescription = this.placeDescription,
+        placeDescription = this.placeDescription ?: "Нет описания",
         lon = this.location.longitude,
         lat = this.location.latitude,
         dateInfo = DateTimeUtils.formatUtcToDeviceTime(this.eventDate)
