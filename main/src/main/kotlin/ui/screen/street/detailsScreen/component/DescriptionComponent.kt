@@ -21,7 +21,7 @@ fun DescriptionComponent(
         modifier = Modifier.fillMaxWidth()
     ) {
         Text(
-            text = "Особый приметы",
+            text = "Где был замечен:",
             fontSize = 16.sp
         )
         Spacer(Modifier.height(12.dp))
@@ -37,6 +37,6 @@ fun DescriptionComponent(
 @Composable
 private fun DescriptionComponentPreview() {
     DescriptionComponent(
-        placeDescription = "Где был замечен:"
+        placeDescription = "Возле дома сидел на дереве"
     )
 }

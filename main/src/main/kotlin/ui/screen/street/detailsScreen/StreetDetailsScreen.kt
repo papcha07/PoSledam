@@ -1,18 +1,25 @@
 package ui.screen.street.detailsScreen
 
-import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.net.toUri
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import domain.models.StreetDetails
+import ui.components.placeholder.ErrorPlaceholder
 import ui.components.streetPager.StreetPhotoPager
+import ui.model.ScreenState
 import ui.screen.street.StreetPetViewModel
+import ui.screen.street.detailsScreen.component.DescriptionComponent
 import ui.theme.backgroundColor
 
 
@@ -22,44 +29,73 @@ fun StreetPetDetailRouter(
     streetPetViewModel: StreetPetViewModel,
     animalId: String
 ) {
+    LaunchedEffect(animalId) {
+        streetPetViewModel.getDetailsAboutAnimal(animalId)
+    }
+    val detailsState by streetPetViewModel.detailsState.collectAsStateWithLifecycle()
+
     StreetDetailsScreen(
-        photos = TODO(),
-        returnBack = TODO()
+        detailsState = detailsState,
+        returnBack = {}
     )
 }
 
 @Composable
 fun StreetDetailsScreen(
     modifier: Modifier = Modifier,
-    photos: List<Uri>,
+    detailsState: ScreenState<StreetDetails>,
     returnBack: () -> Unit,
 ) {
     Box(
         modifier = modifier
             .fillMaxSize()
     ) {
-        Column(
-            modifier = modifier
-                .background(color = backgroundColor)
-                .fillMaxSize()
-        ) {
-            StreetPhotoPager(
-                photos = photos,
-                returnBack = returnBack
-            )
-            Spacer(Modifier.height(4.dp))
+        when (detailsState) {
+            ScreenState.Error -> {
+                ErrorPlaceholder()
+            }
+
+            ScreenState.Idle -> {}
+            ScreenState.InternetError -> {
+                ErrorPlaceholder()
+            }
+
+            ScreenState.Loading -> {
+                CircularProgressIndicator()
+            }
+
+            is ScreenState.Success<StreetDetails> -> {
+                StreetDetailsBodyComponent(
+                    streetDetails = detailsState.data,
+                    returnBack = returnBack,
+                )
+            }
         }
 
     }
 }
 
-@Preview
+
 @Composable
-private fun StreetDetailsScreenPreview() {
-    StreetDetailsScreen(
-        photos = listOf(),
-        returnBack = {
-            
-        }
-    )
+fun StreetDetailsBodyComponent(
+    modifier: Modifier = Modifier,
+    streetDetails: StreetDetails,
+    returnBack: () -> Unit
+) {
+    Column(
+        modifier = modifier
+            .background(color = backgroundColor)
+            .fillMaxSize()
+    ) {
+        StreetPhotoPager(
+            photos = streetDetails.imagePath.map {
+                it.toUri()
+            },
+            returnBack = returnBack
+        )
+        Spacer(Modifier.height(4.dp))
+        DescriptionComponent(
+            placeDescription = streetDetails.placeDescription
+        )
+    }
 }
