@@ -1,10 +1,9 @@
-package domain.interactor
+package domain.interactor.main
 
 import ApiResponse
 import android.util.Log
 import apiService.models.auth_models.UpdateUserInfoRequest
 import domain.UserInfo
-import domain.models.AdvertInfo
 import domain.repository.MainRepository
 import model.auth.response.Contact
 import ui.model.UserDataUiInfo
