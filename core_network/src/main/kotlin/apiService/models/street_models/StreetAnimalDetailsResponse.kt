@@ -8,7 +8,7 @@ data class StreetAnimalDetailsResponse(
     val creator: CreatorDto,
     val location: Location,
     val eventDate: String,
-    val placeDescription: String,
+    val placeDescription: String?,
 ) {
     @Serializable
     data class CreatorDto(

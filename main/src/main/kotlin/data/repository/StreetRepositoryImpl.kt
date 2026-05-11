@@ -32,7 +32,6 @@ class StreetRepositoryImpl(
     private val converter: Converter,
 ) : StreetRepository {
 
-    @RequiresApi(Build.VERSION_CODES.O)
     override fun getStreetAnimals(): Flow<PagingData<StreetPetPreviewModel>> {
         return Pager(
             config = PagingConfig(
@@ -86,7 +85,6 @@ class StreetRepositoryImpl(
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     private fun convertToStreetPreviewModel(streetResponse: StreetAnimalResponse): StreetPetPreviewModel {
         val primeTime = convertToUiTime(streetResponse.eventDate)
         return StreetPetPreviewModel(
@@ -100,7 +98,6 @@ class StreetRepositoryImpl(
         )
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     private fun convertToUiTime(timeFromServer: String): Pair<String, String> {
         val instant = Instant.parse(timeFromServer)
         val dateTime = instant.atZone(ZoneId.systemDefault())
@@ -109,12 +106,9 @@ class StreetRepositoryImpl(
         return Pair(formatted[0], formatted[1].replace(":", "/"))
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     fun minutesAgoSafe(timeFromServer: String): Long {
         val posted = Instant.parse(timeFromServer)
         val now = Instant.now()
         return Duration.between(posted, now).toMinutes()
     }
-
-
 }

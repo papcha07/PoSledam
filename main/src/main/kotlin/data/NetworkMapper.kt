@@ -1,10 +1,13 @@
 package data
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import apiService.models.street_models.StreetAnimalDetailsResponse
 import domain.models.CreatorDetails
 import domain.models.StreetDetails
 import ui.other.timeUtils.DateTimeUtils
 
+@RequiresApi(Build.VERSION_CODES.O)
 fun StreetAnimalDetailsResponse.toStreetDetails(): StreetDetails {
     return StreetDetails(
         imagePath = this.imagePaths,
