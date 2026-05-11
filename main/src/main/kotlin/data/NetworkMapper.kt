@@ -1,16 +1,14 @@
 package data
 
 import apiService.models.street_models.StreetAnimalDetailsResponse
-import domain.models.Creator
+import domain.models.CreatorDetails
 import domain.models.StreetDetails
 import ui.other.timeUtils.DateTimeUtils
 
 fun StreetAnimalDetailsResponse.toStreetDetails(): StreetDetails {
     return StreetDetails(
-        street = this.street,
-        house = this.house,
-        imagePath = this.imagesPaths,
-        creator = Creator(
+        imagePath = this.imagePaths,
+        creator = CreatorDetails(
             id = this.creator.id,
             firstName = this.creator.firstName,
             avatarPath = this.creator.avatarPath

@@ -10,6 +10,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
@@ -50,14 +51,15 @@ fun StreetDetailsScreen(
         modifier = modifier
             .fillMaxSize()
     ) {
+        val alignModifier = Modifier.align(Alignment.Center)
         when (detailsState) {
             ScreenState.Error -> {
-                ErrorPlaceholder()
+                ErrorPlaceholder(modifier = alignModifier)
             }
 
             ScreenState.Idle -> {}
             ScreenState.InternetError -> {
-                ErrorPlaceholder()
+                ErrorPlaceholder(modifier = alignModifier)
             }
 
             ScreenState.Loading -> {

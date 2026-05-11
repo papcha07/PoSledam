@@ -4,9 +4,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class StreetAnimalDetailsResponse(
-    val street: String,
-    val house: String,
-    val imagesPaths: List<String>,
+    val imagePaths: List<String>,
     val creator: CreatorDto,
     val location: Location,
     val eventDate: String,
