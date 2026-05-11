@@ -30,7 +30,8 @@ import ui.theme.backgroundColor
 fun StreetPetDetailRouter(
     modifier: Modifier = Modifier,
     streetPetViewModel: StreetPetViewModel,
-    animalId: String
+    animalId: String,
+    returnBack: () -> Unit
 ) {
     LaunchedEffect(animalId) {
         streetPetViewModel.getDetailsAboutAnimal(animalId)
@@ -39,9 +40,7 @@ fun StreetPetDetailRouter(
 
     StreetDetailsScreen(
         detailsState = detailsState,
-        returnBack = {
-
-        }
+        returnBack = returnBack
     )
 }
 

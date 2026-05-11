@@ -154,7 +154,8 @@ fun NavGraphBuilder.mainNavGraph(navController: NavController, route: String = "
 
             StreetPetDetailRouter(
                 streetPetViewModel = streetViewModel,
-                animalId = id
+                animalId = id,
+                returnBack = { navController.popBackStack() }
             )
 
         }
