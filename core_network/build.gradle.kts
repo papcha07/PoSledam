@@ -57,7 +57,6 @@ dependencies {
 
     implementation(libs.koin.core)
     implementation(libs.koin.android)
-    implementation(project(":core_datastore"))
 
     // Ktor (сеть)
     implementation(libs.ktor.client.core)

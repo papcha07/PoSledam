@@ -1,4 +1,4 @@
-package domain.model
+package domain.notification
 
 data class Notification(
     val id: Long,

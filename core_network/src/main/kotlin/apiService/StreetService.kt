@@ -2,6 +2,7 @@ package apiService
 
 import ApiResponse
 import android.util.Log
+import apiService.models.StreetListRequest
 import apiService.models.street_models.StreetAnimalDetailsResponse
 import apiService.models.street_models.StreetAnimalRequest
 import apiService.models.street_models.StreetAnimalResponse

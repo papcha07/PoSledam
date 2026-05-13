@@ -3,7 +3,7 @@ package data.pager
 import ApiResponse
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
-import apiService.StreetListRequest
+import apiService.models.StreetListRequest
 import apiService.StreetService
 import apiService.models.street_models.StreetAnimalResponse
 

@@ -40,6 +40,7 @@ android {
 }
 
 dependencies {
+    implementation(project(":core_datastore"))
     implementation(libs.koin.core)
     implementation(libs.koin.android)
     implementation(libs.androidx.core.ktx)
