@@ -6,7 +6,7 @@ data class User(
     val name: String,
     val description: String?,
     val avatarPath: Uri?,
-    val tg: String?,
-    val wh: String?,
-    val vk: String?,
+    val tg: String? = null,
+    val wh: String? = null,
+    val vk: String? = null,
 )

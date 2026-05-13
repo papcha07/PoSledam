@@ -45,7 +45,7 @@ fun ProfileScreen(
 
 
     LaunchedEffect(Unit) {
-        profileSettingsViewModel.loadUser()
+        profileSettingsViewModel.observeUser()
         profileViewModel.getAnimalList()
     }
 

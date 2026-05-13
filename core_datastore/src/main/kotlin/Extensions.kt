@@ -50,9 +50,9 @@ fun UserInfoResponse.toEntity(): UserEntity {
         firstName = this.firstName,
         description = this.description,
         avatarPath = this.avatarPath,
-        tg = this.contacts?.get(0)?.url,
-        wh = this.contacts?.get(2)?.url,
-        vk = this.contacts?.get(1)?.url
+        tg = this.contacts?.getOrNull(0)?.url,
+        wh = this.contacts?.getOrNull(2)?.url,
+        vk = this.contacts?.getOrNull(1)?.url
     )
 }
 

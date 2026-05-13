@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.Flow
 interface UserDao {
 
     @Query("SELECT * FROM user LIMIT 1")
-    suspend fun observeUser(): Flow<UserEntity>
+    fun observeUser(): Flow<UserEntity?>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun saveUser(user: UserEntity)

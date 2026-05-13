@@ -11,7 +11,7 @@ data class UserEntity(
     val firstName: String,
     val description: String?,
     val avatarPath: String?,
-    val tg: String?,
-    val wh: String?,
-    val vk: String?,
+    val tg: String? = null,
+    val wh: String? = null,
+    val vk: String? = null,
 )

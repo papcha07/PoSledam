@@ -24,6 +24,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -79,6 +80,9 @@ fun MainScreen(
 
     val userInfoState by mainScreenViewModel.userInfoState.collectAsState()
     val markIsReadState by mainScreenViewModel.markNotificationState.collectAsState()
+    LaunchedEffect(Unit) {
+        mainScreenViewModel.observeUser()
+    }
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()

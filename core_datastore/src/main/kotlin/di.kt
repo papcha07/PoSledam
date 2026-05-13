@@ -1,6 +1,7 @@
 import androidx.room.Room
 import db.notification.NotificationDao
 import db.notification.NotificationDatabase
+import db.user.UserDao
 import db.user.UserDatabase
 import domain.notification.NotificationInteractor
 import domain.notification.NotificationInteractorImpl
@@ -53,6 +54,10 @@ val dataStoreModule = module {
             UserDatabase::class.java,
             "user.db"
         ).build()
+    }
+
+    single<UserDao> {
+        get<UserDatabase>().userDao()
     }
 
     single<UserRepository> {

@@ -52,4 +52,17 @@ class MainScreenViewModel(
             notificationInteractor.deleteById(id)
         }
     }
+
+    fun observeUser() {
+        viewModelScope.launch {
+            _userInfoState.value = ProfileBarState.Loading
+            userInteractor.observeUser().collect { user ->
+                if (user == null) {
+                    _userInfoState.value = ProfileBarState.Loading
+                } else {
+                    _userInfoState.value = ProfileBarState.Success(user)
+                }
+            }
+        }
+    }
 }

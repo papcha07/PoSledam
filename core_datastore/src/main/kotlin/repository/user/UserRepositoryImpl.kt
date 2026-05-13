@@ -4,8 +4,8 @@ import ApiResponse
 import apiService.AuthService
 import apiService.models.auth_models.UserInfoResponse
 import db.user.UserDao
-import domain.user.model.User
 import domain.user.UserRepository
+import domain.user.model.User
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import toDomain
@@ -16,9 +16,9 @@ class UserRepositoryImpl(
     private val userDao: UserDao
 ) : UserRepository {
 
-    override suspend fun observeUser(): Flow<User> {
+    override fun observeUser(): Flow<User?> {
         return userDao.observeUser().map { entity ->
-            entity.toDomain()
+            entity?.toDomain()
         }
     }
 

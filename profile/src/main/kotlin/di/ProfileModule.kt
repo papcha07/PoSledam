@@ -1,9 +1,9 @@
 package di
 
 import data.repository.AnnouncementRepositoryImpl
-import domain.notification.NotificationSettingsInteractor
 import domain.interactor.AnnouncementInteractor
 import domain.interactor.AnnouncementInteractorImpl
+import domain.notification.NotificationSettingsInteractor
 import domain.repository.AnnouncementRepository
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
@@ -32,11 +32,11 @@ fun getProfileSettingsViewModel() = module {
     viewModel {
         ProfileSettingsViewModel(
             mainInteractor = get(),
-            notificationSettingsInteractor = get<NotificationSettingsInteractor>()
+            notificationSettingsInteractor = get<NotificationSettingsInteractor>(),
+            userInteractor = get()
         )
     }
 }
-
 
 
 fun getActionViewModel() = module {
