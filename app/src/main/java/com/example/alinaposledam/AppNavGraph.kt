@@ -21,7 +21,6 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.alinaposledam.location.RequestLocationPermission
 import com.example.alinaposledam.worker.location_worker.WorkerInteractor
-import domain.user.UserInteractor
 import navigation.authNavGraph
 import navigation.mainNavGraph
 import navigation.profileNavGraph
@@ -51,7 +50,6 @@ fun AppNavGraph() {
 
     var isAuthorized by remember { mutableStateOf(false) }
     var hasLocationPermission by remember { mutableStateOf(false) }
-    val userInteractor: UserInteractor = koinInject()
 
     LaunchedEffect(Unit) {
         val tokenRepository: TokenRepository = koin.get()
@@ -64,6 +62,7 @@ fun AppNavGraph() {
             startDestination = "main"
             isAuthorized = true
         }
+
     }
 
     if (isAuthorized) {
@@ -76,9 +75,7 @@ fun AppNavGraph() {
             }
         )
     }
-    LaunchedEffect(isAuthorized) {
-        userInteractor.refreshUser()
-    }
+
 
     LaunchedEffect(hasLocationPermission, isAuthorized) {
         if (isAuthorized && hasLocationPermission) {

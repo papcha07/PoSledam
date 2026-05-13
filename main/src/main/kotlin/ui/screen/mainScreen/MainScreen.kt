@@ -41,6 +41,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.core.R
 import domain.models.StreetPetPreviewModel
 import ui.components.other.NearPetCardComponent
@@ -78,10 +79,11 @@ fun MainScreen(
 ) {
 
 
-    val userInfoState by mainScreenViewModel.userInfoState.collectAsState()
-    val markIsReadState by mainScreenViewModel.markNotificationState.collectAsState()
+    val userInfoState by mainScreenViewModel.userInfoState.collectAsStateWithLifecycle()
+    val markIsReadState by mainScreenViewModel.markNotificationState.collectAsStateWithLifecycle()
     LaunchedEffect(Unit) {
         mainScreenViewModel.observeUser()
+        mainScreenViewModel.refreshUser()
     }
     LazyColumn(
         modifier = Modifier

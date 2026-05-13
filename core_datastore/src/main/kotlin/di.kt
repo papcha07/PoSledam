@@ -65,7 +65,7 @@ val dataStoreModule = module {
     }
 
     single<UserInteractor> {
-        UserInteractorImpl(get())
+        UserInteractorImpl(get(), get())
     }
 
 }

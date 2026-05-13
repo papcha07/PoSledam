@@ -111,7 +111,7 @@ class ProfileSettingsViewModel(
 
     fun logout() {
         viewModelScope.launch {
-            mainInteractor.deleteUser()
+            userInteractor.clearUser()
         }
     }
 

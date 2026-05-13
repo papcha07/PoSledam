@@ -65,4 +65,10 @@ class MainScreenViewModel(
             }
         }
     }
+
+    fun refreshUser() {
+        viewModelScope.launch {
+            userInteractor.refreshUser()
+        }
+    }
 }

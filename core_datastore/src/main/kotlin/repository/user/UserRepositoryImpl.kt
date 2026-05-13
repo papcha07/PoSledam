@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import toDomain
 import toEntity
+import withIo
 
 class UserRepositoryImpl(
     private val authApi: AuthService,
@@ -26,16 +27,21 @@ class UserRepositoryImpl(
     override suspend fun refreshUser() {
         val remoteUser = authApi.getInfo()
         when (remoteUser) {
-
-            is ApiResponse.Error -> {
-
-            }
+            is ApiResponse.Error -> {}
 
             is ApiResponse.Success<UserInfoResponse> -> {
                 val responseUserModel = remoteUser.data
                 val entityUser = responseUserModel.toEntity()
-                userDao.saveUser(entityUser)
+                withIo {
+                    userDao.saveUser(entityUser)
+                }
             }
+        }
+    }
+
+    override suspend fun clearUser() {
+        withIo {
+            userDao.clearUser()
         }
     }
 

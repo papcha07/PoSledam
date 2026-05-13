@@ -22,6 +22,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import ui.components.AnimalCard
 import ui.components.PetButton
 import ui.components.default_component.TabRowSelection
@@ -49,7 +50,7 @@ fun ProfileScreen(
         profileViewModel.getAnimalList()
     }
 
-    val userInfoState by profileSettingsViewModel.userInfoState.collectAsState()
+    val userInfoState by profileSettingsViewModel.userInfoState.collectAsStateWithLifecycle()
     val methodIndex by profileViewModel.userMethodState.collectAsState()
     val animalListState by profileViewModel.userPetState.collectAsState()
 
