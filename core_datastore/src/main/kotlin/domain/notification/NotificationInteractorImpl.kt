@@ -1,9 +1,9 @@
-package domain
+package domain.notification
 
-import domain.model.Notification
+import domain.notification.Notification
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import repository.NotificationRepository
+import repository.notification.NotificationRepository
 import toDomain
 import toEntity
 

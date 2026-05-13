@@ -3,8 +3,9 @@ package ui.viewModel
 import ApiResponse
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import domain.NotificationSettingsInteractor
 import domain.interactor.main.MainInteractor
+import domain.notification.NotificationSettingsInteractor
+import domain.user.UserInteractor
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,6 +18,7 @@ import ui.model.UserDataUiInfo
 
 class ProfileSettingsViewModel(
     private val mainInteractor: MainInteractor,
+    private val userInteractor: UserInteractor,
     private val notificationSettingsInteractor: NotificationSettingsInteractor
 ) : ViewModel() {
 
@@ -86,36 +88,16 @@ class ProfileSettingsViewModel(
         }
     }
 
-    fun loadUser() {
-        _userInfoState.update {
-            ProfileBarState.Loading
-        }
+    fun observeUser() {
         viewModelScope.launch {
-            val cachedUser = mainInteractor.getUserFromCache()
-            if (cachedUser != null) {
-                _userInfoState.update { ProfileBarState.Success(cachedUser) }
-                _profileInfoState.value = UserDataUiInfo(
-                    id = cachedUser.id,
-                    name = cachedUser.name,
-                    description = cachedUser.description,
-                    contacts = cachedUser.contacts,
-                    uri = cachedUser.uri
-                )
-            } else {
-                when (val result = mainInteractor.syncUserFromServer()) {
-                    is ApiResponse.Error -> {
-                        _userInfoState.update {
-                            ProfileBarState.Failed("Не удалось получить информацию о пользователе")
-                        }
-                    }
-
-                    is ApiResponse.Success<UserDataUiInfo> -> {
-                        _userInfoState.update { ProfileBarState.Success(result.data) }
-                        _profileInfoState.value = result.data
-                    }
+            _userInfoState.value = ProfileBarState.Loading
+            userInteractor.observeUser().collect { user ->
+                if (user == null) {
+                    _userInfoState.value = ProfileBarState.Loading
+                } else {
+                    _userInfoState.value = ProfileBarState.Success(user)
                 }
             }
-
         }
     }
 
@@ -129,7 +111,7 @@ class ProfileSettingsViewModel(
 
     fun logout() {
         viewModelScope.launch {
-            mainInteractor.deleteUser()
+            userInteractor.clearUser()
         }
     }
 

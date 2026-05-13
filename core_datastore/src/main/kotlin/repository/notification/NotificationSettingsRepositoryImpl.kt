@@ -1,4 +1,4 @@
-package repository
+package repository.notification
 
 import android.content.Context
 import kotlinx.coroutines.flow.Flow

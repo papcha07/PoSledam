@@ -42,7 +42,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.core.R
-import domain.model.Notification
+import domain.notification.Notification
 import kotlinx.coroutines.delay
 import toFormattedDate
 import ui.components.default_component.ToolBar

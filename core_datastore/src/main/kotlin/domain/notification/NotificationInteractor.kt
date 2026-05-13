@@ -1,6 +1,6 @@
-package domain
+package domain.notification
 
-import domain.model.Notification
+import domain.notification.Notification
 import kotlinx.coroutines.flow.Flow
 
 interface NotificationInteractor {

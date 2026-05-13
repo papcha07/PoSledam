@@ -1,21 +1,16 @@
 package ui.screen.mainScreen
 
-import ApiResponse
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import domain.NotificationInteractor
-import domain.interactor.location.LocationInteractor
-import domain.interactor.main.MainInteractor
-import domain.model.Notification
-import kotlinx.coroutines.cancel
+import domain.notification.Notification
+import domain.notification.NotificationInteractor
+import domain.user.UserInteractor
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import ui.components.profilebar.ProfileBarState
 import ui.model.UserDataUiInfo
@@ -28,9 +23,8 @@ sealed class MainScreenState {
 }
 
 class MainScreenViewModel(
-    private val mainInteractor: MainInteractor,
     private val notificationInteractor: NotificationInteractor,
-    private val locationInteractor: LocationInteractor
+    private val userInteractor: UserInteractor
 ) : ViewModel() {
     private val _userInfoState = MutableStateFlow<ProfileBarState>(ProfileBarState.Idle)
     val userInfoState = _userInfoState.asStateFlow()
@@ -53,70 +47,28 @@ class MainScreenViewModel(
                 false
             )
 
-
-    fun setAllMark() {
-        viewModelScope.launch {
-            notificationInteractor.allMark()
-        }
-    }
-
     fun deleteById(id: Long) {
         viewModelScope.launch {
             notificationInteractor.deleteById(id)
         }
     }
 
-    fun sendCurrentLocation() {
+    fun observeUser() {
         viewModelScope.launch {
-            try {
-                locationInteractor.sendCurrentLocation()
-            } catch (e: Exception) {
-                Log.e("MainScreenViewModel", "Failed to send current location", e)
-            }
-        }
-    }
-
-    fun testViewModelScope(){
-        val vmScope = viewModelScope
-        vmScope.launch {
-            val job1 = launch {
-
-            }
-
-            val job2 = launch {
-
-            }
-
-        }
-        vmScope.cancel()
-    }
-
-    fun loadUser() {
-        _userInfoState.update {
-            ProfileBarState.Loading
-        }
-        viewModelScope.launch {
-            val cachedUser = mainInteractor.getUserFromCache()
-            if (cachedUser != null) {
-                _userInfoState.update {
-                    ProfileBarState.Success(cachedUser)
-                }
-            } else {
-                when (val result = mainInteractor.syncUserFromServer()) {
-                    is ApiResponse.Error -> {
-                        _userInfoState.update {
-                            ProfileBarState.Failed("Не удалось получить информацию о пользователе")
-                        }
-                    }
-
-                    is ApiResponse.Success<UserDataUiInfo> -> {
-                        _userInfoState.update {
-                            ProfileBarState.Success(result.data)
-                        }
-                    }
+            _userInfoState.value = ProfileBarState.Loading
+            userInteractor.observeUser().collect { user ->
+                if (user == null) {
+                    _userInfoState.value = ProfileBarState.Loading
+                } else {
+                    _userInfoState.value = ProfileBarState.Success(user)
                 }
             }
         }
     }
 
+    fun refreshUser() {
+        viewModelScope.launch {
+            userInteractor.refreshUser()
+        }
+    }
 }

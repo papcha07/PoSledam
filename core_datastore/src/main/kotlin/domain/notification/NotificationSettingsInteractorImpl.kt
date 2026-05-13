@@ -1,7 +1,7 @@
-package domain
+package domain.notification
 
 import kotlinx.coroutines.flow.Flow
-import repository.NotificationSettingsRepository
+import repository.notification.NotificationSettingsRepository
 
 class NotificationSettingsInteractorImpl(
     private val repository: NotificationSettingsRepository

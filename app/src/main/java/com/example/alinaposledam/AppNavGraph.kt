@@ -62,6 +62,7 @@ fun AppNavGraph() {
             startDestination = "main"
             isAuthorized = true
         }
+
     }
 
     if (isAuthorized) {
@@ -74,6 +75,7 @@ fun AppNavGraph() {
             }
         )
     }
+
 
     LaunchedEffect(hasLocationPermission, isAuthorized) {
         if (isAuthorized && hasLocationPermission) {
