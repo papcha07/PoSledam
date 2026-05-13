@@ -1,6 +1,6 @@
 package com.example.alinaposledam.viewmodel
 
-import domain.NotificationSettingsInteractor
+import domain.notification.NotificationSettingsInteractor
 import domain.interactor.AnnouncementInteractor
 import io.mockk.mockk
 import ui.viewModel.ActionViewModel

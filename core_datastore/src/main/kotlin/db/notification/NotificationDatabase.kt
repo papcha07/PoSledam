@@ -1,4 +1,4 @@
-package db
+package db.notification
 
 import androidx.room.Database
 import androidx.room.RoomDatabase

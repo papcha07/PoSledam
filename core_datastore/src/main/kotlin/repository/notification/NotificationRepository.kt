@@ -1,6 +1,6 @@
-package repository
+package repository.notification
 
-import db.NotificationEntity
+import db.notification.NotificationEntity
 import kotlinx.coroutines.flow.Flow
 
 interface NotificationRepository {

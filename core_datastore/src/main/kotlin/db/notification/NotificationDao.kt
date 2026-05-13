@@ -1,4 +1,4 @@
-package db
+package db.notification
 
 import androidx.room.Dao
 import androidx.room.Insert

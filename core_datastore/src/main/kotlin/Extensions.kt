@@ -1,5 +1,5 @@
-import db.NotificationEntity
-import domain.model.Notification
+import db.notification.NotificationEntity
+import domain.notification.Notification
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat

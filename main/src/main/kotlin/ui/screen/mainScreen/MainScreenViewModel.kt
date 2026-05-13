@@ -4,10 +4,10 @@ import ApiResponse
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import domain.NotificationInteractor
+import domain.notification.NotificationInteractor
 import domain.interactor.location.LocationInteractor
 import domain.interactor.main.MainInteractor
-import domain.model.Notification
+import domain.notification.Notification
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted

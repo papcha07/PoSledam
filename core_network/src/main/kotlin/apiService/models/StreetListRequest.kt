@@ -1,4 +1,4 @@
-package apiService
+package apiService.models
 
 data class StreetListRequest(
     val lastDateTime: String?,

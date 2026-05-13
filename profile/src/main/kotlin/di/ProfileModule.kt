@@ -1,7 +1,7 @@
 package di
 
 import data.repository.AnnouncementRepositoryImpl
-import domain.NotificationSettingsInteractor
+import domain.notification.NotificationSettingsInteractor
 import domain.interactor.AnnouncementInteractor
 import domain.interactor.AnnouncementInteractorImpl
 import domain.repository.AnnouncementRepository

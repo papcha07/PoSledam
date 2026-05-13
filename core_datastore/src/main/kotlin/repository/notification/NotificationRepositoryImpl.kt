@@ -1,7 +1,7 @@
-package repository
+package repository.notification
 
-import db.NotificationDao
-import db.NotificationEntity
+import db.notification.NotificationDao
+import db.notification.NotificationEntity
 import kotlinx.coroutines.flow.Flow
 import withIo
 

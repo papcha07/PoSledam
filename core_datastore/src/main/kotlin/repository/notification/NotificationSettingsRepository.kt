@@ -1,8 +1,8 @@
-package domain
+package repository.notification
 
 import kotlinx.coroutines.flow.Flow
 
-interface NotificationSettingsInteractor {
+interface NotificationSettingsRepository {
     suspend fun setNotificationsEnabled(enabled: Boolean)
     suspend fun isNotificationsEnabled(): Boolean
     fun observeNotificationsEnabled(): Flow<Boolean>

@@ -1,16 +1,16 @@
 import androidx.room.Room
-import db.NotificationDao
-import db.NotificationDatabase
-import domain.NotificationInteractor
-import domain.NotificationInteractorImpl
-import domain.NotificationSettingsInteractor
-import domain.NotificationSettingsInteractorImpl
+import db.notification.NotificationDao
+import db.notification.NotificationDatabase
+import domain.notification.NotificationInteractor
+import domain.notification.NotificationInteractorImpl
+import domain.notification.NotificationSettingsInteractor
+import domain.notification.NotificationSettingsInteractorImpl
 import org.koin.android.ext.koin.androidApplication
 import org.koin.dsl.module
-import repository.NotificationRepository
-import repository.NotificationRepositoryImpl
-import repository.NotificationSettingsRepository
-import repository.NotificationSettingsRepositoryImpl
+import repository.notification.NotificationRepository
+import repository.notification.NotificationRepositoryImpl
+import repository.notification.NotificationSettingsRepository
+import repository.notification.NotificationSettingsRepositoryImpl
 
 val dataStoreModule = module {
     single<NotificationDatabase> {
