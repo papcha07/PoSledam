@@ -9,7 +9,7 @@ data class UserEntity(
     @PrimaryKey
     val id: String,
     val firstName: String,
-    val description: String,
+    val description: String?,
     val avatarPath: String?,
     val tg: String?,
     val wh: String?,

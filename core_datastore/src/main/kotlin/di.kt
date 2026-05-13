@@ -1,18 +1,22 @@
 import androidx.room.Room
 import db.notification.NotificationDao
 import db.notification.NotificationDatabase
+import db.user.UserDatabase
 import domain.notification.NotificationInteractor
 import domain.notification.NotificationInteractorImpl
 import domain.notification.NotificationSettingsInteractor
 import domain.notification.NotificationSettingsInteractorImpl
+import domain.user.UserRepository
 import org.koin.android.ext.koin.androidApplication
 import org.koin.dsl.module
 import repository.notification.NotificationRepository
 import repository.notification.NotificationRepositoryImpl
 import repository.notification.NotificationSettingsRepository
 import repository.notification.NotificationSettingsRepositoryImpl
+import repository.user.UserRepositoryImpl
 
 val dataStoreModule = module {
+
     single<NotificationDatabase> {
         Room.databaseBuilder(
             androidApplication(),
@@ -39,6 +43,18 @@ val dataStoreModule = module {
 
     single<NotificationSettingsInteractor> {
         NotificationSettingsInteractorImpl(get())
+    }
+
+    single<UserDatabase> {
+        Room.databaseBuilder(
+            androidApplication(),
+            UserDatabase::class.java,
+            "user.db"
+        ).build()
+    }
+
+    single<UserRepository> {
+        UserRepositoryImpl(get(), get())
     }
 
 }

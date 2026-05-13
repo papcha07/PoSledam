@@ -1,5 +1,9 @@
+import androidx.core.net.toUri
+import apiService.models.auth_models.UserInfoResponse
 import db.notification.NotificationEntity
+import db.user.UserEntity
 import domain.notification.Notification
+import domain.user.User
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
@@ -39,4 +43,29 @@ fun NotificationEntity.toDomain(): Notification {
         type = type,
     )
 }
+
+fun UserInfoResponse.toEntity(): UserEntity {
+    return UserEntity(
+        id = this.id,
+        firstName = this.firstName,
+        description = this.description,
+        avatarPath = this.avatarPath,
+        tg = this.contacts?.get(0)?.url,
+        wh = this.contacts?.get(2)?.url,
+        vk = this.contacts?.get(1)?.url
+    )
+}
+
+
+fun UserEntity.toDomain(): User {
+    return User(
+        name = this.firstName,
+        description = this.description,
+        avatarPath = this.avatarPath?.toUri(),
+        tg = this.tg,
+        wh = this.wh,
+        vk = this.vk
+    )
+}
+
 
