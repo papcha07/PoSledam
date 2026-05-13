@@ -1,4 +1,4 @@
-package domain.user
+package domain.user.model
 
 import android.net.Uri
 

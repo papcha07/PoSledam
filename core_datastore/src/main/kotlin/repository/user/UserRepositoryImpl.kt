@@ -4,7 +4,7 @@ import ApiResponse
 import apiService.AuthService
 import apiService.models.auth_models.UserInfoResponse
 import db.user.UserDao
-import domain.user.User
+import domain.user.model.User
 import domain.user.UserRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map

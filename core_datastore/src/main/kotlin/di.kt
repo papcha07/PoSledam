@@ -6,6 +6,8 @@ import domain.notification.NotificationInteractor
 import domain.notification.NotificationInteractorImpl
 import domain.notification.NotificationSettingsInteractor
 import domain.notification.NotificationSettingsInteractorImpl
+import domain.user.UserInteractor
+import domain.user.UserInteractorImpl
 import domain.user.UserRepository
 import org.koin.android.ext.koin.androidApplication
 import org.koin.dsl.module
@@ -55,6 +57,10 @@ val dataStoreModule = module {
 
     single<UserRepository> {
         UserRepositoryImpl(get(), get())
+    }
+
+    single<UserInteractor> {
+        UserInteractorImpl(get())
     }
 
 }

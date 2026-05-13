@@ -3,7 +3,7 @@ import apiService.models.auth_models.UserInfoResponse
 import db.notification.NotificationEntity
 import db.user.UserEntity
 import domain.notification.Notification
-import domain.user.User
+import domain.user.model.User
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
