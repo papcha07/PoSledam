@@ -10,12 +10,21 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import toDomain
 import toEntity
+import toUpdateUserInfoRequest
+import toUserEntity
 import withIo
 
 class UserRepositoryImpl(
     private val authApi: AuthService,
     private val userDao: UserDao
 ) : UserRepository {
+
+    override suspend fun updateUser(user: User) {
+        withIo {
+            userDao.updateUserInfo(user.toUserEntity())
+        }
+        authApi.updateUserInfo(user.toUpdateUserInfoRequest())
+    }
 
     override fun observeUser(): Flow<User?> {
         return userDao.observeUser().map { entity ->
