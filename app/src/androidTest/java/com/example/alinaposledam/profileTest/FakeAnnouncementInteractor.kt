@@ -1,6 +1,6 @@
 package com.example.alinaposledam.profileTest
 
-import domain.interactor.AnnouncementInteractor
+import domain.interactor.announcement.AnnouncementInteractor
 import domain.model.AnnouncementInfo
 import domain.model.AnnouncementStatus
 import kotlinx.coroutines.CompletableDeferred

@@ -1,15 +1,34 @@
 package di
 
 import data.repository.AnnouncementRepositoryImpl
-import domain.interactor.AnnouncementInteractor
-import domain.interactor.AnnouncementInteractorImpl
+import data.repository.ImageLoaderRepositoryImpl
+import domain.interactor.announcement.AnnouncementInteractor
+import domain.interactor.announcement.AnnouncementInteractorImpl
+import domain.interactor.loader.ImageLoaderInteractor
+import domain.interactor.loader.ImageLoaderInteractorImpl
 import domain.notification.NotificationSettingsInteractor
 import domain.repository.AnnouncementRepository
+import domain.repository.ImageLoaderRepository
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 import ui.viewModel.ActionViewModel
 import ui.viewModel.ProfileSettingsViewModel
 import ui.viewModel.ProfileViewModel
+
+fun getImageLoaderModule() = module {
+    single<ImageLoaderRepository> {
+        ImageLoaderRepositoryImpl(
+            authService = get()
+        )
+    }
+
+    single<ImageLoaderInteractor> {
+        ImageLoaderInteractorImpl(
+            loaderRepository = get(),
+            converter = get()
+        )
+    }
+}
 
 fun getAnnouncementRepository() = module {
     factory<AnnouncementRepository> {
@@ -31,9 +50,9 @@ fun getAnnouncementInteractor() = module {
 fun getProfileSettingsViewModel() = module {
     viewModel {
         ProfileSettingsViewModel(
-            mainInteractor = get(),
             notificationSettingsInteractor = get<NotificationSettingsInteractor>(),
-            userInteractor = get()
+            userInteractor = get(),
+            imageLoaderInteractor = get()
         )
     }
 }

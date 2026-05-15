@@ -129,7 +129,7 @@ class AuthService(
                             )
                             append(
                                 HttpHeaders.ContentType,
-                                ContentType.Image.JPEG.toString() // или PNG, если нужно
+                                ContentType.Image.JPEG.toString()
                             )
                         }
                     )
