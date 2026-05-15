@@ -1,5 +1,6 @@
 package ui.screen
 
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
@@ -125,7 +126,8 @@ fun BottomSettingsMainContent(
     addWhatsApp: (String) -> Unit,
     save: () -> Unit
 ) {
-
+    val user = userDataUi
+    Log.d("USERID", user.toString())
     Box(
         modifier = modifier
             .fillMaxWidth()
