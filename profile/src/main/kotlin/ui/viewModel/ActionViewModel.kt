@@ -8,7 +8,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import domain.notification.NotificationSettingsInteractor
-import domain.interactor.AnnouncementInteractor
+import domain.interactor.announcement.AnnouncementInteractor
 import domain.model.AnnouncementInfo
 import domain.model.AnnouncementStatus
 import domain.model.Location

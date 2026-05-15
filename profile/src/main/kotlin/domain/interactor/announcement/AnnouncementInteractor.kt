@@ -1,8 +1,7 @@
-package domain.interactor
+package domain.interactor.announcement
 
 import domain.model.AnnouncementInfo
 import domain.model.AnnouncementStatus
-import kotlinx.coroutines.flow.Flow
 import ui.model.PetUiPreview
 
 interface AnnouncementInteractor {

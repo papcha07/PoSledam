@@ -1,7 +1,7 @@
 package com.example.alinaposledam.viewmodel
 
 import domain.notification.NotificationSettingsInteractor
-import domain.interactor.AnnouncementInteractor
+import domain.interactor.announcement.AnnouncementInteractor
 import io.mockk.mockk
 import ui.viewModel.ActionViewModel
 import yandex_core.YandexInteractor

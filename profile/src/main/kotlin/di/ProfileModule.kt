@@ -1,8 +1,8 @@
 package di
 
 import data.repository.AnnouncementRepositoryImpl
-import domain.interactor.AnnouncementInteractor
-import domain.interactor.AnnouncementInteractorImpl
+import domain.interactor.announcement.AnnouncementInteractor
+import domain.interactor.announcement.AnnouncementInteractorImpl
 import domain.notification.NotificationSettingsInteractor
 import domain.repository.AnnouncementRepository
 import org.koin.androidx.viewmodel.dsl.viewModel
