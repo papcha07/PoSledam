@@ -267,19 +267,26 @@ fun ProfileImageComponent(
                 .crossfade(true)
                 .build(),
             contentDescription = "Фотография профиля",
-            modifier = Modifier
-                .size(80.dp),
+            modifier = Modifier.size(80.dp),
             contentScale = ContentScale.Crop,
-            loading = {
-                ShimmerImagePlaceholder(
-                    modifier = Modifier
-                        .matchParentSize()
+
+            onError = { error ->
+                Log.e(
+                    "AvatarImage",
+                    "Ошибка загрузки аватарки: ${error.result.throwable.message}",
+                    error.result.throwable
                 )
             },
+
+            loading = {
+                ShimmerImagePlaceholder(
+                    modifier = Modifier.matchParentSize()
+                )
+            },
+
             error = {
                 ShimmerImagePlaceholder(
-                    modifier = Modifier
-                        .matchParentSize()
+                    modifier = Modifier.matchParentSize()
                 )
             }
         )
