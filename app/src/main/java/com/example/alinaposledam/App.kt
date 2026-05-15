@@ -12,6 +12,7 @@ import di.getAnnouncementRepository
 import di.getAnnouncementService
 import di.getCoreNetworkModule
 import di.getFilterViewModel
+import di.getImageLoaderModule
 import di.getProfileSettingsViewModel
 import di.getSearchInteractor
 import di.getSearchRepository
@@ -70,7 +71,8 @@ class App : Application(), Configuration.Provider {
                     userInfoRepository,
                     getStreetService(),
                     coreDi,
-                    getWorkerModule()
+                    getWorkerModule(),
+                    getImageLoaderModule()
                 )
             )
         }

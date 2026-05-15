@@ -1,6 +1,6 @@
 package com.example.alinaposledam.viewmodel
 
-import domain.interactor.AnnouncementInteractor
+import domain.interactor.announcement.AnnouncementInteractor
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi

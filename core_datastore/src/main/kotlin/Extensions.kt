@@ -1,4 +1,4 @@
-import androidx.core.net.toUri
+import apiService.models.auth_models.UpdateUserInfoRequest
 import apiService.models.auth_models.UserInfoResponse
 import db.notification.NotificationEntity
 import db.user.UserEntity
@@ -6,6 +6,7 @@ import domain.notification.Notification
 import domain.user.model.User
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import model.auth.response.Contact
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -61,10 +62,38 @@ fun UserEntity.toDomain(): User {
     return User(
         name = this.firstName,
         description = this.description,
-        avatarPath = this.avatarPath?.toUri(),
+        avatarPath = this.avatarPath,
+        tg = this.tg,
+        wh = this.wh,
+        vk = this.vk,
+        id = this.id
+    )
+}
+
+
+fun User.toUserEntity(): UserEntity {
+    return UserEntity(
+        id = this.id,
+        firstName = this.name,
+        description = this.description,
+        avatarPath = this.avatarPath?.toString(),
         tg = this.tg,
         wh = this.wh,
         vk = this.vk
+    )
+}
+
+fun User.toUpdateUserInfoRequest(): UpdateUserInfoRequest {
+    val contactsList = buildList {
+        vk?.let { add(Contact(contactType = 0, url = it)) }
+        tg?.let { add(Contact(contactType = 1, url = it)) }
+        wh?.let { add(Contact(contactType = 2, url = it)) }
+    }
+    return UpdateUserInfoRequest(
+        id = id,
+        firstName = name,
+        description = description,
+        contacts = contactsList.takeIf { it.isNotEmpty() }
     )
 }
 
