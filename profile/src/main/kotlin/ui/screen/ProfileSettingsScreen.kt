@@ -41,7 +41,9 @@ import androidx.compose.ui.unit.sp
 import coil.compose.SubcomposeAsyncImage
 import coil.request.ImageRequest
 import com.example.core.R
+import domain.user.model.User
 import ui.BASE_URL
+import ui.components.default_component.DefaultButton
 import ui.components.default_component.SocialTextFieldComponent
 import ui.components.default_component.TextFieldData
 import ui.components.default_component.ToolBar
@@ -49,8 +51,6 @@ import ui.components.default_component.ToolBarInfo
 import ui.components.placeholder.ShimmerImagePlaceholder
 import ui.model.SettingsButton
 import ui.model.SettingsButtonComponent
-import ui.model.UserDataUiInfo
-import ui.model.getContact
 import ui.theme.EditTextColor
 import ui.theme.Ser
 import ui.viewModel.ProfileSettingsViewModel
@@ -101,7 +101,8 @@ fun ProfileSettingsScreen(
                 addTg = settingsViewModel::addTelegram,
                 addWhatsApp = settingsViewModel::addWhatsApp,
                 updateNotificationState = settingsViewModel::setNotificationsEnabled,
-                notificationState = notificationsEnabled
+                notificationState = notificationsEnabled,
+                save = settingsViewModel::updateUserInfo
             )
         }
 
@@ -113,7 +114,7 @@ fun ProfileSettingsScreen(
 fun BottomSettingsMainContent(
     modifier: Modifier = Modifier,
     notificationState: Boolean,
-    userDataUi: UserDataUiInfo,
+    userDataUi: User,
     exit: () -> Unit,
     setImage: () -> Unit,
     setDescription: (String) -> Unit,
@@ -121,8 +122,8 @@ fun BottomSettingsMainContent(
     addVk: (String) -> Unit,
     addTg: (String) -> Unit,
     updateNotificationState: (Boolean) -> Unit,
-    addWhatsApp: (String) -> Unit
-
+    addWhatsApp: (String) -> Unit,
+    save: () -> Unit
 ) {
 
     Box(
@@ -153,7 +154,7 @@ fun BottomSettingsMainContent(
             )
             Spacer(Modifier.height(8.dp))
             SettingsTextField(
-                value = userDataUi.description,
+                value = userDataUi.description ?: "",
                 label = "Описание",
                 onValueChange = setDescription
             )
@@ -167,27 +168,31 @@ fun BottomSettingsMainContent(
             Spacer(Modifier.height(16.dp))
 
             SocialTextFieldComponent(
-                value = userDataUi.getContact(0),
+                value = userDataUi.vk ?: "",
                 textFieldData = TextFieldData("", "Вставьте ссылку на VK"),
                 onValueChange = addVk,
                 icon = R.drawable.ic_vk
             )
             Spacer(Modifier.height(8.dp))
             SocialTextFieldComponent(
-                value = userDataUi.getContact(1),
+                value = userDataUi.wh ?: "",
                 textFieldData = TextFieldData("", "Вставьте ссылку на WhatsApp"),
                 onValueChange = addWhatsApp,
                 icon = R.drawable.ic_whatsapp
             )
             Spacer(Modifier.height(8.dp))
             SocialTextFieldComponent(
-                value = userDataUi.getContact(2),
+                value = userDataUi.tg ?: "",
                 textFieldData = TextFieldData("", "Вставьте ссылку на Telegram"),
                 onValueChange = addTg,
                 icon = R.drawable.ic_tg
             )
             Spacer(Modifier.height(32.dp))
-            VerifyComponent(onVerifyClick = {})
+//            VerifyComponent(onVerifyClick = {})
+            DefaultButton(
+                onClick = save,
+                text = "Сохранить"
+            )
             Spacer(Modifier.height(20.dp))
             BottomInfoComponent(
                 notificationState = notificationState,
@@ -243,7 +248,7 @@ fun BottomInfoComponent(
 @Composable
 fun ProfileImageComponent(
     modifier: Modifier = Modifier,
-    userDataUi: UserDataUiInfo,
+    userDataUi: User,
     setImage: () -> Unit
 ) {
 
@@ -256,7 +261,7 @@ fun ProfileImageComponent(
     ) {
         SubcomposeAsyncImage(
             model = ImageRequest.Builder(LocalContext.current)
-                .data("$BASE_URL/api/image/${userDataUi.uri}")
+                .data("$BASE_URL/api/image/${userDataUi.avatarPath}")
                 .crossfade(true)
                 .build(),
             contentDescription = "Фотография профиля",

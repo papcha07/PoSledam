@@ -1,4 +1,3 @@
-import androidx.core.net.toUri
 import apiService.models.auth_models.UpdateUserInfoRequest
 import apiService.models.auth_models.UserInfoResponse
 import db.notification.NotificationEntity
@@ -63,7 +62,7 @@ fun UserEntity.toDomain(): User {
     return User(
         name = this.firstName,
         description = this.description,
-        avatarPath = this.avatarPath?.toUri(),
+        avatarPath = this.avatarPath,
         tg = this.tg,
         wh = this.wh,
         vk = this.vk,

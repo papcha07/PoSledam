@@ -13,14 +13,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import ui.components.profilebar.ProfileBarState
-import ui.model.UserDataUiInfo
-
-sealed class MainScreenState {
-    data object Idle : MainScreenState()
-    data object Loading : MainScreenState()
-    data class Success(val userInfo: UserDataUiInfo) : MainScreenState()
-    data class Failed(val message: String) : MainScreenState()
-}
 
 class MainScreenViewModel(
     private val notificationInteractor: NotificationInteractor,

@@ -31,7 +31,6 @@ fun getAnnouncementInteractor() = module {
 fun getProfileSettingsViewModel() = module {
     viewModel {
         ProfileSettingsViewModel(
-            mainInteractor = get(),
             notificationSettingsInteractor = get<NotificationSettingsInteractor>(),
             userInteractor = get()
         )
