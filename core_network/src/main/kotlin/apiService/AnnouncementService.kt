@@ -150,6 +150,19 @@ class AnnouncementService(private val client: HttpClient) {
         }
     }
 
+    suspend fun reportFoundAnimal(id: String): SendResult {
+        return withContext(Dispatchers.IO) {
+            try {
+                val response = client.post("api/$MISS/$id/report-found")
+                if (response.status.isSuccess()) {
+                    SendResult.Success
+                } else SendResult.BadRequest()
+            } catch (e: Exception) {
+                SendResult.Error("Проблемы с соединением")
+            }
+        }
+    }
+
     private fun buildFindAnnouncementForm(
         req: AnnouncementRequest,
         files: List<File>
@@ -188,7 +201,6 @@ class AnnouncementService(private val client: HttpClient) {
             }
         )
     }
-
 
     companion object {
         private const val MISS = "missing-announcement"
