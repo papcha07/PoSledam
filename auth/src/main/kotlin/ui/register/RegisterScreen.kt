@@ -349,6 +349,7 @@ fun AnimatedToast(
             modifier = modifier
                 .testTag("toast_message")
                 .padding(16.dp)
+                .padding(top = 40.dp)
                 .fillMaxWidth()
                 .wrapContentHeight()
         ) {
