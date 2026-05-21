@@ -14,7 +14,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -35,6 +38,40 @@ import ui.components.placeholder.SuccessSendPopup
 import ui.theme.backgroundColor
 import ui.theme.buttonPrimary
 import ui.theme.buttonSecondPrimary
+
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DetailsPetScreenProvider(
+    modifier: Modifier = Modifier,
+    viewModel: FilterViewModel,
+    reportViewModel: ReportViewModel,
+    petId: String,
+    announcementType: Int,
+    goBackClick: () -> Unit,
+    onOwnerClick: (Creator) -> Unit
+) {
+    val scaffoldState = rememberBottomSheetScaffoldState()
+
+    BottomSheetScaffold(
+        scaffoldState = scaffoldState,
+        sheetPeekHeight = 0.dp,
+        sheetSwipeEnabled = true,
+        sheetContent = {
+
+        }
+    ) { padding ->
+        DetailPetScreen(
+            modifier = Modifier.padding(padding),
+            viewModel = viewModel,
+            reportViewModel = reportViewModel,
+            petId = petId,
+            announcementType = announcementType,
+            goBackClick = goBackClick,
+            onOwnerClick = onOwnerClick
+        )
+    }
+}
 
 @Composable
 fun DetailPetScreen(
@@ -153,6 +190,7 @@ fun DetailPetScreen(
                         }
                     }
                 }
+
                 var toastMessage by remember {
                     mutableStateOf<String?>(null)
                 }

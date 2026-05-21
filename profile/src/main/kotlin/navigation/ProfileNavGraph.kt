@@ -10,7 +10,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import androidx.navigation.navigation
 import org.koin.androidx.compose.koinViewModel
-import ui.DetailPetScreen
+import ui.DetailsPetScreenProvider
 import ui.FilterViewModel
 import ui.screen.ActionScreen
 import ui.screen.ProfileScreen
@@ -118,7 +118,7 @@ fun NavGraphBuilder.profileNavGraph(navController: NavController, route: String 
                 backStackEntry.arguments?.getInt("announcementType") ?: return@composable
 
 
-            DetailPetScreen(
+            DetailsPetScreenProvider(
                 viewModel = filterViewModel,
                 reportViewModel = koinViewModel(),
                 petId = petId,
