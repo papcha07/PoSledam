@@ -26,12 +26,6 @@ sealed class PetDetailsScreenState {
     object Idle : PetDetailsScreenState()
 }
 
-data class ReportFoundAnimalUiState(
-    val userMessage: String? = null,
-    val isSuccess: Boolean = false
-)
-
-
 class FilterViewModel(
     private val searchInteractor: SearchInteractor
 ) : ViewModel() {

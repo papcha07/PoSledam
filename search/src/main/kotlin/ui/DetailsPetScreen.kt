@@ -19,13 +19,19 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import domain.models.Creator
 import ui.components.ButtonComponent
 import ui.components.EventDateComponent
+import ui.components.default_component.AnimatedToast
+import ui.components.placeholder.SuccessSendPopup
 import ui.theme.backgroundColor
 import ui.theme.buttonPrimary
 import ui.theme.buttonSecondPrimary
@@ -61,6 +67,10 @@ fun DetailPetScreen(
 
         is PetDetailsScreenState.Success -> {
             val petInfo = (foundPetState as PetDetailsScreenState.Success).petInfo
+            val uiState by reportViewModel.uiState.collectAsStateWithLifecycle()
+            var toastMessage by remember {
+                mutableStateOf<String?>(null)
+            }
 
             Box(
                 modifier = modifier
@@ -95,7 +105,6 @@ fun DetailPetScreen(
                             onClick = { onOwnerClick(petInfo.creator) }
                         )
                         Spacer(Modifier.height(20.dp))
-
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth(),
@@ -125,7 +134,7 @@ fun DetailPetScreen(
                                         enabled = true,
                                         radius = 40.dp,
                                         onClick = {
-
+                                            reportViewModel.reportFoundAnimal(petId)
                                         },
                                     )
 
@@ -141,15 +150,40 @@ fun DetailPetScreen(
                                     }
                                 }
                             }
-
                         }
+                    }
+                }
+                var toastMessage by remember {
+                    mutableStateOf<String?>(null)
+                }
 
+                LaunchedEffect(Unit) {
+                    reportViewModel.effect.collect { effect ->
+                        toastMessage = when (effect) {
+                            ReportFoundAnimalEffect.ServerError -> "Что-то пошло не так"
+                            ReportFoundAnimalEffect.InternetError -> "Проблемы с соединением"
+                        }
                     }
                 }
 
+                toastMessage?.let {
+                    AnimatedToast(
+                        message = it,
+                        onDismiss = {
+                            toastMessage = null
+                        }
+                    )
+                }
+
+                SuccessSendPopup(
+                    visible = uiState.isSuccess,
+                    title = "Мы сообщили владельцу",
+                    description = "Спасибо за вашу отзывчивость!",
+                    onDismiss = goBackClick,
+                    modifier = Modifier.align(Alignment.Center)
+                )
+
             }
-
-
         }
     }
 
