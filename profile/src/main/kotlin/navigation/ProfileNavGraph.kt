@@ -114,11 +114,13 @@ fun NavGraphBuilder.profileNavGraph(navController: NavController, route: String 
             )
 
             val petId = backStackEntry.arguments?.getString("petId") ?: return@composable
-            val announcementType = backStackEntry.arguments?.getInt("announcementType") ?: return@composable
+            val announcementType =
+                backStackEntry.arguments?.getInt("announcementType") ?: return@composable
 
 
             DetailPetScreen(
                 viewModel = filterViewModel,
+                reportViewModel = koinViewModel(),
                 petId = petId,
                 announcementType = announcementType,
                 goBackClick = { navController.popBackStack() },

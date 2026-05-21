@@ -91,8 +91,8 @@ fun SuccessSendPopup(
 ) {
     AnimatedVisibility(
         visible = visible,
-        enter = fadeIn(animationSpec = tween(220)),
-        exit = fadeOut(animationSpec = tween(180))
+        enter = fadeIn(animationSpec = tween(400)),
+        exit = fadeOut(animationSpec = tween(200))
     ) {
         Box(
             modifier = modifier

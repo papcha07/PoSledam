@@ -2,6 +2,7 @@ package data
 
 import AnnouncementType
 import ApiResponse
+import SendResult
 import android.os.Build
 import androidx.annotation.RequiresApi
 import apiService.AnnouncementService
@@ -21,6 +22,7 @@ import model.announcement.FoundPetResponse
 import model.announcement.MissAllDto
 import model.announcement.MissAllDtoFound
 import model.announcement.MissAllRequest
+import ui.model.Response
 import ui.models.FilterDto
 import ui.models.toInstant
 import java.time.OffsetDateTime
@@ -31,6 +33,8 @@ import java.util.Locale
 class SearchRepositoryImpl(
     private val announcementService: AnnouncementService
 ) : SearchRepository {
+
+
     @RequiresApi(Build.VERSION_CODES.O)
 
     override suspend fun findMissingAnnouncement(filterDto: FilterDto): Flow<Pair<List<PetUiPreview>?, InternetStatus?>> =
@@ -129,6 +133,15 @@ class SearchRepositoryImpl(
                 }
             }
         }
+
+    override suspend fun reportFoundAnimal(id: String): Response {
+        val request = announcementService.reportFoundAnimal(id)
+        return when (request) {
+            is SendResult.BadRequest -> Response.SERVER_ERROR
+            is SendResult.Error -> Response.INTERNET_ERROR
+            SendResult.Success -> Response.SUCCESS
+        }
+    }
 
 
     @RequiresApi(Build.VERSION_CODES.O)

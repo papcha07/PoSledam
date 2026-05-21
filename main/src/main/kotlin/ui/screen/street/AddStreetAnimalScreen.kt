@@ -30,11 +30,11 @@ import ui.components.BackCircleButton
 import ui.components.ButtonComponent
 import ui.components.CurrentLocationMap
 import ui.components.EventDateComponent
+import ui.components.default_component.AnimatedToast
 import ui.components.other.TextFieldComponent
 import ui.components.placeholder.SuccessSendPopup
 import ui.components.streetPager.StreetPhotoPager
 import ui.model.data.TextFieldData
-import ui.register.AnimatedToast
 import ui.screen.camera.CameraViewModel
 import ui.theme.addressText
 import ui.theme.backgroundColor

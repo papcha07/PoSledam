@@ -10,8 +10,8 @@ import androidx.navigation.navigation
 import org.koin.androidx.compose.koinViewModel
 import ui.DetailPetScreen
 import ui.FilterViewModel
-import ui.components.FiltersScreen
 import ui.SearchScreen
+import ui.components.FiltersScreen
 import ui.profile.PersonDto
 import ui.profile.SearchProfileScreen
 import java.net.URLEncoder
@@ -83,6 +83,7 @@ fun NavGraphBuilder.searchNavGraph(navController: NavController, route: String =
             DetailPetScreen(
                 viewModel = filtersViewModel,
                 petId = petId,
+                reportViewModel = koinViewModel(),
                 announcementType = announcementType,
                 goBackClick = { navController.popBackStack() },
                 onOwnerClick = { creator ->

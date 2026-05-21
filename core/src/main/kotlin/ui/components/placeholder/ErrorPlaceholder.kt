@@ -20,7 +20,7 @@ import ui.theme.Ser
 
 @Composable
 fun ErrorPlaceholder(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Column(
         modifier = modifier.padding(top = 20.dp),

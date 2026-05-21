@@ -18,7 +18,6 @@ import model.InternetStatus
 import ui.models.FilterDto
 import ui.models.SearchState
 import ui.models.TimeFilter
-import kotlin.coroutines.CoroutineContext
 
 sealed class PetDetailsScreenState {
     data class Failed(val message: String) : PetDetailsScreenState()
@@ -26,6 +25,12 @@ sealed class PetDetailsScreenState {
     data class Success(val petInfo: FoundPetInfo) : PetDetailsScreenState()
     object Idle : PetDetailsScreenState()
 }
+
+data class ReportFoundAnimalUiState(
+    val userMessage: String? = null,
+    val isSuccess: Boolean = false
+)
+
 
 class FilterViewModel(
     private val searchInteractor: SearchInteractor

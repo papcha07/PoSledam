@@ -5,6 +5,7 @@ import domain.models.PetUiPreview
 import domain.repository.SearchRepository
 import kotlinx.coroutines.flow.Flow
 import model.InternetStatus
+import ui.model.Response
 import ui.models.FilterDto
 
 class SearchInteractorImpl(
@@ -23,6 +24,10 @@ class SearchInteractorImpl(
         announcementType: Int
     ): Pair<FoundPetInfo?, InternetStatus?> {
         return repository.getInfoAboutPet(id, announcementType)
+    }
+
+    override suspend fun reportFoundAnimal(id: String): Response {
+        return repository.reportFoundAnimal(id)
     }
 
 }

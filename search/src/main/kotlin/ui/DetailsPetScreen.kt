@@ -1,6 +1,5 @@
 package ui
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -35,23 +34,22 @@ import ui.theme.buttonSecondPrimary
 fun DetailPetScreen(
     modifier: Modifier = Modifier,
     viewModel: FilterViewModel,
+    reportViewModel: ReportViewModel,
     petId: String,
     announcementType: Int,
     goBackClick: () -> Unit,
     onOwnerClick: (Creator) -> Unit
 ) {
     LaunchedEffect(Unit) { viewModel.getInfoAboutPet(petId) }
-    Log.d("announcementType", "detailsScreen $announcementType")
+
     val foundPetState by viewModel.petInfoState.collectAsState()
-
     when (foundPetState) {
+
         is PetDetailsScreenState.Failed -> {
-            //todo failed
+            CircularProgressIndicator()
         }
 
-        PetDetailsScreenState.Idle -> {
-            //todo idle
-        }
+        PetDetailsScreenState.Idle -> {}
 
         PetDetailsScreenState.Loading -> {
             Box {
@@ -63,87 +61,94 @@ fun DetailPetScreen(
 
         is PetDetailsScreenState.Success -> {
             val petInfo = (foundPetState as PetDetailsScreenState.Success).petInfo
-            Log.d("petInfo", petInfo.toString())
-            Column(
+
+            Box(
                 modifier = modifier
                     .background(color = backgroundColor)
                     .fillMaxSize()
-                    .verticalScroll(rememberScrollState())
             ) {
-                PetImageComponent(
-                    goBackClick = goBackClick,
-                    foundPetInfo = petInfo
-                )
+
                 Column(
-                    modifier = modifier
-                        .fillMaxHeight()
-                        .background(
-                            color = Color.White,
-                            shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)
-                        )
-                        .padding(horizontal = 16.dp, vertical = 16.dp)
+                    modifier = Modifier.verticalScroll(rememberScrollState())
                 ) {
-                    PetInfoComponent(foundPetInfo = petInfo)
-                    Spacer(Modifier.height(32.dp))
-                    EventDateComponent(advertState = "${petInfo.dateInfo.date} • ${petInfo.dateInfo.time}")
-                    Spacer(Modifier.height(32.dp))
-                    WhereFindComponent(foundPetInfo = petInfo)
-                    Spacer(Modifier.height(32.dp))
-                    UserInfoComponent(
-                        creatorInfo = petInfo.creator,
-                        onClick = { onOwnerClick(petInfo.creator) }
+                    PetImageComponent(
+                        goBackClick = goBackClick,
+                        foundPetInfo = petInfo
                     )
-                    Spacer(Modifier.height(20.dp))
-
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    Column(
+                        modifier = modifier
+                            .fillMaxHeight()
+                            .background(
+                                color = Color.White,
+                                shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)
+                            )
+                            .padding(horizontal = 16.dp, vertical = 16.dp)
                     ) {
-                        when(announcementType){
-                            0 -> {
-                                ButtonComponent(
-                                    modifier = Modifier.weight(1f),
-                                    color = buttonPrimary,
-                                    text = "Это мое животное",
-                                    textColor = Color.White,
-                                    enabled = true,
-                                    radius = 40.dp
-                                ) {
+                        PetInfoComponent(foundPetInfo = petInfo)
+                        Spacer(Modifier.height(32.dp))
+                        EventDateComponent(advertState = "${petInfo.dateInfo.date} • ${petInfo.dateInfo.time}")
+                        Spacer(Modifier.height(32.dp))
+                        WhereFindComponent(foundPetInfo = petInfo)
+                        Spacer(Modifier.height(32.dp))
+                        UserInfoComponent(
+                            creatorInfo = petInfo.creator,
+                            onClick = { onOwnerClick(petInfo.creator) }
+                        )
+                        Spacer(Modifier.height(20.dp))
 
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            when (announcementType) {
+                                0 -> {
+                                    ButtonComponent(
+                                        modifier = Modifier.weight(1f),
+                                        color = buttonPrimary,
+                                        text = "Это мое животное",
+                                        textColor = Color.White,
+                                        enabled = true,
+                                        radius = 40.dp
+                                    ) {
+
+                                    }
+                                }
+
+                                1 -> {
+                                    ButtonComponent(
+                                        modifier = Modifier.weight(1f),
+                                        color = buttonPrimary,
+                                        text = "Нашел питомца",
+                                        textColor = Color.White,
+                                        enabled = true,
+                                        radius = 40.dp,
+                                        onClick = {
+
+                                        },
+                                    )
+
+                                    ButtonComponent(
+                                        modifier = Modifier.weight(1f),
+                                        color = buttonSecondPrimary,
+                                        text = "Видел питомца",
+                                        textColor = buttonPrimary,
+                                        enabled = true,
+                                        radius = 40.dp
+                                    ) {
+
+                                    }
                                 }
                             }
 
-                            1 -> {
-                                ButtonComponent(
-                                    modifier = Modifier.weight(1f),
-                                    color = buttonPrimary,
-                                    text = "Нашел питомца",
-                                    textColor = Color.White,
-                                    enabled = true,
-                                    radius = 40.dp
-                                ) {
-
-                                }
-
-                                ButtonComponent(
-                                    modifier = Modifier.weight(1f),
-                                    color = buttonSecondPrimary,
-                                    text = "Видел питомца",
-                                    textColor = buttonPrimary,
-                                    enabled = true,
-                                    radius = 40.dp
-                                ) {
-
-                                }
-                            }
                         }
 
                     }
-
                 }
+
             }
+
 
         }
     }
