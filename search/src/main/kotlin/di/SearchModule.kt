@@ -12,7 +12,8 @@ import ui.viewModel.ReportViewModel
 fun getSearchRepository() = module {
     single<SearchRepository> {
         SearchRepositoryImpl(
-            announcementService = get()
+            announcementService = get(),
+            converter = get()
         )
     }
 }

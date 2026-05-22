@@ -13,7 +13,8 @@ import kotlinx.coroutines.launch
 import ui.model.Response
 
 data class ReportFoundAnimalUiState(
-    val isSuccess: Boolean = false
+    val isSuccess: Boolean = false,
+    val isLoading: Boolean = false
 )
 
 sealed interface ReportFoundAnimalEffect {
@@ -54,6 +55,33 @@ class ReportViewModel(
                 Response.SERVER_ERROR -> {
                     _effect.emit(ReportFoundAnimalEffect.ServerError)
                 }
+            }
+        }
+    }
+
+
+    fun reportSpottedAnimal(id: String) {
+        viewModelScope.launch {
+            _uiState.update {
+                it.copy(isLoading = true)
+            }
+            val spottedData = _spottedUiState.value
+            val response = searchInteractor.reportSpottedAnimal(id, spottedData)
+            when (response) {
+                Response.SUCCESS -> {
+                    _uiState.update { it.copy(isSuccess = true) }
+                }
+
+                Response.INTERNET_ERROR -> {
+                    _effect.emit(ReportFoundAnimalEffect.InternetError)
+                }
+
+                Response.SERVER_ERROR -> {
+                    _effect.emit(ReportFoundAnimalEffect.ServerError)
+                }
+            }
+            _uiState.update {
+                it.copy(isLoading = false)
             }
         }
     }

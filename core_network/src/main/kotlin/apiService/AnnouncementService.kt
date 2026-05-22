@@ -21,6 +21,7 @@ import kotlinx.coroutines.withContext
 import model.announcement.AnnouncementRequest
 import model.announcement.FoundPetRequest
 import model.announcement.FoundPetResponse
+import model.announcement.Location
 import model.announcement.MissAllDto
 import model.announcement.MissAllDtoFound
 import model.announcement.MissAllRequest
@@ -52,6 +53,48 @@ class AnnouncementService(private val client: HttpClient) {
             }
         } catch (e: Exception) {
             SendResult.Error(e.message ?: "Unknown error")
+        }
+    }
+
+
+    suspend fun reportSpottedAnimal(
+        id: String,
+        reportRequest: Location,
+        files: List<File>
+    ): SendResult {
+        return withContext(Dispatchers.IO) {
+            try {
+                val response = client.post("api/$MISS/$id/report-spotted") {
+                    setBody(
+                        MultiPartFormDataContent(
+                            formData {
+                                append("Coordinates.Latitude", reportRequest.latitude)
+                                append("Coordinates.Longitude", reportRequest.longitude)
+                                files.forEach { file ->
+                                    append(
+                                        key = "Images",
+                                        value = file.readBytes(),
+                                        headers = Headers.build {
+                                            append(HttpHeaders.ContentType, "image/jpeg")
+                                            append(
+                                                HttpHeaders.ContentDisposition,
+                                                "form-data; name=\"Images\"; filename=\"${file.name}\""
+                                            )
+                                        }
+                                    )
+                                }
+                            }
+                        )
+                    )
+                }
+                when {
+                    response.status.isSuccess() -> return@withContext SendResult.Success
+                    else -> return@withContext SendResult.BadRequest()
+                }
+
+            } catch (e: Exception) {
+                return@withContext SendResult.Error("Проблемы с соединением")
+            }
         }
     }
 

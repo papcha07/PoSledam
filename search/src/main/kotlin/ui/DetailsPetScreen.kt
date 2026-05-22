@@ -88,6 +88,14 @@ fun DetailsPetScreenProvider(
                 reportViewModel.addImage(it)
             }
         }
+    val uiState by reportViewModel.uiState.collectAsStateWithLifecycle()
+
+    LaunchedEffect(uiState) {
+        if (uiState.isSuccess) {
+            scaffoldState.bottomSheetState.partialExpand()
+            isMapSheetOpen = false
+        }
+    }
 
 
 
@@ -106,10 +114,11 @@ fun DetailsPetScreenProvider(
                     .heightIn(min = 400.dp, max = 760.dp),
                 photos = spottedData.uri,
                 buttonState = allFilled,
+                loadingState = uiState.isLoading,
                 updateLongitude = reportViewModel::updateLongitude,
                 updateLatitude = reportViewModel::updateLatitude,
                 onSendClick = {
-
+                    reportViewModel.reportSpottedAnimal(id = petId)
                 },
                 onAddPhotoClick = {
                     pickImageLauncher.launch("image/*")
@@ -288,7 +297,6 @@ fun DetailPetScreen(
                     onDismiss = goBackClick,
                     modifier = Modifier.align(Alignment.Center)
                 )
-
             }
         }
     }
