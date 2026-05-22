@@ -6,8 +6,8 @@ import domain.interactor.SearchInteractorImpl
 import domain.repository.SearchRepository
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
-import ui.FilterViewModel
-import ui.ReportViewModel
+import ui.viewModel.FilterViewModel
+import ui.viewModel.ReportViewModel
 
 fun getSearchRepository() = module {
     single<SearchRepository> {

@@ -61,14 +61,14 @@ fun AnimalCard(
                 .padding(horizontal = 10.dp, vertical = 10.dp)
         ) {
             Box {
-                val imageUrl = "$BASE_URL/api/image/${petInfo.imageUrl}"
+                val imageUrl = "${petInfo.imageUrl}"
                 println("Loading image from: $imageUrl")
                 AsyncImage(
                     modifier = Modifier
                         .size(130.dp, 140.dp)
                         .clip(RoundedCornerShape(8.dp)),
                     contentScale = ContentScale.Crop,
-                    model = "$BASE_URL/api/image/${petInfo.imageUrl}",
+                    model = "${petInfo.imageUrl}",
                     placeholder = painterResource(R.drawable.ic_dog),
                     error = painterResource(R.drawable.ic_dog),
                     contentDescription = null,

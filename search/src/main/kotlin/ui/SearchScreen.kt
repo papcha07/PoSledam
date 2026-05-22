@@ -50,6 +50,8 @@ import ui.models.SearchState
 import ui.theme.addressSearchColor
 import ui.theme.backgroundColor
 import ui.theme.filterItemColor
+import ui.viewModel.FilterChipUi
+import ui.viewModel.FilterViewModel
 
 @Composable
 fun SearchScreen(

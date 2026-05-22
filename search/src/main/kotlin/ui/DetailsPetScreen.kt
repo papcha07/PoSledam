@@ -1,5 +1,6 @@
 package ui
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -17,6 +18,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -24,6 +26,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -31,6 +34,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import domain.models.Creator
+import kotlinx.coroutines.launch
+import ui.components.BottomMapComponent
 import ui.components.ButtonComponent
 import ui.components.EventDateComponent
 import ui.components.default_component.AnimatedToast
@@ -38,6 +43,10 @@ import ui.components.placeholder.SuccessSendPopup
 import ui.theme.backgroundColor
 import ui.theme.buttonPrimary
 import ui.theme.buttonSecondPrimary
+import ui.viewModel.FilterViewModel
+import ui.viewModel.PetDetailsScreenState
+import ui.viewModel.ReportFoundAnimalEffect
+import ui.viewModel.ReportViewModel
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -52,13 +61,34 @@ fun DetailsPetScreenProvider(
     onOwnerClick: (Creator) -> Unit
 ) {
     val scaffoldState = rememberBottomSheetScaffoldState()
+    val scope = rememberCoroutineScope()
+    var isMapSheetOpen by remember {
+        mutableStateOf(false)
+    }
+
+    LaunchedEffect(scaffoldState.bottomSheetState.currentValue) {
+        if (scaffoldState.bottomSheetState.currentValue != SheetValue.Expanded) {
+            isMapSheetOpen = false
+        }
+    }
 
     BottomSheetScaffold(
+        modifier = Modifier
+            .fillMaxSize(),
         scaffoldState = scaffoldState,
-        sheetPeekHeight = 0.dp,
+        sheetPeekHeight = 1.dp,
+        containerColor = Color(0xFFF5F5F5),
+        sheetContainerColor = Color(0xFFF5F5F5),
+        sheetContentColor = Color(0xFFF5F5F5),
         sheetSwipeEnabled = true,
         sheetContent = {
-
+            BottomMapComponent(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(400.dp),
+                updateLongitude = {},
+                updateLatitude = {}
+            )
         }
     ) { padding ->
         DetailPetScreen(
@@ -68,7 +98,14 @@ fun DetailsPetScreenProvider(
             petId = petId,
             announcementType = announcementType,
             goBackClick = goBackClick,
-            onOwnerClick = onOwnerClick
+            onOwnerClick = onOwnerClick,
+            isMapSheetOpen = isMapSheetOpen,
+            openBottomMenu = {
+                scope.launch {
+                    isMapSheetOpen = true
+                    scaffoldState.bottomSheetState.expand()
+                }
+            }
         )
     }
 }
@@ -81,7 +118,9 @@ fun DetailPetScreen(
     petId: String,
     announcementType: Int,
     goBackClick: () -> Unit,
-    onOwnerClick: (Creator) -> Unit
+    onOwnerClick: (Creator) -> Unit,
+    openBottomMenu: () -> Unit,
+    isMapSheetOpen: Boolean
 ) {
     LaunchedEffect(Unit) { viewModel.getInfoAboutPet(petId) }
 
@@ -105,9 +144,6 @@ fun DetailPetScreen(
         is PetDetailsScreenState.Success -> {
             val petInfo = (foundPetState as PetDetailsScreenState.Success).petInfo
             val uiState by reportViewModel.uiState.collectAsStateWithLifecycle()
-            var toastMessage by remember {
-                mutableStateOf<String?>(null)
-            }
 
             Box(
                 modifier = modifier
@@ -135,7 +171,10 @@ fun DetailPetScreen(
                         Spacer(Modifier.height(32.dp))
                         EventDateComponent(advertState = "${petInfo.dateInfo.date} • ${petInfo.dateInfo.time}")
                         Spacer(Modifier.height(32.dp))
-                        WhereFindComponent(foundPetInfo = petInfo)
+                        WhereFindComponent(
+                            foundPetInfo = petInfo,
+                            isMapSheetOpen = isMapSheetOpen
+                        )
                         Spacer(Modifier.height(32.dp))
                         UserInfoComponent(
                             creatorInfo = petInfo.creator,
@@ -181,10 +220,13 @@ fun DetailPetScreen(
                                         text = "Видел питомца",
                                         textColor = buttonPrimary,
                                         enabled = true,
-                                        radius = 40.dp
-                                    ) {
+                                        radius = 40.dp,
+                                        onClick = {
+                                            Log.d("BOTTOM_SHEET", "button clicked")
 
-                                    }
+                                            openBottomMenu()
+                                        }
+                                    )
                                 }
                             }
                         }

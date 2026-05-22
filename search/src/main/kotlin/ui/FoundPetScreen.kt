@@ -34,6 +34,7 @@ import domain.models.FoundPetInfo
 import ui.components.MapComponent
 import ui.theme.backgroundColor
 import ui.theme.textHint
+import ui.viewModel.FilterViewModel
 
 
 @Composable
@@ -250,7 +251,8 @@ fun PetImageComponent(
 @Composable
 fun WhereFindComponent(
     modifier: Modifier = Modifier,
-    foundPetInfo: FoundPetInfo
+    foundPetInfo: FoundPetInfo,
+    isMapSheetOpen: Boolean
 ) {
 
     Box(
@@ -266,14 +268,16 @@ fun WhereFindComponent(
                 fontSize = 18.sp
             )
             Spacer(Modifier.height(8.dp))
-            MapComponent(
-                modifier = Modifier
-                    .clip(RoundedCornerShape(15.dp))
-                    .height(200.dp),
-                longitude = foundPetInfo.lon,
-                latitude = foundPetInfo.lat,
-            )
-            Spacer(Modifier.height(8.dp))
+            if (!isMapSheetOpen) {
+                MapComponent(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(15.dp))
+                        .height(200.dp),
+                    longitude = foundPetInfo.lon,
+                    latitude = foundPetInfo.lat,
+                )
+                Spacer(Modifier.height(8.dp))
+            }
             Text(
                 text = "${foundPetInfo.district ?: "Октябрьский"}, ${foundPetInfo.street} ${foundPetInfo.house}",
                 fontSize = 14.sp

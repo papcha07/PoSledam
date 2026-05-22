@@ -11,7 +11,7 @@ import androidx.navigation.navArgument
 import androidx.navigation.navigation
 import org.koin.androidx.compose.koinViewModel
 import ui.DetailsPetScreenProvider
-import ui.FilterViewModel
+import ui.viewModel.FilterViewModel
 import ui.screen.ActionScreen
 import ui.screen.ProfileScreen
 import ui.screen.ProfileSettingsScreen

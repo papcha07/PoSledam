@@ -1,4 +1,4 @@
-package ui
+package ui.viewModel
 
 import android.util.Log
 import androidx.lifecycle.ViewModel

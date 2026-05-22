@@ -73,7 +73,7 @@ fun PersonCardComponent(
                     )
                     Spacer(Modifier.height(8.dp))
                     Text(
-                        text = personDto.description ?: "Нет описания",
+                        text = "Активист, зоозащитник. Помогаю в поисках животных!",
                         fontSize = 12.sp,
                         color = Ser
                     )
