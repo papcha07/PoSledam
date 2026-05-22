@@ -1,6 +1,9 @@
 package ui
 
+import android.net.Uri
 import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -38,7 +41,7 @@ import domain.models.Creator
 import kotlinx.coroutines.launch
 import ui.components.ButtonComponent
 import ui.components.EventDateComponent
-import ui.components.bottom.SeenPetBottomSheetContent
+import ui.components.bottom_report.SeenPetBottomSheetContent
 import ui.components.default_component.AnimatedToast
 import ui.components.placeholder.SuccessSendPopup
 import ui.theme.backgroundColor
@@ -74,6 +77,16 @@ fun DetailsPetScreenProvider(
     }
 
     val sheetShape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
+    val spottedData by reportViewModel.spottedAnimalData.collectAsStateWithLifecycle()
+    val pickImageLauncher =
+        rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.GetContent()
+        ) { uri: Uri? ->
+            uri?.let {
+                reportViewModel.addImage(it)
+            }
+        }
+
 
     BottomSheetScaffold(
         modifier = Modifier.fillMaxSize(),
@@ -88,15 +101,14 @@ fun DetailsPetScreenProvider(
                 modifier = Modifier
                     .fillMaxWidth()
                     .heightIn(min = 400.dp, max = 760.dp),
-                photos = listOf(),
-                updateLongitude = { lon ->
-                    // save lon
-                },
-                updateLatitude = { lat ->
-                    // save lat
-                },
+                photos = spottedData.uri,
+                updateLongitude = reportViewModel::updateLongitude,
+                updateLatitude = reportViewModel::updateLatitude,
                 onSendClick = {
-                    // отправить данные владельцу
+
+                },
+                onAddPhotoClick = {
+                    pickImageLauncher.launch("image/*")
                 }
             )
         }

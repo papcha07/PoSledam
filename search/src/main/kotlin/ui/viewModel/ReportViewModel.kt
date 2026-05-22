@@ -1,5 +1,6 @@
 package ui.viewModel
 
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import domain.interactor.SearchInteractor
@@ -20,6 +21,12 @@ sealed interface ReportFoundAnimalEffect {
     data object ServerError : ReportFoundAnimalEffect
 }
 
+data class SpottedAnimalData(
+    val lon: Double? = null,
+    val lat: Double? = null,
+    val uri: List<Uri> = emptyList()
+)
+
 class ReportViewModel(
     private val searchInteractor: SearchInteractor
 ) : ViewModel() {
@@ -28,6 +35,9 @@ class ReportViewModel(
 
     private val _effect = MutableSharedFlow<ReportFoundAnimalEffect>()
     val effect = _effect.asSharedFlow()
+
+    private val _spottedUiState = MutableStateFlow<SpottedAnimalData>(SpottedAnimalData())
+    val spottedAnimalData = _spottedUiState.asStateFlow()
 
     fun reportFoundAnimal(id: String) {
         viewModelScope.launch {
@@ -45,6 +55,27 @@ class ReportViewModel(
                     _effect.emit(ReportFoundAnimalEffect.ServerError)
                 }
             }
+        }
+    }
+
+
+    fun updateLatitude(lat: Double) {
+        _spottedUiState.update {
+            it.copy(lat = lat)
+        }
+    }
+
+    fun updateLongitude(lon: Double) {
+        _spottedUiState.update {
+            it.copy(lon = lon)
+        }
+    }
+
+    fun addImage(uri: Uri) {
+        _spottedUiState.update { state ->
+            state.copy(
+                uri = state.uri + uri
+            )
         }
     }
 

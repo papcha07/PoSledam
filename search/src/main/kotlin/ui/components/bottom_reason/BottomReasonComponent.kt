@@ -1,4 +1,4 @@
-package ui.components
+package ui.components.bottom_reason
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.background

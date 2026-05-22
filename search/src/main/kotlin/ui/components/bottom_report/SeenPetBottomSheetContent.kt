@@ -1,4 +1,4 @@
-package ui.components.bottom
+package ui.components.bottom_report
 
 import android.net.Uri
 import androidx.compose.foundation.background
@@ -15,7 +15,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import ui.components.ButtonComponent
-import ui.components.streetPager.StreetPhotoPager
+import ui.components.slider.PhotosPager
 import ui.theme.buttonPrimary
 
 @Composable
@@ -24,7 +24,8 @@ fun SeenPetBottomSheetContent(
     photos: List<Uri>,
     updateLongitude: (Double) -> Unit,
     updateLatitude: (Double) -> Unit,
-    onSendClick: () -> Unit
+    onSendClick: () -> Unit,
+    onAddPhotoClick: () -> Unit
 ) {
     Column(
         modifier = modifier
@@ -73,16 +74,11 @@ fun SeenPetBottomSheetContent(
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        if (photos.isNotEmpty()) {
-            StreetPhotoPager(
-                modifier = Modifier.padding(horizontal = 16.dp),
-                photos = photos
-            )
-        } else {
-            EmptyPhotoBlock(
-                modifier = Modifier.padding(horizontal = 16.dp)
-            )
-        }
+        PhotosPager(
+            modifier = Modifier.padding(horizontal = 16.dp),
+            photos = photos,
+            onAddPhotoClick = onAddPhotoClick,
+        )
 
         Spacer(modifier = Modifier.height(20.dp))
 

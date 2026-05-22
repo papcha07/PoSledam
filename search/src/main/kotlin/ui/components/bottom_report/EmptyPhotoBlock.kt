@@ -1,4 +1,4 @@
-package ui.components.bottom
+package ui.components.bottom_report
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
