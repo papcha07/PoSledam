@@ -50,6 +50,8 @@ import ui.models.SearchState
 import ui.theme.addressSearchColor
 import ui.theme.backgroundColor
 import ui.theme.filterItemColor
+import ui.viewModel.FilterChipUi
+import ui.viewModel.FilterViewModel
 
 @Composable
 fun SearchScreen(
@@ -259,7 +261,7 @@ fun PetCardComponent(
                             .size(130.dp, 140.dp)
                             .clip(RoundedCornerShape(8.dp)),
                         contentScale = ContentScale.Crop,
-                        model = "$BASE_URL/api/image/${petInfo.imageUrl}",
+                        model = petInfo.imageUrl,
                         placeholder = painterResource(R.drawable.ic_dog),
                         error = painterResource(R.drawable.ic_dog),
                         contentDescription = null,

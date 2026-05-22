@@ -1,4 +1,4 @@
-package ui
+package ui.viewModel
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
@@ -18,7 +18,6 @@ import model.InternetStatus
 import ui.models.FilterDto
 import ui.models.SearchState
 import ui.models.TimeFilter
-import kotlin.coroutines.CoroutineContext
 
 sealed class PetDetailsScreenState {
     data class Failed(val message: String) : PetDetailsScreenState()

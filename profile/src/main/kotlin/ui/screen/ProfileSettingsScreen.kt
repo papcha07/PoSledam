@@ -40,10 +40,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.SubcomposeAsyncImage
+import coil.request.CachePolicy
 import coil.request.ImageRequest
 import com.example.core.R
 import domain.user.model.User
-import ui.BASE_URL
 import ui.components.default_component.DefaultButton
 import ui.components.default_component.SocialTextFieldComponent
 import ui.components.default_component.TextFieldData
@@ -253,7 +253,10 @@ fun ProfileImageComponent(
     userDataUi: User,
     setImage: () -> Unit
 ) {
-
+    Log.d(
+        "AvatarImage",
+        userDataUi.avatarPath.toString()
+    )
     Box(
         modifier = modifier
             .clip(CircleShape)
@@ -263,13 +266,15 @@ fun ProfileImageComponent(
     ) {
         SubcomposeAsyncImage(
             model = ImageRequest.Builder(LocalContext.current)
-                .data("$BASE_URL/api/image/${userDataUi.avatarPath}")
+                .data(userDataUi.avatarPath)
                 .crossfade(true)
+                .memoryCachePolicy(CachePolicy.ENABLED)
+                .diskCachePolicy(CachePolicy.ENABLED)
+                .networkCachePolicy(CachePolicy.ENABLED)
                 .build(),
             contentDescription = "Фотография профиля",
             modifier = Modifier.size(80.dp),
             contentScale = ContentScale.Crop,
-
             onError = { error ->
                 Log.e(
                     "AvatarImage",
@@ -277,13 +282,11 @@ fun ProfileImageComponent(
                     error.result.throwable
                 )
             },
-
             loading = {
                 ShimmerImagePlaceholder(
                     modifier = Modifier.matchParentSize()
                 )
             },
-
             error = {
                 ShimmerImagePlaceholder(
                     modifier = Modifier.matchParentSize()

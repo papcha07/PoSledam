@@ -72,11 +72,14 @@ fun PersonCardComponent(
                         color = Color.Black
                     )
                     Spacer(Modifier.height(8.dp))
-                    Text(
-                        text = personDto.description ?: "Нет описания",
-                        fontSize = 12.sp,
-                        color = Ser
-                    )
+                    personDto.description?.let {
+                        Text(
+                            text = it,
+                            fontSize = 12.sp,
+                            color = Ser
+                        )
+                    }
+
                 }
             }
 

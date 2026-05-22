@@ -2,6 +2,7 @@ package data
 
 import AnnouncementType
 import ApiResponse
+import SendResult
 import android.os.Build
 import androidx.annotation.RequiresApi
 import apiService.AnnouncementService
@@ -18,19 +19,27 @@ import kotlinx.coroutines.withContext
 import model.InternetStatus
 import model.announcement.FoundPetRequest
 import model.announcement.FoundPetResponse
+import model.announcement.Location
 import model.announcement.MissAllDto
 import model.announcement.MissAllDtoFound
 import model.announcement.MissAllRequest
+import ui.model.Response
 import ui.models.FilterDto
 import ui.models.toInstant
+import ui.other.Converter
+import ui.viewModel.SpottedAnimalData
+import java.time.Instant
 import java.time.OffsetDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 class SearchRepositoryImpl(
-    private val announcementService: AnnouncementService
+    private val announcementService: AnnouncementService,
+    private val converter: Converter
 ) : SearchRepository {
+
+
     @RequiresApi(Build.VERSION_CODES.O)
 
     override suspend fun findMissingAnnouncement(filterDto: FilterDto): Flow<Pair<List<PetUiPreview>?, InternetStatus?>> =
@@ -130,6 +139,34 @@ class SearchRepositoryImpl(
             }
         }
 
+    override suspend fun reportFoundAnimal(id: String): Response {
+        val request = announcementService.reportFoundAnimal(id)
+        return when (request) {
+            is SendResult.BadRequest -> Response.SERVER_ERROR
+            is SendResult.Error -> Response.INTERNET_ERROR
+            SendResult.Success -> Response.SUCCESS
+        }
+    }
+
+    override suspend fun reportSpottedAnimal(
+        id: String,
+        spottedAnimalData: SpottedAnimalData
+    ): Response {
+        val convertedFiles = spottedAnimalData.uri.map {
+            converter.convertToFile(it.toString())
+        }
+        val request = announcementService.reportSpottedAnimal(
+            id,
+            reportRequest = Location(spottedAnimalData.lat!!, spottedAnimalData.lon!!),
+            files = convertedFiles,
+        )
+        return when (request) {
+            is SendResult.BadRequest -> Response.SERVER_ERROR
+            is SendResult.Error -> Response.INTERNET_ERROR
+            SendResult.Success -> Response.SUCCESS
+        }
+    }
+
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun convertToPetInfo(petResponse: FoundPetResponse): FoundPetInfo {
@@ -161,7 +198,7 @@ class SearchRepositoryImpl(
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun convertToMissRequest(filterDto: FilterDto): MissAllRequest {
-        val lastInstant = filterDto.lastDateTime?.let { java.time.Instant.parse(it) }
+        val lastInstant = filterDto.lastDateTime?.let { Instant.parse(it) }
         return MissAllRequest(
             lastDateTime = lastInstant,
             district = filterDto.district?.takeIf { it.isNotBlank() },

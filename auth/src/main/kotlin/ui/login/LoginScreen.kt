@@ -43,9 +43,9 @@ import domain.model.LoginInfo
 import org.koin.androidx.compose.koinViewModel
 import ui.components.ButtonComponent
 import ui.components.TextFieldComponent
+import ui.components.default_component.AnimatedToast
 import ui.model.data.TextFieldData
 import ui.model.state.AuthScreenState
-import ui.register.AnimatedToast
 import ui.theme.EnterOverlayColor
 import ui.theme.buttonPrimary
 

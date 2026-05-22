@@ -8,17 +8,13 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -29,19 +25,16 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.core.R
 import domain.models.Creator
 import domain.models.FoundPetInfo
-import ui.components.ButtonComponent
-import ui.components.EventDateComponent
 import ui.components.MapComponent
 import ui.theme.backgroundColor
-import ui.theme.buttonPrimary
 import ui.theme.textHint
+import ui.viewModel.FilterViewModel
 
 
 @Composable
@@ -231,7 +224,7 @@ fun PetImageComponent(
                 .fillMaxWidth()
                 .height(360.dp),
             contentScale = ContentScale.Crop,
-            model = "$BASE_URL/api/image/${foundPetInfo.imagePath}",
+            model = "${foundPetInfo.imagePath}",
             placeholder = painterResource(R.drawable.ic_dog),
             error = painterResource(R.drawable.ic_dog),
             contentDescription = null,
@@ -258,7 +251,8 @@ fun PetImageComponent(
 @Composable
 fun WhereFindComponent(
     modifier: Modifier = Modifier,
-    foundPetInfo: FoundPetInfo
+    foundPetInfo: FoundPetInfo,
+    isMapSheetOpen: Boolean
 ) {
 
     Box(
@@ -274,14 +268,16 @@ fun WhereFindComponent(
                 fontSize = 18.sp
             )
             Spacer(Modifier.height(8.dp))
-            MapComponent(
-                modifier = Modifier
-                    .clip(RoundedCornerShape(15.dp))
-                    .height(200.dp),
-                longitude = foundPetInfo.lon,
-                latitude = foundPetInfo.lat,
-            )
-            Spacer(Modifier.height(8.dp))
+            if (!isMapSheetOpen) {
+                MapComponent(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(15.dp))
+                        .height(200.dp),
+                    longitude = foundPetInfo.lon,
+                    latitude = foundPetInfo.lat,
+                )
+                Spacer(Modifier.height(8.dp))
+            }
             Text(
                 text = "${foundPetInfo.district ?: "Октябрьский"}, ${foundPetInfo.street} ${foundPetInfo.house}",
                 fontSize = 14.sp

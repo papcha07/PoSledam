@@ -31,7 +31,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import ui.FilterViewModel
+import ui.viewModel.FilterViewModel
 import ui.components.default_component.DefaultButton
 import ui.components.default_component.ToolBar
 import ui.components.default_component.ToolBarInfo

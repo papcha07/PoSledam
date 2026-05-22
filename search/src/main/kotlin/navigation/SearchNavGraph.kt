@@ -8,12 +8,12 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import androidx.navigation.navigation
 import org.koin.androidx.compose.koinViewModel
-import ui.DetailPetScreen
-import ui.FilterViewModel
-import ui.components.FiltersScreen
+import ui.DetailsPetScreenProvider
 import ui.SearchScreen
+import ui.components.FiltersScreen
 import ui.profile.PersonDto
 import ui.profile.SearchProfileScreen
+import ui.viewModel.FilterViewModel
 import java.net.URLEncoder
 
 sealed class SearchRoute(val route: String) {
@@ -80,11 +80,14 @@ fun NavGraphBuilder.searchNavGraph(navController: NavController, route: String =
             val announcementType =
                 backStackEntry.arguments?.getInt("announcementType") ?: return@composable
 
-            DetailPetScreen(
+
+            DetailsPetScreenProvider(
                 viewModel = filtersViewModel,
                 petId = petId,
+                reportViewModel = koinViewModel(),
                 announcementType = announcementType,
                 goBackClick = { navController.popBackStack() },
+
                 onOwnerClick = { creator ->
                     val name = URLEncoder.encode(creator.firstName, "UTF-8")
                     val avatarPath = (creator.avatarPath ?: "").trimStart('/')

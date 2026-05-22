@@ -56,8 +56,8 @@ fun NearPetCardComponent(
                     .fillMaxWidth(),
                 contentScale = ContentScale.Crop,
                 model = "$BASE_URL/api/image/${streetPetPreviewModel.image}",
-                placeholder = painterResource(R.drawable.ic_dog),
-                error = painterResource(R.drawable.ic_dog),
+                placeholder = painterResource(R.drawable.i),
+                error = painterResource(R.drawable.i),
                 contentDescription = null,
                 onError = {
                     println("Image loading failed: ${it.result.throwable?.message}")
