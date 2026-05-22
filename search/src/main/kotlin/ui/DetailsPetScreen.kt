@@ -1,7 +1,6 @@
 package ui
 
 import android.net.Uri
-import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -26,7 +25,6 @@ import androidx.compose.material3.SheetValue
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -38,6 +36,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import domain.models.Creator
+import domain.models.FoundPetInfo
 import kotlinx.coroutines.launch
 import ui.components.ButtonComponent
 import ui.components.EventDateComponent
@@ -66,8 +65,32 @@ fun DetailsPetScreenProvider(
 ) {
     val scaffoldState = rememberBottomSheetScaffoldState()
     val scope = rememberCoroutineScope()
+
     var isMapSheetOpen by remember {
         mutableStateOf(false)
+    }
+
+    var toastMessage by remember {
+        mutableStateOf<String?>(null)
+    }
+
+    val spottedData by reportViewModel.spottedAnimalData.collectAsStateWithLifecycle()
+    val reportUiState by reportViewModel.uiState.collectAsStateWithLifecycle()
+    val foundPetState by viewModel.petInfoState.collectAsStateWithLifecycle()
+
+    val isSendButtonEnabled =
+        spottedData.uri.isNotEmpty() &&
+                spottedData.lon != null &&
+                spottedData.lat != null
+
+    val pickImageLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        uri?.let(reportViewModel::addImage)
+    }
+
+    LaunchedEffect(petId) {
+        viewModel.getInfoAboutPet(petId)
     }
 
     LaunchedEffect(scaffoldState.bottomSheetState.currentValue) {
@@ -76,34 +99,27 @@ fun DetailsPetScreenProvider(
         }
     }
 
-    val sheetShape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
-    val spottedData by reportViewModel.spottedAnimalData.collectAsStateWithLifecycle()
-    val allFilled =
-        spottedData.uri.isNotEmpty() && spottedData.lon != null && spottedData.lat != null
-    val pickImageLauncher =
-        rememberLauncherForActivityResult(
-            contract = ActivityResultContracts.GetContent()
-        ) { uri: Uri? ->
-            uri?.let {
-                reportViewModel.addImage(it)
-            }
-        }
-    val uiState by reportViewModel.uiState.collectAsStateWithLifecycle()
-
-    LaunchedEffect(uiState) {
-        if (uiState.isSuccess) {
+    LaunchedEffect(reportUiState.isSuccess) {
+        if (reportUiState.isSuccess) {
             scaffoldState.bottomSheetState.partialExpand()
             isMapSheetOpen = false
         }
     }
 
-
+    LaunchedEffect(Unit) {
+        reportViewModel.effect.collect { effect ->
+            toastMessage = when (effect) {
+                ReportFoundAnimalEffect.ServerError -> "Что-то пошло не так"
+                ReportFoundAnimalEffect.InternetError -> "Проблемы с соединением"
+            }
+        }
+    }
 
     BottomSheetScaffold(
-        modifier = Modifier.fillMaxSize(),
+        modifier = modifier.fillMaxSize(),
         scaffoldState = scaffoldState,
         sheetPeekHeight = 1.dp,
-        sheetShape = sheetShape,
+        sheetShape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
         sheetContainerColor = Color(0xFFFAFAFA),
         sheetContentColor = Color(0xFF222222),
         sheetSwipeEnabled = true,
@@ -113,8 +129,8 @@ fun DetailsPetScreenProvider(
                     .fillMaxWidth()
                     .heightIn(min = 400.dp, max = 760.dp),
                 photos = spottedData.uri,
-                buttonState = allFilled,
-                loadingState = uiState.isLoading,
+                buttonState = isSendButtonEnabled,
+                loadingState = reportUiState.isLoading,
                 updateLongitude = reportViewModel::updateLongitude,
                 updateLatitude = reportViewModel::updateLatitude,
                 onSendClick = {
@@ -128,14 +144,20 @@ fun DetailsPetScreenProvider(
     ) { padding ->
         DetailPetScreen(
             modifier = Modifier.padding(padding),
-            viewModel = viewModel,
-            reportViewModel = reportViewModel,
-            petId = petId,
+            foundPetState = foundPetState,
             announcementType = announcementType,
+            isMapSheetOpen = isMapSheetOpen,
+            isSuccess = reportUiState.isSuccess,
+            toastMessage = toastMessage,
             goBackClick = goBackClick,
             onOwnerClick = onOwnerClick,
-            isMapSheetOpen = isMapSheetOpen,
-            openBottomMenu = {
+            onToastDismiss = {
+                toastMessage = null
+            },
+            onFoundPetClick = {
+                reportViewModel.reportFoundAnimal(petId)
+            },
+            onSeenPetClick = {
                 scope.launch {
                     isMapSheetOpen = true
                     scaffoldState.bottomSheetState.expand()
@@ -148,165 +170,186 @@ fun DetailsPetScreenProvider(
 @Composable
 fun DetailPetScreen(
     modifier: Modifier = Modifier,
-    viewModel: FilterViewModel,
-    reportViewModel: ReportViewModel,
-    petId: String,
+    foundPetState: PetDetailsScreenState,
     announcementType: Int,
+    isMapSheetOpen: Boolean,
+    isSuccess: Boolean,
+    toastMessage: String?,
     goBackClick: () -> Unit,
     onOwnerClick: (Creator) -> Unit,
-    openBottomMenu: () -> Unit,
-    isMapSheetOpen: Boolean
+    onToastDismiss: () -> Unit,
+    onFoundPetClick: () -> Unit,
+    onSeenPetClick: () -> Unit
 ) {
-    LaunchedEffect(Unit) { viewModel.getInfoAboutPet(petId) }
-
-    val foundPetState by viewModel.petInfoState.collectAsState()
     when (foundPetState) {
-
         is PetDetailsScreenState.Failed -> {
             CircularProgressIndicator()
         }
 
-        PetDetailsScreenState.Idle -> {}
+        PetDetailsScreenState.Idle -> Unit
 
         PetDetailsScreenState.Loading -> {
-            Box {
-                CircularProgressIndicator(
-                    modifier = Modifier.align(Alignment.Center)
-                )
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator()
             }
         }
 
         is PetDetailsScreenState.Success -> {
-            val petInfo = (foundPetState as PetDetailsScreenState.Success).petInfo
-            val uiState by reportViewModel.uiState.collectAsStateWithLifecycle()
+            DetailPetContent(
+                modifier = modifier,
+                petInfo = foundPetState.petInfo,
+                announcementType = announcementType,
+                isMapSheetOpen = isMapSheetOpen,
+                isSuccess = isSuccess,
+                toastMessage = toastMessage,
+                goBackClick = goBackClick,
+                onOwnerClick = onOwnerClick,
+                onToastDismiss = onToastDismiss,
+                onFoundPetClick = onFoundPetClick,
+                onSeenPetClick = onSeenPetClick
+            )
+        }
+    }
+}
 
-            Box(
-                modifier = modifier
-                    .background(color = backgroundColor)
-                    .fillMaxSize()
+@Composable
+private fun DetailPetContent(
+    modifier: Modifier = Modifier,
+    petInfo: FoundPetInfo,
+    announcementType: Int,
+    isMapSheetOpen: Boolean,
+    isSuccess: Boolean,
+    toastMessage: String?,
+    goBackClick: () -> Unit,
+    onOwnerClick: (Creator) -> Unit,
+    onToastDismiss: () -> Unit,
+    onFoundPetClick: () -> Unit,
+    onSeenPetClick: () -> Unit
+) {
+    Box(
+        modifier = modifier
+            .background(color = backgroundColor)
+            .fillMaxSize()
+    ) {
+        Column(
+            modifier = Modifier.verticalScroll(rememberScrollState())
+        ) {
+            PetImageComponent(
+                goBackClick = goBackClick,
+                foundPetInfo = petInfo
+            )
+
+            Column(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .background(
+                        color = Color.White,
+                        shape = RoundedCornerShape(
+                            topStart = 20.dp,
+                            topEnd = 20.dp
+                        )
+                    )
+                    .padding(horizontal = 16.dp, vertical = 16.dp)
             ) {
+                PetInfoComponent(foundPetInfo = petInfo)
 
-                Column(
-                    modifier = Modifier.verticalScroll(rememberScrollState())
-                ) {
-                    PetImageComponent(
-                        goBackClick = goBackClick,
-                        foundPetInfo = petInfo
-                    )
-                    Column(
-                        modifier = modifier
-                            .fillMaxHeight()
-                            .background(
-                                color = Color.White,
-                                shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)
-                            )
-                            .padding(horizontal = 16.dp, vertical = 16.dp)
-                    ) {
-                        PetInfoComponent(foundPetInfo = petInfo)
-                        Spacer(Modifier.height(32.dp))
-                        EventDateComponent(advertState = "${petInfo.dateInfo.date} • ${petInfo.dateInfo.time}")
-                        Spacer(Modifier.height(32.dp))
-                        WhereFindComponent(
-                            foundPetInfo = petInfo,
-                            isMapSheetOpen = isMapSheetOpen
-                        )
-                        Spacer(Modifier.height(32.dp))
-                        UserInfoComponent(
-                            creatorInfo = petInfo.creator,
-                            onClick = { onOwnerClick(petInfo.creator) }
-                        )
-                        Spacer(Modifier.height(20.dp))
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            when (announcementType) {
-                                0 -> {
-                                    ButtonComponent(
-                                        modifier = Modifier.weight(1f),
-                                        color = buttonPrimary,
-                                        text = "Это мое животное",
-                                        textColor = Color.White,
-                                        enabled = true,
-                                        radius = 40.dp
-                                    ) {
+                Spacer(Modifier.height(32.dp))
 
-                                    }
-                                }
+                EventDateComponent(
+                    advertState = "${petInfo.dateInfo.date} • ${petInfo.dateInfo.time}"
+                )
 
-                                1 -> {
-                                    ButtonComponent(
-                                        modifier = Modifier.weight(1f),
-                                        color = buttonPrimary,
-                                        text = "Нашел питомца",
-                                        textColor = Color.White,
-                                        enabled = true,
-                                        radius = 40.dp,
-                                        onClick = {
-                                            reportViewModel.reportFoundAnimal(petId)
-                                        },
-                                    )
+                Spacer(Modifier.height(32.dp))
 
-                                    ButtonComponent(
-                                        modifier = Modifier.weight(1f),
-                                        color = buttonSecondPrimary,
-                                        text = "Видел питомца",
-                                        textColor = buttonPrimary,
-                                        enabled = true,
-                                        radius = 40.dp,
-                                        onClick = {
-                                            Log.d("BOTTOM_SHEET", "button clicked")
+                WhereFindComponent(
+                    foundPetInfo = petInfo,
+                    isMapSheetOpen = isMapSheetOpen
+                )
 
-                                            openBottomMenu()
-                                        }
-                                    )
-                                }
-                            }
-                        }
+                Spacer(Modifier.height(32.dp))
+
+                UserInfoComponent(
+                    creatorInfo = petInfo.creator,
+                    onClick = {
+                        onOwnerClick(petInfo.creator)
                     }
-                }
+                )
 
-                var toastMessage by remember {
-                    mutableStateOf<String?>(null)
-                }
+                Spacer(Modifier.height(20.dp))
 
-                LaunchedEffect(Unit) {
-                    reportViewModel.effect.collect { effect ->
-                        toastMessage = when (effect) {
-                            ReportFoundAnimalEffect.ServerError -> "Что-то пошло не так"
-                            ReportFoundAnimalEffect.InternetError -> "Проблемы с соединением"
-                        }
-                    }
-                }
+                PetActionButtons(
+                    announcementType = announcementType,
+                    onFoundPetClick = onFoundPetClick,
+                    onSeenPetClick = onSeenPetClick
+                )
+            }
+        }
 
-                toastMessage?.let {
-                    AnimatedToast(
-                        message = it,
-                        onDismiss = {
-                            toastMessage = null
-                        }
-                    )
-                }
+        toastMessage?.let { message ->
+            AnimatedToast(
+                message = message,
+                onDismiss = onToastDismiss
+            )
+        }
 
-                SuccessSendPopup(
-                    visible = uiState.isSuccess,
-                    title = "Мы сообщили владельцу",
-                    description = "Спасибо за вашу отзывчивость!",
-                    onDismiss = goBackClick,
-                    modifier = Modifier.align(Alignment.Center)
+        SuccessSendPopup(
+            visible = isSuccess,
+            title = "Мы сообщили владельцу",
+            description = "Спасибо за вашу отзывчивость!",
+            onDismiss = goBackClick,
+            modifier = Modifier.align(Alignment.Center)
+        )
+    }
+}
+
+@Composable
+private fun PetActionButtons(
+    announcementType: Int,
+    onFoundPetClick: () -> Unit,
+    onSeenPetClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        when (announcementType) {
+            0 -> {
+                ButtonComponent(
+                    modifier = Modifier.weight(1f),
+                    color = buttonPrimary,
+                    text = "Это мое животное",
+                    textColor = Color.White,
+                    enabled = true,
+                    radius = 40.dp,
+                    onClick = {}
+                )
+            }
+
+            1 -> {
+                ButtonComponent(
+                    modifier = Modifier.weight(1f),
+                    color = buttonPrimary,
+                    text = "Нашел питомца",
+                    textColor = Color.White,
+                    enabled = true,
+                    radius = 40.dp,
+                    onClick = onFoundPetClick
+                )
+
+                ButtonComponent(
+                    modifier = Modifier.weight(1f),
+                    color = buttonSecondPrimary,
+                    text = "Видел питомца",
+                    textColor = buttonPrimary,
+                    enabled = true,
+                    radius = 40.dp,
+                    onClick = onSeenPetClick
                 )
             }
         }
     }
-
 }
-
-
-
-
-
-
-
-
