@@ -58,7 +58,6 @@ class ReportViewModel(
         }
     }
 
-
     fun updateLatitude(lat: Double) {
         _spottedUiState.update {
             it.copy(lat = lat)

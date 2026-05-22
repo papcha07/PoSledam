@@ -78,6 +78,8 @@ fun DetailsPetScreenProvider(
 
     val sheetShape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
     val spottedData by reportViewModel.spottedAnimalData.collectAsStateWithLifecycle()
+    val allFilled =
+        spottedData.uri.isNotEmpty() && spottedData.lon != null && spottedData.lat != null
     val pickImageLauncher =
         rememberLauncherForActivityResult(
             contract = ActivityResultContracts.GetContent()
@@ -86,6 +88,7 @@ fun DetailsPetScreenProvider(
                 reportViewModel.addImage(it)
             }
         }
+
 
 
     BottomSheetScaffold(
@@ -102,6 +105,7 @@ fun DetailsPetScreenProvider(
                     .fillMaxWidth()
                     .heightIn(min = 400.dp, max = 760.dp),
                 photos = spottedData.uri,
+                buttonState = allFilled,
                 updateLongitude = reportViewModel::updateLongitude,
                 updateLatitude = reportViewModel::updateLatitude,
                 onSendClick = {

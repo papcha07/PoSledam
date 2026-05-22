@@ -22,11 +22,14 @@ import ui.theme.buttonPrimary
 fun SeenPetBottomSheetContent(
     modifier: Modifier = Modifier,
     photos: List<Uri>,
+    buttonState: Boolean,
     updateLongitude: (Double) -> Unit,
     updateLatitude: (Double) -> Unit,
     onSendClick: () -> Unit,
     onAddPhotoClick: () -> Unit
 ) {
+
+
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -90,7 +93,7 @@ fun SeenPetBottomSheetContent(
             color = buttonPrimary,
             text = "Отправить владельцу",
             textColor = Color.White,
-            enabled = true,
+            enabled = buttonState,
             radius = 40.dp,
             onClick = onSendClick
         )
