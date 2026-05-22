@@ -1,4 +1,4 @@
-package ui.components
+package ui.components.bottom
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
+import ui.components.ProfileMap
 
 @Composable
 fun BottomMapComponent(
@@ -17,7 +18,6 @@ fun BottomMapComponent(
     updateLatitude: (Double) -> Unit
 ) {
     val mapShape = RoundedCornerShape(16.dp)
-
     Box(
         modifier = modifier
             .padding(horizontal = 16.dp)
@@ -34,6 +34,5 @@ fun BottomMapComponent(
                 updateLatitude(lat)
             }
         )
-
     }
 }

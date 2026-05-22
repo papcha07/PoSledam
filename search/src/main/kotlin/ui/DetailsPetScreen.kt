@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -35,9 +36,9 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import domain.models.Creator
 import kotlinx.coroutines.launch
-import ui.components.BottomMapComponent
 import ui.components.ButtonComponent
 import ui.components.EventDateComponent
+import ui.components.bottom.SeenPetBottomSheetContent
 import ui.components.default_component.AnimatedToast
 import ui.components.placeholder.SuccessSendPopup
 import ui.theme.backgroundColor
@@ -72,22 +73,31 @@ fun DetailsPetScreenProvider(
         }
     }
 
+    val sheetShape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
+
     BottomSheetScaffold(
-        modifier = Modifier
-            .fillMaxSize(),
+        modifier = Modifier.fillMaxSize(),
         scaffoldState = scaffoldState,
         sheetPeekHeight = 1.dp,
-        containerColor = Color(0xFFF5F5F5),
-        sheetContainerColor = Color(0xFFF5F5F5),
-        sheetContentColor = Color(0xFFF5F5F5),
+        sheetShape = sheetShape,
+        sheetContainerColor = Color(0xFFFAFAFA),
+        sheetContentColor = Color(0xFF222222),
         sheetSwipeEnabled = true,
         sheetContent = {
-            BottomMapComponent(
+            SeenPetBottomSheetContent(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(400.dp),
-                updateLongitude = {},
-                updateLatitude = {}
+                    .heightIn(min = 400.dp, max = 760.dp),
+                photos = listOf(),
+                updateLongitude = { lon ->
+                    // save lon
+                },
+                updateLatitude = { lat ->
+                    // save lat
+                },
+                onSendClick = {
+                    // отправить данные владельцу
+                }
             )
         }
     ) { padding ->
