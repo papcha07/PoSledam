@@ -1,5 +1,6 @@
 package navigation
 
+import NewsScreen
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.navigation.NavController
@@ -33,6 +34,8 @@ sealed class MainRoute(val route: String) {
             return "streetDetailsScreen/$id"
         }
     }
+
+    object NewsScreen : MainRoute("newsScreen")
 }
 
 
@@ -71,6 +74,11 @@ fun NavGraphBuilder.mainNavGraph(navController: NavController, route: String = "
                 },
                 navigateToCameraScreen = {
                     navController.navigate(MainRoute.CameraScreen.route) {
+                        launchSingleTop = true
+                    }
+                },
+                navigateToNewsScreen = {
+                    navController.navigate(MainRoute.NewsScreen.route) {
                         launchSingleTop = true
                     }
                 },
@@ -160,6 +168,15 @@ fun NavGraphBuilder.mainNavGraph(navController: NavController, route: String = "
 
         }
 
+        composable(
+            route = MainRoute.NewsScreen.route
+        ) {
+            NewsScreen(
+                goBackClick = {
+                    navController.popBackStack()
+                }
+            )
+        }
 
     }
 }
