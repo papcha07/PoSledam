@@ -33,6 +33,8 @@ sealed class MainRoute(val route: String) {
             return "streetDetailsScreen/$id"
         }
     }
+
+    object NewsScreen : MainRoute("newsScreen")
 }
 
 
