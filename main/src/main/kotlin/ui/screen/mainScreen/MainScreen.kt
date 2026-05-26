@@ -25,7 +25,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -75,6 +74,7 @@ fun MainScreen(
     navigateToNotificationScreen: () -> Unit,
     navigateToStreetPetScreen: () -> Unit,
     navigateToCameraScreen: () -> Unit,
+    navigateToNewsScreen: () -> Unit,
     mainScreenViewModel: MainScreenViewModel,
 ) {
 
@@ -104,7 +104,8 @@ fun MainScreen(
         item {
             ArticleSectionComponent(
                 modifier = Modifier,
-                articleInfoList = articleInfoList
+                articleInfoList = articleInfoList,
+                navigateToNewsScreen = navigateToNewsScreen
             )
         }
         item {
@@ -190,7 +191,8 @@ fun GetPhotoComponent(
 @Composable
 fun ArticleSectionComponent(
     modifier: Modifier = Modifier,
-    articleInfoList: List<ArticleInfo>
+    articleInfoList: List<ArticleInfo>,
+    navigateToNewsScreen: () -> Unit
 ) {
     Box(
         modifier = modifier
@@ -207,10 +209,9 @@ fun ArticleSectionComponent(
         ) {
             items(articleInfoList) { articleInfo ->
                 ArticleComponent(
-                    articleInfo = articleInfo
-                ) {
-
-                }
+                    articleInfo = articleInfo,
+                    onClick = navigateToNewsScreen
+                )
                 Spacer(Modifier.width(8.dp))
             }
         }
@@ -223,7 +224,8 @@ private fun ArticleSectionComponentPreview(
 
 ) {
     ArticleSectionComponent(
-        articleInfoList = articleInfoList
+        articleInfoList = articleInfoList,
+        navigateToNewsScreen = {}
     )
 }
 
