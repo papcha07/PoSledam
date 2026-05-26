@@ -162,6 +162,11 @@ fun NavGraphBuilder.mainNavGraph(navController: NavController, route: String = "
 
         }
 
+        composable(
+            route = MainRoute.NewsScreen.route
+        ) {
+
+        }
 
     }
 }
