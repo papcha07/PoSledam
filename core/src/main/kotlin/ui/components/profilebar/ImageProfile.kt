@@ -47,7 +47,7 @@ fun ImageProfile(
         is ProfileBarState.Success -> {
             SubcomposeAsyncImage(
                 model = ImageRequest.Builder(LocalContext.current)
-                    .data("$BASE_URL/api/image/${profileBarState.userDataInfo.avatarPath}")
+                    .data("${profileBarState.userDataInfo.avatarPath}")
                     .crossfade(true)
                     .build(),
                 contentDescription = "Фотография профиля",
