@@ -252,7 +252,7 @@ fun PetImageComponent(
 fun WhereFindComponent(
     modifier: Modifier = Modifier,
     foundPetInfo: FoundPetInfo,
-    isMapSheetOpen: Boolean
+    isMapSheetOpen: Boolean,
 ) {
 
     Box(

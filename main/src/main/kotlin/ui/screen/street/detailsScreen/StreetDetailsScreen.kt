@@ -124,7 +124,7 @@ fun StreetDetailsBodyComponent(
             placeDescription = streetDetails.placeDescription
         )
         Spacer(Modifier.height(32.dp))
-        EventDateComponent(advertState = streetDetails.dateInfo)
+        EventDateComponent(advertState = streetDetails.dateInfo, announcementType = 0)
         Spacer(Modifier.height(32.dp))
         CurrentLocationMap(
             modifier = Modifier

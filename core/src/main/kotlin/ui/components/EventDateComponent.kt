@@ -27,7 +27,8 @@ import ui.theme.textHint
 @Composable
 fun EventDateComponent(
     modifier: Modifier = Modifier,
-    advertState: String
+    advertState: String,
+    announcementType: Int
 ) {
     Box(
         modifier = modifier
@@ -48,7 +49,7 @@ fun EventDateComponent(
             )
             Column(Modifier.padding(10.dp)) {
                 Text(
-                    text = "Когда нашли",
+                    text = if (announcementType == 0)  "Когда нашли" else "Когда потеряли",
                     color = textHint,
                     fontSize = 12.sp
                 )
@@ -65,5 +66,5 @@ fun EventDateComponent(
 @Preview
 @Composable
 private fun EventDateComponentPreview() {
-    EventDateComponent(advertState = "12.08 24")
+    EventDateComponent(advertState = "12.08 24", announcementType = 1)
 }

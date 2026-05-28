@@ -195,7 +195,7 @@ fun InformationComponent(
                 overflow = TextOverflow.Ellipsis
             )
             Spacer(Modifier.height(20.dp))
-            EventDateComponent(advertState = advertState.eventDate)
+            EventDateComponent(advertState = advertState.eventDate, announcementType = 0)
         }
     }
 }

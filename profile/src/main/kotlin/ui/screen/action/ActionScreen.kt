@@ -62,10 +62,10 @@ import com.maxkeppeler.sheets.calendar.CalendarDialog
 import com.maxkeppeler.sheets.calendar.models.CalendarSelection
 import com.maxkeppeler.sheets.clock.ClockDialog
 import com.maxkeppeler.sheets.clock.models.ClockSelection
-import ui.components.Notification
 import ui.components.ProfileMap
 import ui.components.TabRowMethodSelection
 import ui.components.default_component.PetTextField
+import ui.components.placeholder.SuccessSendPopup
 import ui.components.slider.PhotosPager
 import ui.model.ActionScreenState
 import ui.model.TabRowInfo
@@ -100,6 +100,7 @@ fun ActionScreen(
             .fillMaxSize()
     ) {
         Column {
+            Spacer(modifier = Modifier.height(5.dp))
             ActionTopBar(
                 viewModel = viewModel,
                 page = page,
@@ -148,13 +149,16 @@ fun ActionScreen(
                             .padding(horizontal = 8.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        Notification(
-                            modifier = Modifier.testTag("notification"),
-                            onClick = {
+                        SuccessSendPopup(
+                            visible = true,
+                            title = "Объявление подано",
+                            description = "Включите уведомления чтобы не пропустить\nуведомления",
+                            onDismiss = {
                                 viewModel.enableNotifications()
                                 viewModel.dismissSuccess()
                                 onProfilePage()
-                            })
+                            },
+                        )
                     }
                 }
             } else {
@@ -220,7 +224,7 @@ fun ActionTopBar(
             .fillMaxWidth()
             .clip(RoundedCornerShape(bottomStart = 16.dp, bottomEnd = 16.dp))
             .background(Color.White)
-            .padding(horizontal = 16.dp, vertical = 12.dp)
+            .padding(horizontal = 16.dp, vertical = 20.dp)
     ) {
 
         Column {

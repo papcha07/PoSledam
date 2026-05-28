@@ -259,14 +259,15 @@ private fun DetailPetContent(
                 Spacer(Modifier.height(32.dp))
 
                 EventDateComponent(
-                    advertState = "${petInfo.dateInfo.date} • ${petInfo.dateInfo.time}"
+                    advertState = "${petInfo.dateInfo.date} • ${petInfo.dateInfo.time}",
+                    announcementType = announcementType
                 )
 
                 Spacer(Modifier.height(32.dp))
 
                 WhereFindComponent(
                     foundPetInfo = petInfo,
-                    isMapSheetOpen = isMapSheetOpen
+                    isMapSheetOpen = isMapSheetOpen,
                 )
 
                 Spacer(Modifier.height(32.dp))

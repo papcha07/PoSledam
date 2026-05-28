@@ -47,6 +47,7 @@ fun ProfileBarComponent(
             modifier = Modifier
                 .fillMaxWidth()
                 .align(Alignment.Center)
+
                 .clickable { onSettingsClick() },
             verticalAlignment = Alignment.CenterVertically
         ) {
