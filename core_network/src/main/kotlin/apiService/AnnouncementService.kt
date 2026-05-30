@@ -194,6 +194,15 @@ class AnnouncementService(private val client: HttpClient) {
                 missAllInfo.gender?.let {
                     parameters.append("gender", it.toString())
                 }
+                missAllInfo.searchRadius?.let {
+                    parameters.append("SearchRadius", it.toString())
+                }
+                missAllInfo.searchCenterLatitude?.let {
+                    parameters.append("SearchCenter.Latitude", it.toString())
+                }
+                missAllInfo.searchCenterLongitude?.let {
+                    parameters.append("SearchCenter.Longitude", it.toString())
+                }
             }
         }
         if (response.status.isSuccess()) {
