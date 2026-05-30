@@ -24,10 +24,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -328,14 +326,7 @@ fun FoundPetsScreen(
     modifier: Modifier = Modifier,
     goToDetailsPetScreen: (String, Int) -> Unit
 ) {
-    val foundState by viewModel.foundState.collectAsState()
-    val searchResults by viewModel.foundResults.collectAsState()
 
-    LaunchedEffect(Unit) {
-        if (foundState is SearchState.Idle) {
-            viewModel.findFoundPets()
-        }
-    }
 
     Box(
         modifier = modifier
@@ -382,14 +373,6 @@ fun MissingPetsScreen(
     modifier: Modifier = Modifier,
     goToDetailsPetScreen: (String, Int) -> Unit
 ) {
-    val missingState by viewModel.missingState.collectAsState()
-    val searchResults by viewModel.missingResults.collectAsState()
-
-    LaunchedEffect(Unit) {
-        if (missingState is SearchState.Idle) {
-            viewModel.findMissingPets()
-        }
-    }
 
     Box(
         modifier = modifier

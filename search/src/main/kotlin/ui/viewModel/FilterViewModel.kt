@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import domain.interactor.SearchInteractor
 import domain.models.FoundPetInfo
+import domain.models.PetUiPreview
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -24,6 +25,14 @@ sealed class PetDetailsScreenState {
     object Idle : PetDetailsScreenState()
 }
 
+data class SearchScreenState(
+    val isError: Boolean = false,
+    val isInternetError: Boolean = false,
+    val isEmpty: Boolean = false,
+    val findAnimalList: List<PetUiPreview>? = null,
+    val missAnimalList: List<PetUiPreview>? = null
+)
+
 class FilterViewModel(
     private val searchInteractor: SearchInteractor
 ) : ViewModel() {
@@ -31,15 +40,15 @@ class FilterViewModel(
     private val _filters = MutableStateFlow(FilterDto())
     val filters: StateFlow<FilterDto> = _filters.asStateFlow()
 
-    private val _hasMoreMissing = MutableStateFlow(true)
-    val hasMoreMissing: StateFlow<Boolean> = _hasMoreMissing.asStateFlow()
-
     private val _petInfoState = MutableStateFlow<PetDetailsScreenState>(PetDetailsScreenState.Idle)
     val petInfoState = _petInfoState.asStateFlow()
 
-
     private val _currentTab = MutableStateFlow(0)
     val currentTab: StateFlow<Int> = _currentTab.asStateFlow()
+
+
+    private val _searchScreenState = MutableStateFlow<SearchScreenState>(SearchScreenState())
+    val searchScreenState = _searchScreenState.asStateFlow()
 
     fun setCurrentTab(tabIndex: Int) {
         Log.d("announcementType", "viewModel ${tabIndex}")
