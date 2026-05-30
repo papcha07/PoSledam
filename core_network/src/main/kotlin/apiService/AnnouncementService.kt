@@ -23,7 +23,6 @@ import model.announcement.FoundPetRequest
 import model.announcement.FoundPetResponse
 import model.announcement.Location
 import model.announcement.MissAllDto
-import model.announcement.MissAllDtoFound
 import model.announcement.MissAllRequest
 import java.io.File
 
@@ -176,7 +175,7 @@ class AnnouncementService(private val client: HttpClient) {
         }
     }
 
-    suspend fun findFoundAnnouncement(missAllInfo: MissAllRequest): ApiResponse<List<MissAllDtoFound>> {
+    suspend fun findFoundAnnouncement(missAllInfo: MissAllRequest): ApiResponse<List<MissAllDto>> {
         val response = client.get("api/find-announcement/feed") {
             url {
                 missAllInfo.lastDateTime?.let {
@@ -206,7 +205,7 @@ class AnnouncementService(private val client: HttpClient) {
             }
         }
         if (response.status.isSuccess()) {
-            return ApiResponse.Success(response.body<List<MissAllDtoFound>>())
+            return ApiResponse.Success(response.body<List<MissAllDto>>())
         } else {
             return ApiResponse.Error(response.status.value)
         }
