@@ -73,6 +73,8 @@ dependencies {
     implementation("androidx.compose.foundation:foundation-layout:1.7.3")
     implementation("androidx.startup:startup-runtime:1.1.1")
     implementation("com.yandex.android:maps.mobile:4.22.0-lite")
+    implementation("com.google.android.gms:play-services-location:21.0.1")
+
 
 
 

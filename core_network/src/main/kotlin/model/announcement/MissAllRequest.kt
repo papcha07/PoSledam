@@ -7,5 +7,8 @@ data class MissAllRequest(
     val district: String? = null,
     val from: Instant? = null,
     val type: Int? = null,
-    val gender: Int? = null
+    val gender: Int? = null,
+    val searchRadius: Int? = null,
+    val searchCenterLatitude: Int? = null,
+    val searchCenterLongitude: Int? = null
 )

@@ -169,25 +169,7 @@ class FilterViewModel(
         }
     }
 
-    fun loadMoreMissingPets() {
-        if (!_hasMoreMissing.value || _isLoadingMoreMissing.value) return
-        val lastDateTime = _missingResults.value.lastOrNull()?.createdAt ?: return
-        viewModelScope.launch {
-            _isLoadingMoreMissing.value = true
-            try {
-                val filterDto = createFilterDto(lastDateTime = lastDateTime)
-                searchInteractor.findMissingAnnouncement(filterDto).collect { pair ->
-                    val data = pair.first
-                    if (data != null) {
-                        _missingResults.value = _missingResults.value + data
-                        _hasMoreMissing.value = data.size >= 20
-                    }
-                }
-            } finally {
-                _isLoadingMoreMissing.value = false
-            }
-        }
-    }
+
 
 
     fun resetPetInfoState() {
