@@ -5,7 +5,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import domain.interactor.SearchInteractor
 import domain.models.FoundPetInfo
-import domain.models.PetUiPreview
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -16,7 +15,6 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import model.InternetStatus
 import ui.models.FilterDto
-import ui.models.SearchState
 import ui.models.TimeFilter
 
 sealed class PetDetailsScreenState {
@@ -32,27 +30,6 @@ class FilterViewModel(
 
     private val _filters = MutableStateFlow(FilterDto())
     val filters: StateFlow<FilterDto> = _filters.asStateFlow()
-
-    private val _foundState = MutableStateFlow<SearchState>(SearchState.Idle)
-    val foundState: StateFlow<SearchState> = _foundState.asStateFlow()
-
-    private val _missingState = MutableStateFlow<SearchState>(SearchState.Idle)
-    val missingState: StateFlow<SearchState> = _missingState.asStateFlow()
-
-    private val _foundResults = MutableStateFlow<List<PetUiPreview>>(emptyList())
-    val foundResults: StateFlow<List<PetUiPreview>> = _foundResults.asStateFlow()
-
-    private val _missingResults = MutableStateFlow<List<PetUiPreview>>(emptyList())
-    val missingResults: StateFlow<List<PetUiPreview>> = _missingResults.asStateFlow()
-
-    private val _isLoadingMoreFound = MutableStateFlow(false)
-    val isLoadingMoreFound: StateFlow<Boolean> = _isLoadingMoreFound.asStateFlow()
-
-    private val _isLoadingMoreMissing = MutableStateFlow(false)
-    val isLoadingMoreMissing: StateFlow<Boolean> = _isLoadingMoreMissing.asStateFlow()
-
-    private val _hasMoreFound = MutableStateFlow(true)
-    val hasMoreFound: StateFlow<Boolean> = _hasMoreFound.asStateFlow()
 
     private val _hasMoreMissing = MutableStateFlow(true)
     val hasMoreMissing: StateFlow<Boolean> = _hasMoreMissing.asStateFlow()
@@ -113,65 +90,6 @@ class FilterViewModel(
         )
     }
 
-    fun findFoundPets() {
-        viewModelScope.launch {
-            _foundState.value = SearchState.Loading
-            _hasMoreFound.value = true
-            try {
-                val filterDto = createFilterDto(lastDateTime = null)
-                searchInteractor.findFoundAnnouncement(filterDto).collect { pair ->
-                    val data = pair.first
-                    _foundResults.value = data ?: emptyList()
-                    _hasMoreFound.value = (data?.size ?: 0) >= 20
-                    _foundState.value = SearchState.Success
-                }
-            } catch (e: Exception) {
-                _foundState.value = SearchState.Error(e.message ?: "Ошибка")
-            }
-        }
-    }
-
-    fun loadMoreFoundPets() {
-        if (!_hasMoreFound.value || _isLoadingMoreFound.value) return
-        val lastDateTime = _foundResults.value.lastOrNull()?.createdAt ?: return
-        viewModelScope.launch {
-            _isLoadingMoreFound.value = true
-            try {
-                val filterDto = createFilterDto(lastDateTime = lastDateTime)
-                searchInteractor.findFoundAnnouncement(filterDto).collect { pair ->
-                    val data = pair.first
-                    if (data != null) {
-                        _foundResults.value = _foundResults.value + data
-                        _hasMoreFound.value = data.size >= 20
-                    }
-                }
-            } finally {
-                _isLoadingMoreFound.value = false
-            }
-        }
-    }
-
-    fun findMissingPets() {
-        viewModelScope.launch {
-            _missingState.value = SearchState.Loading
-            _hasMoreMissing.value = true
-            try {
-                val filterDto = createFilterDto(lastDateTime = null)
-                searchInteractor.findMissingAnnouncement(filterDto).collect { pair ->
-                    val data = pair.first
-                    _missingResults.value = data ?: emptyList()
-                    _hasMoreMissing.value = (data?.size ?: 0) >= 20
-                    _missingState.value = SearchState.Success
-                }
-            } catch (e: Exception) {
-                _missingState.value = SearchState.Error(e.message ?: "Ошибка")
-            }
-        }
-    }
-
-
-
-
     fun resetPetInfoState() {
         _petInfoState.value = PetDetailsScreenState.Loading
     }
@@ -212,7 +130,6 @@ data class FilterChipUi(
     val key: String,
     val text: String
 )
-
 
 private fun FilterDto.toChips(): List<FilterChipUi> = buildList {
     district?.let { add(FilterChipUi("district", it)) }

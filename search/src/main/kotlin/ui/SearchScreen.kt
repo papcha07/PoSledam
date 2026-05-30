@@ -446,19 +446,6 @@ fun PetsList(
 
     val listState = rememberLazyListState()
 
-    LaunchedEffect(listState, hasMore.value, isLoadingMore.value) {
-        snapshotFlow {
-            val layoutInfo = listState.layoutInfo
-            val totalItems = layoutInfo.totalItemsCount
-            val lastVisibleItem = layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
-            lastVisibleItem >= totalItems - 3 && totalItems > 0
-        }.collect { nearEnd ->
-            if (nearEnd && hasMore.value && !isLoadingMore.value) {
-                if (isFoundTab) viewModel.loadMoreFoundPets() else viewModel.loadMoreMissingPets()
-            }
-        }
-    }
-
     LazyColumn(
         modifier = modifier.padding(horizontal = 16.dp),
         state = listState
