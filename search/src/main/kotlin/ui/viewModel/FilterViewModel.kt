@@ -3,19 +3,25 @@ package ui.viewModel
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.PagingData
+import androidx.paging.cachedIn
 import domain.interactor.SearchInteractor
+import domain.models.FilterDto
 import domain.models.FoundPetInfo
 import domain.models.PetUiPreview
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import model.InternetStatus
-import domain.models.FilterDto
 import ui.models.TimeFilter
 
 sealed class PetDetailsScreenState {
@@ -24,7 +30,6 @@ sealed class PetDetailsScreenState {
     data class Success(val petInfo: FoundPetInfo) : PetDetailsScreenState()
     object Idle : PetDetailsScreenState()
 }
-
 
 
 class FilterViewModel(
@@ -39,6 +44,27 @@ class FilterViewModel(
 
     private val _currentTab = MutableStateFlow(0)
     val currentTab: StateFlow<Int> = _currentTab.asStateFlow()
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val findPets: Flow<PagingData<PetUiPreview>> =
+        filters
+            .map { it.copy(lastDateTime = null) }
+            .distinctUntilChanged()
+            .flatMapLatest { filter ->
+                searchInteractor.loadFindAnnouncementPage(filter)
+            }
+            .cachedIn(viewModelScope)
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val missingPets: Flow<PagingData<PetUiPreview>> =
+        filters
+            .map { it.copy(lastDateTime = null) }
+            .distinctUntilChanged()
+            .flatMapLatest { filter ->
+                searchInteractor.loadMissAnnouncementPage(filter)
+            }
+            .cachedIn(viewModelScope)
+
 
     fun setCurrentTab(tabIndex: Int) {
         Log.d("announcementType", "viewModel ${tabIndex}")
