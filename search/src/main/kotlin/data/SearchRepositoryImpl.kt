@@ -10,25 +10,16 @@ import domain.models.Creator
 import domain.models.DateInfo
 import domain.models.FoundPetInfo
 import domain.models.PetInfo
-import domain.models.PetUiPreview
 import domain.repository.SearchRepository
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.withContext
 import model.InternetStatus
 import model.announcement.FoundPetRequest
 import model.announcement.FoundPetResponse
 import model.announcement.Location
-import model.announcement.MissAllDto
-import model.announcement.MissAllDtoFound
-import model.announcement.MissAllRequest
 import ui.model.Response
-import ui.models.FilterDto
-import ui.models.toInstant
 import ui.other.Converter
 import ui.viewModel.SpottedAnimalData
-import java.time.Instant
 import java.time.OffsetDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -39,72 +30,6 @@ class SearchRepositoryImpl(
     private val converter: Converter
 ) : SearchRepository {
 
-
-    @RequiresApi(Build.VERSION_CODES.O)
-
-    override suspend fun findMissingAnnouncement(filterDto: FilterDto): Flow<Pair<List<PetUiPreview>?, InternetStatus?>> =
-        flow {
-            val allMissingResult = announcementService.findMissingAnnouncement(
-                missAllInfo = convertToMissRequest(filterDto)
-            )
-            when (allMissingResult) {
-
-                is ApiResponse.Error -> {
-                    when (allMissingResult.errorCode) {
-
-                        500 -> {
-                            emit(Pair(null, InternetStatus.Error))
-                        }
-
-                        400 -> {
-                            emit(Pair(null, InternetStatus.Error))
-                        }
-                    }
-                }
-
-                is ApiResponse.Success<List<MissAllDto>> -> {
-                    val previewList: MutableList<PetUiPreview> = mutableListOf()
-                    allMissingResult.data.map { dto ->
-                        previewList.add(convertToPetPreview(dto))
-                    }
-                    emit(Pair(previewList, null))
-                }
-            }
-        }
-
-    @RequiresApi(Build.VERSION_CODES.O)
-    override suspend fun findFoundAnnouncement(filterDto: FilterDto): Flow<Pair<List<PetUiPreview>?, InternetStatus?>> =
-
-        flow {
-            val allMissingResult = announcementService.findFoundAnnouncement(
-                missAllInfo = convertToMissRequest(filterDto)
-            )
-            when (allMissingResult) {
-
-                is ApiResponse.Error -> {
-                    when (allMissingResult.errorCode) {
-
-                        500 -> {
-                            emit(Pair(null, InternetStatus.Error))
-                        }
-
-                        400 -> {
-                            emit(Pair(null, InternetStatus.Error))
-                        }
-                    }
-                }
-
-                is ApiResponse.Success<List<MissAllDtoFound>> -> {
-                    val previewList: MutableList<PetUiPreview> = mutableListOf()
-                    allMissingResult.data.map { dto ->
-                        previewList.add(convertToPetPreviewFound(dto))
-                    }
-                    println("$  found {previewList.toString()}")
-                    emit(Pair(previewList, null))
-                }
-            }
-
-        }
 
     @RequiresApi(Build.VERSION_CODES.O)
     override suspend fun getInfoAboutPet(
@@ -197,40 +122,6 @@ class SearchRepositoryImpl(
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    private fun convertToMissRequest(filterDto: FilterDto): MissAllRequest {
-        val lastInstant = filterDto.lastDateTime?.let { Instant.parse(it) }
-        return MissAllRequest(
-            lastDateTime = lastInstant,
-            district = filterDto.district?.takeIf { it.isNotBlank() },
-            from = filterDto.time?.toInstant(),
-            type = filterDto.typeOfPet,
-            gender = filterDto.gender
-        )
-    }
-
-    private fun convertToPetPreview(missAllDto: MissAllDto): PetUiPreview {
-        return PetUiPreview(
-            id = missAllDto.id,
-            petName = missAllDto.petName,
-            description = missAllDto.description ?: "Нет описания",
-            district = missAllDto.district,
-            imageUrl = missAllDto.mainImagePath,
-            createdAt = missAllDto.createdAt ?: missAllDto.eventDate
-        )
-    }
-
-    private fun convertToPetPreviewFound(missAllDto: MissAllDtoFound): PetUiPreview {
-        return PetUiPreview(
-            id = missAllDto.id,
-            description = missAllDto.description ?: "Нет описания",
-            district = missAllDto.district,
-            imageUrl = missAllDto.mainImagePath,
-            breed = missAllDto.breed,
-            createdAt = missAllDto.createdAt ?: missAllDto.eventDate
-        )
-    }
-
-    @RequiresApi(Build.VERSION_CODES.O)
     private fun formatEventDate(dateTimeString: String): String {
         val parsed = OffsetDateTime.parse(dateTimeString)
         val systemZone = ZoneId.systemDefault()
@@ -249,6 +140,5 @@ class SearchRepositoryImpl(
             .withLocale(Locale.getDefault())
         return localTime.format(formatter)
     }
-
 
 }

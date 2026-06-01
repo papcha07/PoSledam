@@ -35,7 +35,7 @@ import ui.viewModel.FilterViewModel
 import ui.components.default_component.DefaultButton
 import ui.components.default_component.ToolBar
 import ui.components.default_component.ToolBarInfo
-import ui.models.FilterDto
+import domain.models.FilterDto
 import ui.models.TimeFilter
 import ui.theme.districtDropDownMenuColor
 import ui.theme.filterItemColor

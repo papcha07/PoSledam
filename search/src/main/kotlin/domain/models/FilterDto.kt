@@ -1,4 +1,6 @@
-package ui.models
+package domain.models
+
+import ui.models.TimeFilter
 
 data class FilterDto(
     val district: String? = null,
@@ -7,4 +9,7 @@ data class FilterDto(
     val gender: Int? = null,
     /** ISO 8601 дата последнего объявления (для пагинации) */
     val lastDateTime: String? = null,
+    val searchRadius: Int? = null,
+    val searchCenterLatitude: Double? = null,
+    val searchCenterLongitude: Double? = null
 )

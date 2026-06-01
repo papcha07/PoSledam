@@ -15,7 +15,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import model.InternetStatus
-import ui.models.FilterDto
+import domain.models.FilterDto
 import ui.models.TimeFilter
 
 sealed class PetDetailsScreenState {
@@ -25,13 +25,7 @@ sealed class PetDetailsScreenState {
     object Idle : PetDetailsScreenState()
 }
 
-data class SearchScreenState(
-    val isError: Boolean = false,
-    val isInternetError: Boolean = false,
-    val isEmpty: Boolean = false,
-    val findAnimalList: List<PetUiPreview>? = null,
-    val missAnimalList: List<PetUiPreview>? = null
-)
+
 
 class FilterViewModel(
     private val searchInteractor: SearchInteractor
@@ -45,10 +39,6 @@ class FilterViewModel(
 
     private val _currentTab = MutableStateFlow(0)
     val currentTab: StateFlow<Int> = _currentTab.asStateFlow()
-
-
-    private val _searchScreenState = MutableStateFlow<SearchScreenState>(SearchScreenState())
-    val searchScreenState = _searchScreenState.asStateFlow()
 
     fun setCurrentTab(tabIndex: Int) {
         Log.d("announcementType", "viewModel ${tabIndex}")
