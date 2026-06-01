@@ -67,9 +67,7 @@ class SearchAnimalPagingSource(
     override fun getRefreshKey(state: PagingState<String, PetUiPreview>): String? {
         return null
     }
-
-    private companion object {
+    internal companion object {
         const val PAGE_SIZE = 20
     }
-
 }

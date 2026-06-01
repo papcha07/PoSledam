@@ -5,13 +5,20 @@ import ApiResponse
 import SendResult
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
 import apiService.AnnouncementService
+import data.SearchAnimalPagingSource.Companion.PAGE_SIZE
 import domain.models.Creator
 import domain.models.DateInfo
+import domain.models.FilterDto
 import domain.models.FoundPetInfo
 import domain.models.PetInfo
+import domain.models.PetUiPreview
 import domain.repository.SearchRepository
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
 import model.InternetStatus
 import model.announcement.FoundPetRequest
@@ -29,6 +36,42 @@ class SearchRepositoryImpl(
     private val announcementService: AnnouncementService,
     private val converter: Converter
 ) : SearchRepository {
+
+    override suspend fun loadMissAnnouncementPage(filterDto: FilterDto): Flow<PagingData<PetUiPreview>> {
+        val request = filterDto.toMissAllRequest()
+        return Pager(
+            config = PagingConfig(
+                pageSize = PAGE_SIZE,
+                initialLoadSize = PAGE_SIZE,
+                enablePlaceholders = false
+            ),
+            pagingSourceFactory = {
+                SearchAnimalPagingSource(
+                    announcementService = announcementService,
+                    filter = request,
+                    type = SearchAnimalType.Missing
+                )
+            }
+        ).flow
+    }
+
+    override suspend fun loadFindAnnouncementPage(filterDto: FilterDto): Flow<PagingData<PetUiPreview>> {
+        val request = filterDto.toMissAllRequest()
+        return Pager(
+            config = PagingConfig(
+                pageSize = PAGE_SIZE,
+                initialLoadSize = PAGE_SIZE,
+                enablePlaceholders = false
+            ),
+            pagingSourceFactory = {
+                SearchAnimalPagingSource(
+                    announcementService = announcementService,
+                    filter = request,
+                    type = SearchAnimalType.Found
+                )
+            }
+        ).flow
+    }
 
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -140,5 +183,6 @@ class SearchRepositoryImpl(
             .withLocale(Locale.getDefault())
         return localTime.format(formatter)
     }
+
 
 }

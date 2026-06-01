@@ -10,6 +10,9 @@ import ui.model.Response
 import ui.viewModel.SpottedAnimalData
 
 interface SearchRepository {
+
+    suspend fun loadMissAnnouncementPage(filterDto: FilterDto) : Flow<PagingData<PetUiPreview>>
+    suspend fun loadFindAnnouncementPage(filterDto: FilterDto) : Flow<PagingData<PetUiPreview>>
     suspend fun getInfoAboutPet(
         id: String,
         announcementType: Int
@@ -17,4 +20,5 @@ interface SearchRepository {
 
     suspend fun reportFoundAnimal(id: String): Response
     suspend fun reportSpottedAnimal(id: String, spottedAnimalData: SpottedAnimalData): Response
+
 }
