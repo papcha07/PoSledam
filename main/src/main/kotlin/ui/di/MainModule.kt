@@ -38,7 +38,8 @@ fun getMainModule() = module {
     viewModel {
         MainScreenViewModel(
             notificationInteractor = get(),
-            userInteractor = get()
+            userInteractor = get(),
+            get()
         )
     }
 

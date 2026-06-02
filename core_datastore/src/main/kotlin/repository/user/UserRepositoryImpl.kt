@@ -8,6 +8,7 @@ import db.user.UserDao
 import domain.user.UserRepository
 import domain.user.model.User
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import toDomain
 import toEntity
@@ -57,17 +58,14 @@ class UserRepositoryImpl(
 
     override suspend fun updateUserLocation(latitude: Double, longitude: Double) {
         withIo {
-             userDao.observeUser().collect {
-                userEntity ->
-                if(userEntity != null){
-                    userDao.updateUserLocation(
-                        userEntity.id,
-                        latitude,
-                        longitude
-                    )
-                    Log.d("USER_LOCATION", "$latitude $longitude ${userEntity}")
-
-                }
+            val userEntity = userDao.observeUser().first()
+            if (userEntity != null) {
+                userDao.updateUserLocation(
+                    userEntity.id,
+                    latitude,
+                    longitude
+                )
+                Log.d("USER_LOCATION", "$latitude $longitude ${userEntity}")
             }
         }
     }

@@ -6,7 +6,7 @@ import storage.TokenRepository
 
 class UserInteractorImpl(
     private val userRepository: UserRepository,
-    private val tokenRepository: TokenRepository
+    private val tokenRepository: TokenRepository,
 ) : UserInteractor {
     override suspend fun updateUserInfo(user: User) {
         userRepository.updateUser(user)

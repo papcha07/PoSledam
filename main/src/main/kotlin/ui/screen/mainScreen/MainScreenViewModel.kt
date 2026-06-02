@@ -1,5 +1,6 @@
 package ui.screen.mainScreen
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import domain.notification.Notification
@@ -12,11 +13,13 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import ui.LocationProvider
 import ui.components.profilebar.ProfileBarState
 
 class MainScreenViewModel(
     private val notificationInteractor: NotificationInteractor,
-    private val userInteractor: UserInteractor
+    private val userInteractor: UserInteractor,
+    private val locationProvider: LocationProvider
 ) : ViewModel() {
     private val _userInfoState = MutableStateFlow<ProfileBarState>(ProfileBarState.Idle)
     val userInfoState = _userInfoState.asStateFlow()
@@ -56,6 +59,24 @@ class MainScreenViewModel(
                 }
             }
         }
+    }
+
+    suspend fun updateUserLocation(): Boolean {
+        val location = locationProvider.getCurrentLocation()
+
+        if (location == null) {
+            Log.d("USER_LOCATION", "Location is null")
+            return false
+        }
+
+        userInteractor.updateUserLocation(
+            location.latitude,
+            location.longitude
+        )
+
+        Log.d("USER_LOCATION", "Location Updated: ${location.latitude}, ${location.longitude}")
+
+        return true
     }
 
     fun refreshUser() {
