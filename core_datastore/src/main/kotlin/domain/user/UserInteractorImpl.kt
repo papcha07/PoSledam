@@ -24,4 +24,8 @@ class UserInteractorImpl(
         userRepository.clearUser()
         tokenRepository.deleteToken()
     }
+
+    override suspend fun updateUserLocation(latitude: Double, longitude: Double) {
+        userRepository.updateUserLocation(latitude, longitude)
+    }
 }

@@ -1,5 +1,7 @@
 package ui.di
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import data.repository.LocationRepositoryImpl
 import data.repository.StreetRepositoryImpl
 import domain.interactor.location.LocationInteractor
@@ -11,10 +13,12 @@ import domain.repository.StreetRepository
 import org.koin.android.ext.koin.androidApplication
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
+import ui.LocationProvider
 import ui.screen.camera.CameraViewModel
 import ui.screen.mainScreen.MainScreenViewModel
 import ui.screen.street.StreetPetViewModel
 
+@RequiresApi(Build.VERSION_CODES.O)
 fun getMainModule() = module {
 
     single<LocationRepository> {
@@ -53,7 +57,7 @@ fun getMainModule() = module {
     }
 
     single {
-        domain.LocationProvider(androidApplication())
+        LocationProvider(androidApplication())
     }
 }
 

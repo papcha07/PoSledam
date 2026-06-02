@@ -54,4 +54,19 @@ class UserRepositoryImpl(
         }
     }
 
+    override suspend fun updateUserLocation(latitude: Double, longitude: Double) {
+        withIo {
+             userDao.observeUser().collect {
+                userEntity ->
+                if(userEntity != null){
+                    userDao.updateUserLocation(
+                        userEntity.id,
+                        latitude,
+                        longitude
+                    )
+                }
+            }
+        }
+    }
+
 }

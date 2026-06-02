@@ -119,8 +119,6 @@ fun FiltersScreen(
                 DefaultButton(
                     text = "Применить",
                     onClick = {
-                        filtersViewModel.findFoundPets()
-                        filtersViewModel.findMissingPets()
                         goToSearchScreen()
                     }
                 )

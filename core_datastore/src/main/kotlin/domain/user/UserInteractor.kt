@@ -8,4 +8,5 @@ interface UserInteractor {
     fun observeUser(): Flow<User?>
     suspend fun refreshUser()
     suspend fun clearUser()
+    suspend fun updateUserLocation(latitude: Double, longitude: Double)
 }

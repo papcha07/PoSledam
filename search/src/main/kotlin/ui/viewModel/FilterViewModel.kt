@@ -31,9 +31,8 @@ sealed class PetDetailsScreenState {
     object Idle : PetDetailsScreenState()
 }
 
-
 class FilterViewModel(
-    private val searchInteractor: SearchInteractor
+    private val searchInteractor: SearchInteractor,
 ) : ViewModel() {
 
     private val _filters = MutableStateFlow(FilterDto())
@@ -58,7 +57,9 @@ class FilterViewModel(
     @OptIn(ExperimentalCoroutinesApi::class)
     val missingPets: Flow<PagingData<PetUiPreview>> =
         filters
-            .map { it.copy(lastDateTime = null) }
+            .map {filter ->
+                filter.copy(lastDateTime = null)
+            }
             .distinctUntilChanged()
             .flatMapLatest { filter ->
                 searchInteractor.loadMissAnnouncementPage(filter)

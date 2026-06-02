@@ -4,7 +4,6 @@ import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import domain.LocationProvider
 import domain.interactor.street.StreetPetInteractor
 import domain.models.AdvertInfo
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -12,6 +11,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import model.geo.AddressSuggestion
+import ui.LocationProvider
 import ui.other.timeUtils.DateTimeUtils
 import yandex_core.NetworkResource
 import yandex_core.YandexInteractor

@@ -1,7 +1,7 @@
 package domain.interactor.location
 
-import domain.LocationProvider
 import domain.repository.LocationRepository
+import ui.LocationProvider
 
 class LocationInteractorImpl(
     private val locationProvider: LocationProvider,

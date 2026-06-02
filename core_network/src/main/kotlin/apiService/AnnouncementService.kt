@@ -147,9 +147,6 @@ class AnnouncementService(private val client: HttpClient) {
                 missAllInfo.district?.let {
                     parameters.append("district", it)
                 }
-                missAllInfo.from?.let {
-                    parameters.append("from", it.toString())
-                }
                 missAllInfo.type?.let {
                     parameters.append("type", it.toString())
                 }
@@ -183,9 +180,6 @@ class AnnouncementService(private val client: HttpClient) {
                 }
                 missAllInfo.district?.let {
                     parameters.append("district", it)
-                }
-                missAllInfo.from?.let {
-                    parameters.append("from", it.toString())
                 }
                 missAllInfo.type?.let {
                     parameters.append("type", it.toString())
