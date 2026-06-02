@@ -30,7 +30,8 @@ fun getMainModule() = module {
     single<LocationInteractor> {
         LocationInteractorImpl(
             locationProvider = get(),
-            locationRepository = get()
+            locationRepository = get(),
+            userInteractor = get(),
         )
     }
 

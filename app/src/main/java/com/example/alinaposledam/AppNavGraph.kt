@@ -19,7 +19,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.example.alinaposledam.location.RequestLocationPermission
 import com.example.alinaposledam.worker.location_worker.WorkerInteractor
 import navigation.authNavGraph
 import navigation.mainNavGraph
@@ -57,31 +56,17 @@ fun AppNavGraph() {
 
         if (token.isNullOrBlank()) {
             startDestination = "auth"
-            isAuthorized = false
         } else {
             startDestination = "main"
-            isAuthorized = true
-        }
-
-    }
-
-    if (isAuthorized) {
-        RequestLocationPermission(
-            onPermissionGranted = {
-                hasLocationPermission = true
-            },
-            onPermissionDenied = {
-                hasLocationPermission = false
-            }
-        )
-    }
-
-
-    LaunchedEffect(hasLocationPermission, isAuthorized) {
-        if (isAuthorized && hasLocationPermission) {
-            workerInteractor.sendLocation()
         }
     }
+
+
+//    LaunchedEffect(hasLocationPermission, isAuthorized) {
+//        if (isAuthorized && hasLocationPermission) {
+//            workerInteractor.sendLocation()
+//        }
+//    }
 
 
     Scaffold(

@@ -1,6 +1,7 @@
 package repository.user
 
 import ApiResponse
+import android.util.Log
 import apiService.AuthService
 import apiService.models.auth_models.UserInfoResponse
 import db.user.UserDao
@@ -64,6 +65,8 @@ class UserRepositoryImpl(
                         latitude,
                         longitude
                     )
+                    Log.d("USER_LOCATION", "$latitude $longitude ${userEntity}")
+
                 }
             }
         }
