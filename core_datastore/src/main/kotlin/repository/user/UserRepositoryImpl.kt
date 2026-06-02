@@ -1,24 +1,28 @@
 package repository.user
 
 import ApiResponse
-import android.util.Log
 import apiService.AuthService
 import apiService.models.auth_models.UserInfoResponse
+import db.user.LocationDao
+import db.user.LocationEntity
 import db.user.UserDao
 import domain.user.UserRepository
+import domain.user.model.LocationDto
 import domain.user.model.User
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import model.announcement.Location
 import toDomain
 import toEntity
+import toLocation
 import toUpdateUserInfoRequest
 import toUserEntity
 import withIo
 
 class UserRepositoryImpl(
     private val authApi: AuthService,
-    private val userDao: UserDao
+    private val userDao: UserDao,
+    private val locationDao: LocationDao
 ) : UserRepository {
 
     override suspend fun updateUser(user: User) {
@@ -31,6 +35,12 @@ class UserRepositoryImpl(
     override fun observeUser(): Flow<User?> {
         return userDao.observeUser().map { entity ->
             entity?.toDomain()
+        }
+    }
+
+    override fun observeLocation(): Flow<LocationDto?> {
+        return locationDao.observeLocation().map { locationEntity ->
+            locationEntity?.toLocation()
         }
     }
 
@@ -58,15 +68,7 @@ class UserRepositoryImpl(
 
     override suspend fun updateUserLocation(latitude: Double, longitude: Double) {
         withIo {
-            val userEntity = userDao.observeUser().first()
-            if (userEntity != null) {
-                userDao.updateUserLocation(
-                    userEntity.id,
-                    latitude,
-                    longitude
-                )
-                Log.d("USER_LOCATION", "$latitude $longitude ${userEntity}")
-            }
+            locationDao.saveLocation(LocationEntity(0, latitude, longitude))
         }
     }
 

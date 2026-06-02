@@ -13,7 +13,6 @@ interface UserDao {
 
     @Update(onConflict = OnConflictStrategy.REPLACE)
     suspend fun updateUserInfo(userEntity: UserEntity)
-
     @Query("SELECT * FROM user LIMIT 1")
     fun observeUser(): Flow<UserEntity?>
 
@@ -22,16 +21,5 @@ interface UserDao {
 
     @Query("DELETE FROM user")
     suspend fun clearUser()
-
-    @Query("""
-    UPDATE user 
-    SET latitude = :latitude, longitude = :longitude 
-    WHERE id = :userId
-""")
-    suspend fun updateUserLocation(
-        userId: String,
-        latitude: Double?,
-        longitude: Double?
-    )
 
 }

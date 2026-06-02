@@ -87,6 +87,7 @@ fun MainScreen(
     val markIsReadState by mainScreenViewModel.markNotificationState.collectAsStateWithLifecycle()
     LaunchedEffect(Unit) {
         mainScreenViewModel.observeUser()
+        mainScreenViewModel.refreshUser()
     }
 
     var locationEnabled by remember { mutableStateOf(false) }

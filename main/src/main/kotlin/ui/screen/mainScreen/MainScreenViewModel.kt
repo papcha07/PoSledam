@@ -65,7 +65,7 @@ class MainScreenViewModel(
         val location = locationProvider.getCurrentLocation()
 
         if (location == null) {
-            Log.d("USER_LOCATION", "Location is null")
+            Log.d("USER_LOCATION", "LocationDto is null")
             return false
         }
 
@@ -74,7 +74,7 @@ class MainScreenViewModel(
             location.longitude
         )
 
-        Log.d("USER_LOCATION", "Location Updated: ${location.latitude}, ${location.longitude}")
+        Log.d("USER_LOCATION", "LocationDto Updated: ${location.latitude}, ${location.longitude}")
 
         return true
     }

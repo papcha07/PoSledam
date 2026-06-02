@@ -51,9 +51,9 @@ class FilterViewModel(
     val findPets: Flow<PagingData<PetUiPreview>> =
         combine(
             filters,
-            userInteractor.observeUser()
-                .map { user ->
-                    user?.latitude to user?.longitude
+            userInteractor.observeLocation()
+                .map { location ->
+                    location?.latitude to location?.longitude
                 }
                 .distinctUntilChanged()
         ) { filter, location ->
@@ -76,10 +76,9 @@ class FilterViewModel(
     val missingPets: Flow<PagingData<PetUiPreview>> =
         combine(
             filters,
-            userInteractor.observeUser()
-                .map { user ->
-                    Log.d("USER_FILTER", user.toString())
-                    user?.latitude to user?.longitude
+            userInteractor.observeLocation()
+                .map { location ->
+                    location?.latitude to location?.longitude
                 }
                 .distinctUntilChanged()
         ) { filter, location ->
@@ -121,7 +120,7 @@ class FilterViewModel(
         _filters.update { it.copy(gender = value) }
     }
 
-    fun setRadius(radius: Int){
+    fun setRadius(radius: Int) {
         _filters.update {
             it.copy(searchRadius = radius)
         }
