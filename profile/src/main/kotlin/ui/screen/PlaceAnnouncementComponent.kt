@@ -119,7 +119,7 @@ fun PlaceAnnouncementComponent(
                     .padding(16.dp),
                 enabled = formFillState
             ) {
-                actionViewModel.createAnnouncement()
+                    actionViewModel.createAnnouncement()
             }
 
         }

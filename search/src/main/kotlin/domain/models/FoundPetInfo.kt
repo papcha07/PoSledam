@@ -1,8 +1,8 @@
 package domain.models
 
 data class FoundPetInfo(
-    val street: String,
-    val house: String,
+    val street: String?,
+    val house: String?,
     val district: String? = null,
     val imagePath: String? = null,
     val creator: Creator,

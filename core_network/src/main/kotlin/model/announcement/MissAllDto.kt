@@ -10,16 +10,7 @@ data class MissAllDto(
     val petName: String?,
     val description: String?,
     val mainImagePath: String?,
-    val district: String?
+    val district: String?,
+    val breed: String?,
 )
 
-@Serializable
-data class MissAllDtoFound(
-    val id: String,
-    val createdAt: String? = null,
-    val eventDate: String? = null,
-    val description: String?,
-    val mainImagePath: String?,
-    val district: String?,
-    val breed: String? = null
-)

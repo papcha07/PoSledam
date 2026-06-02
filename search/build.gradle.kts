@@ -42,6 +42,8 @@ dependencies {
 
     implementation(project(":core"))
     implementation(project(":core_network"))
+    implementation(project(":core_datastore"))
+
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.2")
 
     implementation(libs.koin.core)
@@ -61,6 +63,11 @@ dependencies {
     implementation("androidx.compose.material3:material3")
 
     implementation ("androidx.constraintlayout:constraintlayout-compose:1.1.0")
+    implementation(libs.androidx.paging.common)
+    implementation(libs.androidx.paging.compose)
+    implementation(libs.androidx.paging.runtime)
+
+
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
@@ -79,6 +86,5 @@ dependencies {
     implementation("com.maxkeppeler.sheets-compose-dialogs:calendar:1.3.0")
     implementation("com.maxkeppeler.sheets-compose-dialogs:clock:1.3.0")
     implementation("com.maxkeppeler.sheets-compose-dialogs:color:1.3.0")
-
 
 }

@@ -19,6 +19,7 @@ foundationLayout = "1.11.0"
 foundationLayoutVersion = "1.11.1"
 appcompat = "1.7.1"
 material = "1.13.0"
+pagingCommon = "3.5.0"
 
 
 [libraries]
@@ -57,6 +58,9 @@ androidx-compose-foundation-layout = { group = "androidx.compose.foundation", na
 androidx-foundation-layout = { group = "androidx.compose.foundation", name = "foundation-layout", version.ref = "foundationLayoutVersion" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
+androidx-paging-common = { group = "androidx.paging", name = "paging-common", version.ref = "pagingCommon" }
+androidx-paging-runtime = { module = "androidx.paging:paging-runtime-ktx", version.ref = "pagingCommon" }
+androidx-paging-compose = { module = "androidx.paging:paging-compose", version.ref = "pagingCommon" }
 
 
 [plugins]

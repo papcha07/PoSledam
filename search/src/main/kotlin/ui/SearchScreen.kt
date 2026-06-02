@@ -24,10 +24,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -38,6 +36,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.paging.LoadState
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
 import coil.compose.AsyncImage
 import com.example.core.R
 import domain.models.PetUiPreview
@@ -46,7 +47,6 @@ import ui.components.default_component.ToolBar
 import ui.components.default_component.ToolBarInfo
 import ui.components.placeholder.ErrorPlaceholder
 import ui.model.TabRowInfo
-import ui.models.SearchState
 import ui.theme.addressSearchColor
 import ui.theme.backgroundColor
 import ui.theme.filterItemColor
@@ -295,20 +295,22 @@ fun PetCardComponent(
                         fontSize = 14.sp
                     )
                     Spacer(Modifier.height(8.dp))
-                    Text(
-                        text = if (petInfo.description.length > 110) {
-                            "${
-                                petInfo.description.substring(
-                                    0,
-                                    petInfo.description.length - 30
-                                )
-                            }..."
-                        } else {
-                            petInfo.description
-                        },
+                    petInfo.description?.let {
+                        Text(
+                            text = if (it.length > 110) {
+                                "${
+                                    petInfo.description.substring(
+                                        0,
+                                        petInfo.description.length - 30
+                                    )
+                                }..."
+                            } else {
+                                it
+                            },
+                            fontSize = 12.sp
+                        )
+                    }
 
-                        fontSize = 12.sp
-                    )
                 }
                 Text(
                     modifier = Modifier.align(Alignment.BottomStart),
@@ -328,33 +330,31 @@ fun FoundPetsScreen(
     modifier: Modifier = Modifier,
     goToDetailsPetScreen: (String, Int) -> Unit
 ) {
-    val foundState by viewModel.foundState.collectAsState()
-    val searchResults by viewModel.foundResults.collectAsState()
-
-    LaunchedEffect(Unit) {
-        if (foundState is SearchState.Idle) {
-            viewModel.findFoundPets()
-        }
-    }
 
     Box(
         modifier = modifier
             .fillMaxSize()
             .background(color = Color.White),
     ) {
-        when (val state = foundState) {
-            is SearchState.Idle -> {}
+        val pets = viewModel.findPets.collectAsLazyPagingItems()
+        when (pets.loadState.refresh) {
 
-            is SearchState.Loading -> {
+            is LoadState.Error -> {
+                ErrorPlaceholder(
+                    modifier = Modifier.align(Alignment.Center)
+                )
+            }
+
+            LoadState.Loading -> {
                 Box(Modifier.align(Alignment.Center)) {
                     CircularProgressIndicator()
                 }
             }
 
-            is SearchState.Success -> {
-                if (searchResults.isNotEmpty()) {
+            is LoadState.NotLoading -> {
+                if (pets.itemCount > 0) {
                     PetsList(
-                        pets = searchResults,
+                        pets = pets,
                         viewModel = viewModel,
                         goToDetailsPetScreen = goToDetailsPetScreen,
                         isFoundTab = true
@@ -364,12 +364,6 @@ fun FoundPetsScreen(
                         Text("Нет найденных питомцев")
                     }
                 }
-            }
-
-            is SearchState.Error -> {
-                ErrorPlaceholder(
-                    modifier = Modifier.align(Alignment.Center)
-                )
             }
         }
     }
@@ -382,33 +376,30 @@ fun MissingPetsScreen(
     modifier: Modifier = Modifier,
     goToDetailsPetScreen: (String, Int) -> Unit
 ) {
-    val missingState by viewModel.missingState.collectAsState()
-    val searchResults by viewModel.missingResults.collectAsState()
-
-    LaunchedEffect(Unit) {
-        if (missingState is SearchState.Idle) {
-            viewModel.findMissingPets()
-        }
-    }
+    val pets = viewModel.missingPets.collectAsLazyPagingItems()
 
     Box(
         modifier = modifier
             .fillMaxSize()
             .background(color = Color.White),
     ) {
-        when (val state = missingState) {
-            is SearchState.Idle -> {}
-
-            is SearchState.Loading -> {
+        when (pets.loadState.refresh) {
+            is LoadState.Loading -> {
                 Box(Modifier.align(Alignment.Center)) {
                     CircularProgressIndicator()
                 }
             }
 
-            is SearchState.Success -> {
-                if (searchResults.isNotEmpty()) {
+            is LoadState.Error -> {
+                ErrorPlaceholder(
+                    modifier = Modifier.align(Alignment.Center)
+                )
+            }
+
+            is LoadState.NotLoading -> {
+                if (pets.itemCount > 0) {
                     PetsList(
-                        pets = searchResults,
+                        pets = pets,
                         viewModel = viewModel,
                         goToDetailsPetScreen = goToDetailsPetScreen,
                         isFoundTab = false
@@ -419,12 +410,6 @@ fun MissingPetsScreen(
                     }
                 }
             }
-
-            is SearchState.Error -> {
-                ErrorPlaceholder(
-                    modifier = Modifier.align(Alignment.Center)
-                )
-            }
         }
     }
 }
@@ -432,53 +417,67 @@ fun MissingPetsScreen(
 
 @Composable
 fun PetsList(
-    pets: List<PetUiPreview>,
+    pets: LazyPagingItems<PetUiPreview>,
     modifier: Modifier = Modifier,
     viewModel: FilterViewModel,
     goToDetailsPetScreen: (String, Int) -> Unit,
     isFoundTab: Boolean
 ) {
     val currentTabCategory = viewModel.currentTab.collectAsState()
-    val hasMore =
-        if (isFoundTab) viewModel.hasMoreFound.collectAsState() else viewModel.hasMoreMissing.collectAsState()
-    val isLoadingMore =
-        if (isFoundTab) viewModel.isLoadingMoreFound.collectAsState() else viewModel.isLoadingMoreMissing.collectAsState()
-
     val listState = rememberLazyListState()
-
-    LaunchedEffect(listState, hasMore.value, isLoadingMore.value) {
-        snapshotFlow {
-            val layoutInfo = listState.layoutInfo
-            val totalItems = layoutInfo.totalItemsCount
-            val lastVisibleItem = layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
-            lastVisibleItem >= totalItems - 3 && totalItems > 0
-        }.collect { nearEnd ->
-            if (nearEnd && hasMore.value && !isLoadingMore.value) {
-                if (isFoundTab) viewModel.loadMoreFoundPets() else viewModel.loadMoreMissingPets()
-            }
-        }
-    }
 
     LazyColumn(
         modifier = modifier.padding(horizontal = 16.dp),
         state = listState
     ) {
-        items(pets, key = { it.id }) { petInfo ->
-            PetCardComponent(petInfo = petInfo, filterViewModel = viewModel) {
-                goToDetailsPetScreen(petInfo.id, currentTabCategory.value)
+        items(
+            count = pets.itemCount,
+            key = { index ->
+                pets.peek(index)?.id ?: index
             }
-            Spacer(Modifier.height(8.dp))
-        }
-        if (isLoadingMore.value) {
-            item(key = "loading_more") {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    contentAlignment = Alignment.Center
+        ) { index ->
+            val petInfo = pets[index]
+
+            if (petInfo != null) {
+                PetCardComponent(
+                    petInfo = petInfo,
+                    filterViewModel = viewModel
                 ) {
-                    CircularProgressIndicator(modifier = Modifier.size(32.dp))
+                    goToDetailsPetScreen(
+                        petInfo.id,
+                        currentTabCategory.value
+                    )
                 }
+
+                Spacer(Modifier.height(8.dp))
+            }
+        }
+
+        item {
+            when (pets.loadState.append) {
+                is LoadState.Loading -> {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 16.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
+                }
+
+                is LoadState.Error -> {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 16.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text("Ошибка загрузки")
+                    }
+                }
+
+                is LoadState.NotLoading -> Unit
             }
         }
     }

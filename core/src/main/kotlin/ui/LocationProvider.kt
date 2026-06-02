@@ -1,4 +1,4 @@
-package domain
+package ui
 
 import android.annotation.SuppressLint
 import android.content.Context

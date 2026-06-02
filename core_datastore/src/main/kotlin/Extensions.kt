@@ -1,8 +1,10 @@
 import apiService.models.auth_models.UpdateUserInfoRequest
 import apiService.models.auth_models.UserInfoResponse
 import db.notification.NotificationEntity
+import db.user.LocationEntity
 import db.user.UserEntity
 import domain.notification.Notification
+import domain.user.model.LocationDto
 import domain.user.model.User
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -70,6 +72,12 @@ fun UserEntity.toDomain(): User {
     )
 }
 
+fun LocationEntity.toLocation() : LocationDto{
+    return LocationDto(
+        latitude = this.latitude,
+        longitude = this.longitude
+    )
+}
 
 fun User.toUserEntity(): UserEntity {
     return UserEntity(

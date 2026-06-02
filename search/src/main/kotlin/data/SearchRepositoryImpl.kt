@@ -4,31 +4,31 @@ import AnnouncementType
 import ApiResponse
 import SendResult
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
+import androidx.paging.LOG_TAG
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
 import apiService.AnnouncementService
+import data.SearchAnimalPagingSource.Companion.PAGE_SIZE
 import domain.models.Creator
 import domain.models.DateInfo
+import domain.models.FilterDto
 import domain.models.FoundPetInfo
 import domain.models.PetInfo
 import domain.models.PetUiPreview
 import domain.repository.SearchRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.withContext
 import model.InternetStatus
 import model.announcement.FoundPetRequest
 import model.announcement.FoundPetResponse
 import model.announcement.Location
-import model.announcement.MissAllDto
-import model.announcement.MissAllDtoFound
-import model.announcement.MissAllRequest
 import ui.model.Response
-import ui.models.FilterDto
-import ui.models.toInstant
 import ui.other.Converter
 import ui.viewModel.SpottedAnimalData
-import java.time.Instant
 import java.time.OffsetDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -39,72 +39,45 @@ class SearchRepositoryImpl(
     private val converter: Converter
 ) : SearchRepository {
 
-
-    @RequiresApi(Build.VERSION_CODES.O)
-
-    override suspend fun findMissingAnnouncement(filterDto: FilterDto): Flow<Pair<List<PetUiPreview>?, InternetStatus?>> =
-        flow {
-            val allMissingResult = announcementService.findMissingAnnouncement(
-                missAllInfo = convertToMissRequest(filterDto)
-            )
-            when (allMissingResult) {
-
-                is ApiResponse.Error -> {
-                    when (allMissingResult.errorCode) {
-
-                        500 -> {
-                            emit(Pair(null, InternetStatus.Error))
-                        }
-
-                        400 -> {
-                            emit(Pair(null, InternetStatus.Error))
-                        }
-                    }
-                }
-
-                is ApiResponse.Success<List<MissAllDto>> -> {
-                    val previewList: MutableList<PetUiPreview> = mutableListOf()
-                    allMissingResult.data.map { dto ->
-                        previewList.add(convertToPetPreview(dto))
-                    }
-                    emit(Pair(previewList, null))
-                }
+    override suspend fun loadMissAnnouncementPage(filterDto: FilterDto): Flow<PagingData<PetUiPreview>> {
+        val request = filterDto.toMissAllRequest()
+        Log.d("REQUEST", request.toString())
+        return Pager(
+            config = PagingConfig(
+                pageSize = PAGE_SIZE,
+                initialLoadSize = PAGE_SIZE,
+                enablePlaceholders = false
+            ),
+            pagingSourceFactory = {
+                SearchAnimalPagingSource(
+                    announcementService = announcementService,
+                    filter = request,
+                    type = SearchAnimalType.Missing
+                )
             }
-        }
+        ).flow
+    }
 
-    @RequiresApi(Build.VERSION_CODES.O)
-    override suspend fun findFoundAnnouncement(filterDto: FilterDto): Flow<Pair<List<PetUiPreview>?, InternetStatus?>> =
+    override suspend fun loadFindAnnouncementPage(filterDto: FilterDto): Flow<PagingData<PetUiPreview>> {
+        val request = filterDto.toMissAllRequest()
+        Log.d("REQUEST", request.toString())
 
-        flow {
-            val allMissingResult = announcementService.findFoundAnnouncement(
-                missAllInfo = convertToMissRequest(filterDto)
-            )
-            when (allMissingResult) {
-
-                is ApiResponse.Error -> {
-                    when (allMissingResult.errorCode) {
-
-                        500 -> {
-                            emit(Pair(null, InternetStatus.Error))
-                        }
-
-                        400 -> {
-                            emit(Pair(null, InternetStatus.Error))
-                        }
-                    }
-                }
-
-                is ApiResponse.Success<List<MissAllDtoFound>> -> {
-                    val previewList: MutableList<PetUiPreview> = mutableListOf()
-                    allMissingResult.data.map { dto ->
-                        previewList.add(convertToPetPreviewFound(dto))
-                    }
-                    println("$  found {previewList.toString()}")
-                    emit(Pair(previewList, null))
-                }
+        return Pager(
+            config = PagingConfig(
+                pageSize = PAGE_SIZE,
+                initialLoadSize = PAGE_SIZE,
+                enablePlaceholders = false
+            ),
+            pagingSourceFactory = {
+                SearchAnimalPagingSource(
+                    announcementService = announcementService,
+                    filter = request,
+                    type = SearchAnimalType.Found
+                )
             }
+        ).flow
+    }
 
-        }
 
     @RequiresApi(Build.VERSION_CODES.O)
     override suspend fun getInfoAboutPet(
@@ -193,40 +166,6 @@ class SearchRepositoryImpl(
                 time = formatEventTime(petResponse.eventDate),
                 date = formatEventDate(petResponse.eventDate)
             )
-        )
-    }
-
-    @RequiresApi(Build.VERSION_CODES.O)
-    private fun convertToMissRequest(filterDto: FilterDto): MissAllRequest {
-        val lastInstant = filterDto.lastDateTime?.let { Instant.parse(it) }
-        return MissAllRequest(
-            lastDateTime = lastInstant,
-            district = filterDto.district?.takeIf { it.isNotBlank() },
-            from = filterDto.time?.toInstant(),
-            type = filterDto.typeOfPet,
-            gender = filterDto.gender
-        )
-    }
-
-    private fun convertToPetPreview(missAllDto: MissAllDto): PetUiPreview {
-        return PetUiPreview(
-            id = missAllDto.id,
-            petName = missAllDto.petName,
-            description = missAllDto.description ?: "Нет описания",
-            district = missAllDto.district,
-            imageUrl = missAllDto.mainImagePath,
-            createdAt = missAllDto.createdAt ?: missAllDto.eventDate
-        )
-    }
-
-    private fun convertToPetPreviewFound(missAllDto: MissAllDtoFound): PetUiPreview {
-        return PetUiPreview(
-            id = missAllDto.id,
-            description = missAllDto.description ?: "Нет описания",
-            district = missAllDto.district,
-            imageUrl = missAllDto.mainImagePath,
-            breed = missAllDto.breed,
-            createdAt = missAllDto.createdAt ?: missAllDto.eventDate
         )
     }
 

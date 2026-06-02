@@ -5,8 +5,8 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class FoundPetResponse(
     val id: String,
-    val street: String,
-    val house: String,
+    val street: String?,
+    val house: String?,
     val district: String? = null,
     val imagesPaths: List<String>?,
     val creator: CreatorDto,

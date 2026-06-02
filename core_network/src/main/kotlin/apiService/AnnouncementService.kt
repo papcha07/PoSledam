@@ -23,7 +23,6 @@ import model.announcement.FoundPetRequest
 import model.announcement.FoundPetResponse
 import model.announcement.Location
 import model.announcement.MissAllDto
-import model.announcement.MissAllDtoFound
 import model.announcement.MissAllRequest
 import java.io.File
 
@@ -140,6 +139,7 @@ class AnnouncementService(private val client: HttpClient) {
     }
 
     suspend fun findMissingAnnouncement(missAllInfo: MissAllRequest): ApiResponse<List<MissAllDto>> {
+        Log.d("MissAllRequest", missAllInfo.toString())
         val response = client.get("api/missing-announcement/feed") {
             url {
                 missAllInfo.lastDateTime?.let {
@@ -148,15 +148,22 @@ class AnnouncementService(private val client: HttpClient) {
                 missAllInfo.district?.let {
                     parameters.append("district", it)
                 }
-                missAllInfo.from?.let {
-                    parameters.append("from", it.toString())
-                }
                 missAllInfo.type?.let {
                     parameters.append("type", it.toString())
                 }
                 missAllInfo.gender?.let {
                     parameters.append("gender", it.toString())
                 }
+                missAllInfo.searchRadius?.let {
+                    parameters.append("SearchRadius", it.toString())
+                }
+                missAllInfo.searchCenterLatitude?.let {
+                    parameters.append("SearchCenter.Latitude", it.toString())
+                }
+                missAllInfo.searchCenterLongitude?.let {
+                    parameters.append("SearchCenter.Longitude", it.toString())
+                }
+
             }
         }
         if (response.status.isSuccess()) {
@@ -166,7 +173,9 @@ class AnnouncementService(private val client: HttpClient) {
         }
     }
 
-    suspend fun findFoundAnnouncement(missAllInfo: MissAllRequest): ApiResponse<List<MissAllDtoFound>> {
+    suspend fun findFoundAnnouncement(missAllInfo: MissAllRequest): ApiResponse<List<MissAllDto>> {
+        Log.d("MissAllRequest", missAllInfo.toString())
+
         val response = client.get("api/find-announcement/feed") {
             url {
                 missAllInfo.lastDateTime?.let {
@@ -175,19 +184,25 @@ class AnnouncementService(private val client: HttpClient) {
                 missAllInfo.district?.let {
                     parameters.append("district", it)
                 }
-                missAllInfo.from?.let {
-                    parameters.append("from", it.toString())
-                }
                 missAllInfo.type?.let {
                     parameters.append("type", it.toString())
                 }
                 missAllInfo.gender?.let {
                     parameters.append("gender", it.toString())
                 }
+                missAllInfo.searchRadius?.let {
+                    parameters.append("SearchRadius", it.toString())
+                }
+                missAllInfo.searchCenterLatitude?.let {
+                    parameters.append("SearchCenter.Latitude", it.toString())
+                }
+                missAllInfo.searchCenterLongitude?.let {
+                    parameters.append("SearchCenter.Longitude", it.toString())
+                }
             }
         }
         if (response.status.isSuccess()) {
-            return ApiResponse.Success(response.body<List<MissAllDtoFound>>())
+            return ApiResponse.Success(response.body<List<MissAllDto>>())
         } else {
             return ApiResponse.Error(response.status.value)
         }

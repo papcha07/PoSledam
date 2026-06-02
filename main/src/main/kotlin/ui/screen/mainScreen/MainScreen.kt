@@ -26,6 +26,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -43,6 +46,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.core.R
 import domain.models.StreetPetPreviewModel
+import helper.RequestLocationPermission
 import ui.components.other.NearPetCardComponent
 import ui.components.profilebar.ProfileBarComponent
 import ui.model.ArticleInfo
@@ -85,6 +89,26 @@ fun MainScreen(
         mainScreenViewModel.observeUser()
         mainScreenViewModel.refreshUser()
     }
+
+    var locationEnabled by remember { mutableStateOf(false) }
+    var locationWasUpdated by remember { mutableStateOf(false) }
+
+    RequestLocationPermission(
+        onPermissionGranted = {
+            locationEnabled = true
+        },
+        onPermissionDenied = {
+            locationEnabled = false
+        }
+    )
+
+    LaunchedEffect(locationEnabled) {
+        if (locationEnabled && !locationWasUpdated) {
+            mainScreenViewModel.updateUserLocation()
+            locationWasUpdated = true
+        }
+    }
+
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()

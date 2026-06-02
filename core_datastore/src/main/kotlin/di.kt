@@ -53,15 +53,21 @@ val dataStoreModule = module {
             androidApplication(),
             UserDatabase::class.java,
             "user.db"
-        ).build()
+        )
+            .addMigrations(UserDatabase.MIGRATION_1_2)
+            .addMigrations(UserDatabase.MIGRATION_2_3)
+            .build()
     }
 
     single<UserDao> {
         get<UserDatabase>().userDao()
     }
+    single {
+        get<UserDatabase>().locationDao()
+    }
 
     single<UserRepository> {
-        UserRepositoryImpl(get(), get())
+        UserRepositoryImpl(get(), get(), get())
     }
 
     single<UserInteractor> {

@@ -2,8 +2,10 @@ package ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -16,6 +18,8 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.Slider
+import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -26,17 +30,21 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import ui.viewModel.FilterViewModel
 import ui.components.default_component.DefaultButton
 import ui.components.default_component.ToolBar
 import ui.components.default_component.ToolBarInfo
-import ui.models.FilterDto
+import domain.models.FilterDto
 import ui.models.TimeFilter
+import ui.theme.buttonPrimary
 import ui.theme.districtDropDownMenuColor
 import ui.theme.filterItemColor
 
@@ -65,11 +73,9 @@ fun FiltersScreen(
                         backArrowIcon = null,
                     )
                 )
-                SelectedDistrict(
-                    currentDistrict = filterState.district,
-                    onSelectDistrict = { district ->
-                        filtersViewModel.setDistrict(district)
-                    }
+                SearchRadiusSlider(
+                    radius = filterState.searchRadius,
+                    onRadiusChange = filtersViewModel::setRadius,
                 )
                 Spacer(Modifier.height(20.dp))
                 //время
@@ -119,8 +125,6 @@ fun FiltersScreen(
                 DefaultButton(
                     text = "Применить",
                     onClick = {
-                        filtersViewModel.findFoundPets()
-                        filtersViewModel.findMissingPets()
                         goToSearchScreen()
                     }
                 )
@@ -267,83 +271,86 @@ fun GenderFilterRow(
     }
 }
 
-
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SelectedDistrict(
-    modifier: Modifier = Modifier,
-    currentDistrict: String?,                // <- текущее значение из VM
-    onSelectDistrict: (String?) -> Unit      // <- сообщаем наверх
+fun SearchRadiusSlider(
+    radius: Int?,
+    onRadiusChange: (Int) -> Unit,
+    modifier: Modifier = Modifier
 ) {
-    val districts = remember {
-        listOf(
-            "Не выбрано",
-            "Октябрьский район",
-            "Железнодорожный район",
-            "Кировский район",
-            "Ленинский район",
-            "Свердловский район",
-            "Советский район",
-            "Центральный район"
-        )
-    }
-
-    val selectedText = currentDistrict ?: districts.first()
-
-    var expanded by rememberSaveable { mutableStateOf(false) }
+    val currentRadius = radius?.toFloat() ?: 5f
 
     Column(
-        modifier
-            .padding(top = 10.dp)
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(20.dp))
+            .background(Color(0xFFF7F7F7))
+            .padding(16.dp)
     ) {
-        Text(
-            text = "Где искать",
-            color = Color.Black,
-            fontSize = 16.sp,
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
-
-        ExposedDropdownMenuBox(
-            expanded = expanded,
-            onExpandedChange = { expanded = !expanded }
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            TextField(
-                value = selectedText,
-                onValueChange = {},
-                readOnly = true,
-                singleLine = true,
-                trailingIcon = {
-                    ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
-                },
-                modifier = Modifier
-                    .menuAnchor()
-                    .fillMaxWidth(),
-                shape = RoundedCornerShape(16.dp),
-                colors = TextFieldDefaults.colors(
-                    unfocusedContainerColor = districtDropDownMenuColor,
-                    focusedContainerColor = districtDropDownMenuColor,
-                    disabledContainerColor = districtDropDownMenuColor,
-                    unfocusedIndicatorColor = Color.Transparent,
-                    focusedIndicatorColor = Color.Transparent
-                )
+            Text(
+                text = "Радиус поиска",
+                fontSize = 16.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = Color(0xFF222222)
             )
 
-            ExposedDropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false }
-            ) {
-                districts.forEach { item ->
-                    DropdownMenuItem(
-                        text = { Text(item) },
-                        onClick = {
-                            expanded = false
-                            onSelectDistrict(
-                                if (item == "Не выбрано") null else item
-                            )
-                        }
-                    )
-                }
-            }
+            Text(
+                text = "${currentRadius.toInt()} км",
+                fontSize = 15.sp,
+                fontWeight = FontWeight.Medium,
+                color = buttonPrimary
+            )
+        }
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        Slider(
+            value = currentRadius,
+            onValueChange = { value ->
+                onRadiusChange(value.toInt())
+            },
+            valueRange = 1f..20f,
+            steps = 18,
+            colors = SliderDefaults.colors(
+                thumbColor = buttonPrimary,
+                activeTrackColor = buttonPrimary,
+                inactiveTrackColor = Color(0xFFE0E0E0),
+                activeTickColor = Color.Transparent,
+                inactiveTickColor = Color.Transparent
+            )
+        )
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                text = "1 км",
+                fontSize = 12.sp,
+                color = Color.Gray
+            )
+
+            Text(
+                text = "20 км",
+                fontSize = 12.sp,
+                color = Color.Gray
+            )
         }
     }
+}
+
+
+@Preview
+@Composable
+private fun SearchRadiusSliderPreview() {
+    SearchRadiusSlider(
+        radius = 5,
+        onRadiusChange = {
+
+        },
+    )
 }

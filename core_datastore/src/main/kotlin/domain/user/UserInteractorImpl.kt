@@ -1,12 +1,13 @@
 package domain.user
 
+import domain.user.model.LocationDto
 import domain.user.model.User
 import kotlinx.coroutines.flow.Flow
 import storage.TokenRepository
 
 class UserInteractorImpl(
     private val userRepository: UserRepository,
-    private val tokenRepository: TokenRepository
+    private val tokenRepository: TokenRepository,
 ) : UserInteractor {
     override suspend fun updateUserInfo(user: User) {
         userRepository.updateUser(user)
@@ -23,5 +24,13 @@ class UserInteractorImpl(
     override suspend fun clearUser() {
         userRepository.clearUser()
         tokenRepository.deleteToken()
+    }
+
+    override suspend fun updateUserLocation(latitude: Double, longitude: Double) {
+        userRepository.updateUserLocation(latitude, longitude)
+    }
+
+    override fun observeLocation(): Flow<LocationDto?> {
+        return userRepository.observeLocation()
     }
 }
