@@ -38,7 +38,7 @@ class FilterViewModel(
     private val userInteractor: UserInteractor
 ) : ViewModel() {
 
-    private val _filters = MutableStateFlow(FilterDto())
+    private val _filters = MutableStateFlow(FilterDto(searchRadius = 5))
     val filters: StateFlow<FilterDto> = _filters.asStateFlow()
 
     private val _petInfoState = MutableStateFlow<PetDetailsScreenState>(PetDetailsScreenState.Idle)
@@ -119,6 +119,12 @@ class FilterViewModel(
 
     fun setGender(value: Int?) {
         _filters.update { it.copy(gender = value) }
+    }
+
+    fun setRadius(radius: Int){
+        _filters.update {
+            it.copy(searchRadius = radius)
+        }
     }
 
 
