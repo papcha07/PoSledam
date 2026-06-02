@@ -30,6 +30,7 @@ fun getSearchInteractor() = module {
 fun getFilterViewModel() = module {
     viewModel {
         FilterViewModel(
+            get(),
             get()
         )
     }

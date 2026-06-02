@@ -1,6 +1,7 @@
 package data
 
 import ApiResponse
+import android.util.Log
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import apiService.AnnouncementService
@@ -17,7 +18,7 @@ class SearchAnimalPagingSource(
         return try {
             val lastDateTime = params.key
             val request = filter.copy(lastDateTime = lastDateTime)
-
+            Log.d("REQUEST", request.toString())
             val petList: List<PetUiPreview> = when (type) {
                 SearchAnimalType.Found -> {
                     when (val response = announcementService.findFoundAnnouncement(request)) {

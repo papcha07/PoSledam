@@ -9,12 +9,14 @@ import domain.interactor.SearchInteractor
 import domain.models.FilterDto
 import domain.models.FoundPetInfo
 import domain.models.PetUiPreview
+import domain.user.UserInteractor
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
@@ -33,6 +35,7 @@ sealed class PetDetailsScreenState {
 
 class FilterViewModel(
     private val searchInteractor: SearchInteractor,
+    private val userInteractor: UserInteractor
 ) : ViewModel() {
 
     private val _filters = MutableStateFlow(FilterDto())
@@ -46,8 +49,23 @@ class FilterViewModel(
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val findPets: Flow<PagingData<PetUiPreview>> =
-        filters
-            .map { it.copy(lastDateTime = null) }
+        combine(
+            filters,
+            userInteractor.observeUser()
+                .map { user ->
+                    user?.latitude to user?.longitude
+                }
+                .distinctUntilChanged()
+        ) { filter, location ->
+            val latitude = location.first
+            val longitude = location.second
+
+            filter.copy(
+                lastDateTime = null,
+                searchCenterLatitude = latitude,
+                searchCenterLongitude = longitude
+            )
+        }
             .distinctUntilChanged()
             .flatMapLatest { filter ->
                 searchInteractor.loadFindAnnouncementPage(filter)
@@ -56,10 +74,24 @@ class FilterViewModel(
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val missingPets: Flow<PagingData<PetUiPreview>> =
-        filters
-            .map {filter ->
-                filter.copy(lastDateTime = null)
-            }
+        combine(
+            filters,
+            userInteractor.observeUser()
+                .map { user ->
+                    Log.d("USER_FILTER", user.toString())
+                    user?.latitude to user?.longitude
+                }
+                .distinctUntilChanged()
+        ) { filter, location ->
+            val latitude = location.first
+            val longitude = location.second
+
+            filter.copy(
+                lastDateTime = null,
+                searchCenterLatitude = latitude,
+                searchCenterLongitude = longitude
+            )
+        }
             .distinctUntilChanged()
             .flatMapLatest { filter ->
                 searchInteractor.loadMissAnnouncementPage(filter)

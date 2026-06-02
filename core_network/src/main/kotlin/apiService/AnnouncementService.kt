@@ -139,6 +139,7 @@ class AnnouncementService(private val client: HttpClient) {
     }
 
     suspend fun findMissingAnnouncement(missAllInfo: MissAllRequest): ApiResponse<List<MissAllDto>> {
+        Log.d("MissAllRequest", missAllInfo.toString())
         val response = client.get("api/missing-announcement/feed") {
             url {
                 missAllInfo.lastDateTime?.let {
@@ -173,6 +174,8 @@ class AnnouncementService(private val client: HttpClient) {
     }
 
     suspend fun findFoundAnnouncement(missAllInfo: MissAllRequest): ApiResponse<List<MissAllDto>> {
+        Log.d("MissAllRequest", missAllInfo.toString())
+
         val response = client.get("api/find-announcement/feed") {
             url {
                 missAllInfo.lastDateTime?.let {

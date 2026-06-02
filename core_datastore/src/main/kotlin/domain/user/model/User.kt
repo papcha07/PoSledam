@@ -10,4 +10,6 @@ data class User(
     val tg: String? = null,
     val wh: String? = null,
     val vk: String? = null,
+    val latitude: Double? = null,
+    val longitude: Double? = null
 )

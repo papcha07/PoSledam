@@ -4,7 +4,9 @@ import AnnouncementType
 import ApiResponse
 import SendResult
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
+import androidx.paging.LOG_TAG
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
@@ -39,6 +41,7 @@ class SearchRepositoryImpl(
 
     override suspend fun loadMissAnnouncementPage(filterDto: FilterDto): Flow<PagingData<PetUiPreview>> {
         val request = filterDto.toMissAllRequest()
+        Log.d("REQUEST", request.toString())
         return Pager(
             config = PagingConfig(
                 pageSize = PAGE_SIZE,
@@ -57,6 +60,8 @@ class SearchRepositoryImpl(
 
     override suspend fun loadFindAnnouncementPage(filterDto: FilterDto): Flow<PagingData<PetUiPreview>> {
         val request = filterDto.toMissAllRequest()
+        Log.d("REQUEST", request.toString())
+
         return Pager(
             config = PagingConfig(
                 pageSize = PAGE_SIZE,
