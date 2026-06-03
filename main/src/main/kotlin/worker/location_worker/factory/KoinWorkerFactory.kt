@@ -1,14 +1,14 @@
-package com.example.alinaposledam.worker.location_worker.factory
+package worker.location_worker.factory
 
 import android.content.Context
 import android.util.Log
 import androidx.work.ListenableWorker
 import androidx.work.WorkerFactory
 import androidx.work.WorkerParameters
-import com.example.alinaposledam.worker.location_worker.LocationWorker
 import domain.interactor.location.LocationInteractor
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
+import worker.location_worker.LocationWorker
 
 
 class KoinWorkerFactory : WorkerFactory(), KoinComponent {

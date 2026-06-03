@@ -3,7 +3,6 @@ package com.example.alinaposledam
 import android.app.Application
 import android.util.Log
 import androidx.work.Configuration
-import com.example.alinaposledam.worker.location_worker.factory.KoinWorkerFactory
 import com.google.firebase.FirebaseApp
 import dataStoreModule
 import di.getActionViewModel
@@ -31,6 +30,8 @@ import ui.di.getAuthRepository
 import ui.di.getAuthViewModel
 import ui.di.getConverter
 import ui.di.getMainModule
+import worker.location_worker.factory.KoinWorkerFactory
+import worker.location_worker.getWorkerModule
 
 class App : Application(), Configuration.Provider {
     override fun onCreate() {

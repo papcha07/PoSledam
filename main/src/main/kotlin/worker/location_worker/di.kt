@@ -1,7 +1,5 @@
-package com.example.alinaposledam
+package worker.location_worker
 
-import com.example.alinaposledam.worker.location_worker.WorkerInteractor
-import com.example.alinaposledam.worker.location_worker.WorkerInteractorImpl
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 

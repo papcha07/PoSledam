@@ -1,7 +1,12 @@
-package com.example.alinaposledam.worker.location_worker
+package worker.location_worker
 
+import android.Manifest
 import android.content.Context
+import android.content.pm.PackageManager
+import androidx.core.content.ContextCompat
+import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.NetworkType
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import java.util.concurrent.TimeUnit
@@ -9,23 +14,31 @@ import java.util.concurrent.TimeUnit
 class WorkerInteractorImpl(
     private val context: Context
 ) : WorkerInteractor {
-
     private val workManager = WorkManager.getInstance(context)
     override fun startLocationWorker() {
-        if(!hasLocationPermission()) return
+        if (!hasLocationPermission()) return
+        val constraints = Constraints.Builder()
+            .setRequiredNetworkType(NetworkType.CONNECTED)
+            .build()
+
         val request = PeriodicWorkRequestBuilder<LocationWorker>(
             repeatInterval = 15,
-            repeatIntervalTimeUnit = TimeUnit.MINUTES,
-            flexTimeInterval = 15,
-            flexTimeIntervalUnit = TimeUnit.MINUTES
-        ).build()
+            repeatIntervalTimeUnit = TimeUnit.MINUTES
+        )
+            .setConstraints(constraints)
+            .build()
 
         workManager.enqueueUniquePeriodicWork(
             LOCATION_WORK_NAME,
-            ExistingPeriodicWorkPolicy.UPDATE,
+            ExistingPeriodicWorkPolicy.KEEP,
             request
         )
     }
+
+    override fun stopLocationWorker() {
+        workManager.cancelUniqueWork(LOCATION_WORK_NAME)
+    }
+
     private fun hasLocationPermission(): Boolean {
         val fineLocation = ContextCompat.checkSelfPermission(
             context,

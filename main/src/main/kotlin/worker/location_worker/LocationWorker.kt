@@ -1,4 +1,4 @@
-package com.example.alinaposledam.worker.location_worker
+package worker.location_worker
 
 import android.content.Context
 import android.util.Log
@@ -18,9 +18,12 @@ class LocationWorker(
             locationInteractor.sendCurrentLocation()
             Log.d("WORKER_MANAGER", "GOOD")
             Result.success()
-        } catch (e: Exception) {
-            Log.d("WORKER_MANAGER", "FAILED")
+        } catch (e: SecurityException) {
+            Log.e("WORKER_MANAGER", "Location permission denied", e)
             Result.failure()
+        } catch (e: Exception) {
+            Log.e("WORKER_MANAGER", "Temporary error", e)
+            Result.retry()
         }
     }
 }
