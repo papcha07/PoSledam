@@ -1,10 +1,9 @@
-package apiService.models
+package domain.model
 
-data class StreetListRequest(
-    val lastDateTime: String?,
+data class StreetAnimalParams(
     val from: String? = null,
     val type: Int? = null,
-    val centerRadius : Int,
+    val centerRadius: Int,
     val searchCenterLatitude: Double,
     val searchCenterLongitude: Double
 )

@@ -1,6 +1,7 @@
 package domain.interactor.street
 
 import androidx.paging.PagingData
+import domain.model.StreetAnimalParams
 import domain.models.AdvertInfo
 import domain.models.StreetDetails
 import domain.models.StreetPetPreviewModel
@@ -11,8 +12,8 @@ class StreetPetInteractorImpl(
     private val streetRepository: StreetRepository
 ) : StreetPetInteractor {
 
-    override fun getStreetAnimals(): Flow<PagingData<StreetPetPreviewModel>> {
-        return streetRepository.getStreetAnimals()
+    override fun getStreetAnimals(streetAnimalParams: StreetAnimalParams): Flow<PagingData<StreetPetPreviewModel>> {
+        return streetRepository.getStreetAnimals(streetParams = streetAnimalParams)
     }
 
     override suspend fun createStreetAdvert(advertInfo: AdvertInfo): Int {
