@@ -11,8 +11,8 @@ class WorkerInteractorImpl(
 ) : WorkerInteractor {
 
     private val workManager = WorkManager.getInstance(context)
-    override fun sendLocation() {
-
+    override fun startLocationWorker() {
+        if(!hasLocationPermission()) return
         val request = PeriodicWorkRequestBuilder<LocationWorker>(
             repeatInterval = 15,
             repeatIntervalTimeUnit = TimeUnit.MINUTES,
