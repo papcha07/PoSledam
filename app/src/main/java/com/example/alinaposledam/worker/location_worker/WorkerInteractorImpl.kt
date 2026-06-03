@@ -26,6 +26,19 @@ class WorkerInteractorImpl(
             request
         )
     }
+    private fun hasLocationPermission(): Boolean {
+        val fineLocation = ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+
+        val coarseLocation = ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.ACCESS_COARSE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+
+        return fineLocation || coarseLocation
+    }
 
     companion object {
         private const val LOCATION_WORK_NAME = "location_work"
