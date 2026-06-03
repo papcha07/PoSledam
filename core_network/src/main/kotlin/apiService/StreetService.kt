@@ -34,10 +34,9 @@ class StreetService(private val client: HttpClient) {
                     streetRequest.type?.let {
                         parameter("type", it.toString())
                     }
-                    parameter("Search.Center.Latitude", streetRequest.searchCenterLatitude.toString())
-                    parameter("Search.Center.Longitude", streetRequest.searchCenterLongitude.toString())
+                    parameter("SearchCenter.Latitude", streetRequest.searchCenterLatitude.toString())
+                    parameter("SearchCenter.Longitude", streetRequest.searchCenterLongitude.toString())
                     parameter("SearchRadius", streetRequest.centerRadius.toString())
-
                 }
                 if (response.status.isSuccess()) {
                     val body = response.body<List<StreetAnimalResponse>>()

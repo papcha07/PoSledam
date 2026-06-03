@@ -13,6 +13,7 @@ import apiService.models.street_models.StreetAnimalRequest
 import apiService.models.street_models.StreetAnimalResponse
 import data.pager.StreetAnimalPagingSource
 import data.toStreetDetails
+import domain.model.StreetAnimalParams
 import domain.models.AdvertInfo
 import domain.models.StreetDetails
 import domain.models.StreetPetPreviewModel
@@ -32,7 +33,7 @@ class StreetRepositoryImpl(
     private val converter: Converter,
 ) : StreetRepository {
 
-    override fun getStreetAnimals(): Flow<PagingData<StreetPetPreviewModel>> {
+    override fun getStreetAnimals(streetParams: StreetAnimalParams): Flow<PagingData<StreetPetPreviewModel>> {
         return Pager(
             config = PagingConfig(
                 pageSize = 20,
@@ -40,7 +41,8 @@ class StreetRepositoryImpl(
             ),
             pagingSourceFactory = {
                 StreetAnimalPagingSource(
-                    service = streetService
+                    service = streetService,
+                    streetParams = streetParams,
                 )
             }
         ).flow.map { pagingData ->

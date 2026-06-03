@@ -51,7 +51,7 @@ fun getMainModule() = module {
     }
 
     viewModel {
-        StreetPetViewModel(get())
+        StreetPetViewModel(get(), get())
     }
 
     viewModel {
