@@ -15,10 +15,12 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import ui.LocationProvider
 import ui.components.profilebar.ProfileBarState
+import worker.location_worker.WorkerInteractor
 
 class MainScreenViewModel(
     private val notificationInteractor: NotificationInteractor,
     private val userInteractor: UserInteractor,
+    private val workerInteractor: WorkerInteractor,
     private val locationProvider: LocationProvider
 ) : ViewModel() {
     private val _userInfoState = MutableStateFlow<ProfileBarState>(ProfileBarState.Idle)
@@ -46,6 +48,10 @@ class MainScreenViewModel(
         viewModelScope.launch {
             notificationInteractor.deleteById(id)
         }
+    }
+
+    fun startLocationWorker() {
+        workerInteractor.startLocationWorker()
     }
 
     fun observeUser() {

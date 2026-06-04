@@ -19,7 +19,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.example.alinaposledam.worker.location_worker.WorkerInteractor
 import navigation.authNavGraph
 import navigation.mainNavGraph
 import navigation.profileNavGraph
@@ -44,7 +43,6 @@ fun AppNavGraph() {
 
     var startDestination by remember { mutableStateOf<String?>(null) }
     val koin = getKoin()
-    val workerInteractor: WorkerInteractor = koinInject()
 
 
     var isAuthorized by remember { mutableStateOf(false) }

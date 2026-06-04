@@ -103,6 +103,12 @@ fun MainScreen(
     )
 
     LaunchedEffect(locationEnabled) {
+        if (locationEnabled) {
+            mainScreenViewModel.startLocationWorker()
+        }
+    }
+
+    LaunchedEffect(locationEnabled) {
         if (locationEnabled && !locationWasUpdated) {
             mainScreenViewModel.updateUserLocation()
             locationWasUpdated = true
