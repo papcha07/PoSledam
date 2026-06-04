@@ -117,9 +117,7 @@ fun LoginRoute(
         modifier = modifier,
         state = loginUiState,
         onLogin = viewModel::login,
-        googleEnter = {
-
-        }
+        googleEnter = {}
     )
 
 }

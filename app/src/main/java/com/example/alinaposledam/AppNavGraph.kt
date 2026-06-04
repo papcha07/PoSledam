@@ -60,11 +60,7 @@ fun AppNavGraph() {
     }
 
 
-//    LaunchedEffect(hasLocationPermission, isAuthorized) {
-//        if (isAuthorized && hasLocationPermission) {
-//            workerInteractor.sendLocation()
-//        }
-//    }
+
 
 
     Scaffold(
