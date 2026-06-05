@@ -20,15 +20,4 @@ class FirebaseTokenProvider(
             Log.e("FCM", "Failed to send device token", e)
         }
     }
-
-    suspend fun sendTokenToServer(token: String) {
-        try {
-            authService.sendDeviceToken(
-                DeviceTokenRequest(deviceToken = token)
-            )
-            Log.d("FCM", "Updated device token sent: $token")
-        } catch (e: Exception) {
-            Log.e("FCM", "Failed to send updated device token", e)
-        }
-    }
 }

@@ -47,6 +47,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.core.R
 import domain.models.StreetPetPreviewModel
 import helper.RequestLocationPermission
+import helper.RequestNotificationPermission
 import ui.components.other.NearPetCardComponent
 import ui.components.profilebar.ProfileBarComponent
 import ui.model.ArticleInfo
@@ -91,7 +92,7 @@ fun MainScreen(
     }
 
     var locationEnabled by remember { mutableStateOf(false) }
-    var locationWasUpdated by remember { mutableStateOf(false) }
+
 
     RequestLocationPermission(
         onPermissionGranted = {
@@ -102,16 +103,15 @@ fun MainScreen(
         }
     )
 
+    RequestNotificationPermission(
+        onPermissionGranted = {},
+        onPermissionDenied = {}
+    )
+
     LaunchedEffect(locationEnabled) {
         if (locationEnabled) {
             mainScreenViewModel.startLocationWorker()
-        }
-    }
-
-    LaunchedEffect(locationEnabled) {
-        if (locationEnabled && !locationWasUpdated) {
             mainScreenViewModel.updateUserLocation()
-            locationWasUpdated = true
         }
     }
 

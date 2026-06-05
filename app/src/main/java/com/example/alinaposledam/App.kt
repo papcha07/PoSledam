@@ -73,7 +73,8 @@ class App : Application(), Configuration.Provider {
                     getStreetService(),
                     coreDi,
                     getWorkerModule(),
-                    getImageLoaderModule()
+                    getImageLoaderModule(),
+                    appModule
                 )
             )
         }

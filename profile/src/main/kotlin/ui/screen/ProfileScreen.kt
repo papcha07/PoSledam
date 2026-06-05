@@ -188,6 +188,9 @@ fun PetLazyRow(
                             modifier = modifier,
                             petInfo = petInfo,
                             currentState = animalType,
+                            openDetails = {
+
+                            }
                         )
                         Spacer(Modifier.height(24.dp))
                     }

@@ -19,13 +19,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.alinaposledam.firebase.FirebaseTokenProvider
 import navigation.authNavGraph
 import navigation.mainNavGraph
 import navigation.profileNavGraph
 import navigation.searchNavGraph
-import org.koin.compose.koinInject
 import org.koin.java.KoinJavaComponent.getKoin
 import storage.TokenRepository
+
 
 private val bottomBarLeafRoutes = setOf(
     "mainScreen",
@@ -45,16 +46,15 @@ fun AppNavGraph() {
     val koin = getKoin()
 
 
-    var isAuthorized by remember { mutableStateOf(false) }
-    var hasLocationPermission by remember { mutableStateOf(false) }
-
     LaunchedEffect(Unit) {
         val tokenRepository: TokenRepository = koin.get()
         val token = tokenRepository.getToken()
 
+        val firebaseTokenProvider: FirebaseTokenProvider = koin.get()
         if (token.isNullOrBlank()) {
             startDestination = "auth"
         } else {
+            firebaseTokenProvider.sendCurrentTokenToServer()
             startDestination = "main"
         }
     }
