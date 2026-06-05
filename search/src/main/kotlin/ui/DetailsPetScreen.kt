@@ -267,6 +267,7 @@ private fun DetailPetContent(
 
                 WhereFindComponent(
                     foundPetInfo = petInfo,
+                    announcementType = announcementType,
                     isMapSheetOpen = isMapSheetOpen,
                 )
 

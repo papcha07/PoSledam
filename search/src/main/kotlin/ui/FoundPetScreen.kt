@@ -1,7 +1,6 @@
 package ui
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -17,12 +16,9 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -32,71 +28,7 @@ import com.example.core.R
 import domain.models.Creator
 import domain.models.FoundPetInfo
 import ui.components.MapComponent
-import ui.theme.backgroundColor
 import ui.theme.textHint
-import ui.viewModel.FilterViewModel
-
-
-@Composable
-fun FoundPetScreen(
-    modifier: Modifier = Modifier,
-    goBackClick: () -> Unit,
-    viewModel: FilterViewModel
-) {
-    val petInfo by viewModel.petInfoState.collectAsState()
-
-    if (petInfo == null) {
-        Box(
-            modifier = modifier
-                .background(backgroundColor)
-                .fillMaxWidth()
-                .height(200.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(text = "Загрузка...", color = Color.Gray, fontSize = 14.sp)
-        }
-        return
-    } else {
-        val info = petInfo!!
-//        Column(
-//            modifier = modifier
-//                .background(color = backgroundColor)
-//                .fillMaxSize()
-//                .verticalScroll(rememberScrollState())
-//        ) {
-//            PetImageComponent(
-//                goBackClick = goBackClick,
-//                foundPetInfo = petInfo!!
-//            )
-//            Column(
-//                modifier = modifier
-//                    .fillMaxHeight()
-//                    .background(
-//                        color = Color.White,
-//                        shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)
-//                    )
-//                    .padding(horizontal = 16.dp, vertical = 16.dp)
-//            ) {
-//                PetInfoComponent(foundPetInfo = petInfo!!)
-//                Spacer(Modifier.height(32.dp))
-//                EventDateComponent(advertState = "${petInfo!!.dateInfo.date} ${petInfo!!.dateInfo.time}")
-//                Spacer(Modifier.height(32.dp))
-//                WhereFindComponent(foundPetInfo = info)
-//                Spacer(Modifier.height(32.dp))
-//                UserInfoComponent(creatorInfo = info.creator)
-//            }
-//            ButtonComponent(
-//                color = buttonPrimary,
-//                text = "Это мой питомец",
-//                textColor = Color.White,
-//                enabled = true,
-//                radius = 40.dp,
-//                onClick = {}
-//            )
-//        }
-
-    }
-}
 
 @Composable
 fun PetInfoComponent(
@@ -252,6 +184,7 @@ fun PetImageComponent(
 fun WhereFindComponent(
     modifier: Modifier = Modifier,
     foundPetInfo: FoundPetInfo,
+    announcementType: Int,
     isMapSheetOpen: Boolean,
 ) {
 
@@ -264,7 +197,7 @@ fun WhereFindComponent(
             modifier = Modifier
         ) {
             Text(
-                text = "Где нашли",
+                text = if(announcementType == 0) "Где нашли" else "Где потерялся",
                 fontSize = 18.sp
             )
             Spacer(Modifier.height(8.dp))
