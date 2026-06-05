@@ -24,7 +24,10 @@ sealed class ProfileRoute(val route: String) {
     object ProfileSettings : ProfileRoute("settings")
     object ActionScreen : ProfileRoute("actionScreen")
     object DetailScreen : ProfileRoute("detailScreen/{petId}/{announcementType}") {
-        fun createRoute(petId: String, announcementType: Int): String {
+        fun createRoute(
+            petId: String,
+            announcementType: Int = 1
+        ): String {
             return "detailScreen/$petId/$announcementType"
         }
     }
@@ -56,16 +59,16 @@ fun NavGraphBuilder.profileNavGraph(navController: NavController, route: String 
                 openProfileSettings = {
                     navController.navigate(ProfileRoute.ProfileSettings.route)
                 },
-                openAnnouncementDetails = { announcementId, announcementType ->
+                profileViewModel = profileViewModel,
+                profileSettingsViewModel = profileSettingsViewModel,
+                openAnnouncementDetails = { id, type ->
                     navController.navigate(
                         ProfileRoute.DetailScreen.createRoute(
-                            petId = announcementId,
-                            announcementType = announcementType
+                            petId = id,
+                            announcementType = type
                         )
                     )
                 },
-                profileViewModel = profileViewModel,
-                profileSettingsViewModel = profileSettingsViewModel
             )
         }
         composable(ProfileRoute.ActionScreen.route) { backStackEntry ->
