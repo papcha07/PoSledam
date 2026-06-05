@@ -133,6 +133,7 @@
                 ProfileScreen(
                     navigateToActionScreen = {},
                     openProfileSettings = {},
+                    openAnnouncementDetails = { _, _ -> },
                     profileViewModel = vm,
                     profileSettingsViewModel = profileSettingsViewModel,
                 )

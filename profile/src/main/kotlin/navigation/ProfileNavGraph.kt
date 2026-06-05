@@ -10,12 +10,12 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import androidx.navigation.navigation
 import org.koin.androidx.compose.koinViewModel
-import ui.DetailsPetScreenProvider
-import ui.viewModel.FilterViewModel
 import ui.screen.ActionScreen
+import ui.screen.ProfileAnnouncementDetailsScreen
 import ui.screen.ProfileScreen
 import ui.screen.ProfileSettingsScreen
 import ui.viewModel.ActionViewModel
+import ui.viewModel.ProfileAnnouncementDetailsViewModel
 import ui.viewModel.ProfileSettingsViewModel
 import ui.viewModel.ProfileViewModel
 
@@ -23,7 +23,11 @@ sealed class ProfileRoute(val route: String) {
     object Profile : ProfileRoute("profileMain")
     object ProfileSettings : ProfileRoute("settings")
     object ActionScreen : ProfileRoute("actionScreen")
-    object DetailScreen : ProfileRoute("detailScreen/{petId}/{announcementType}")
+    object DetailScreen : ProfileRoute("detailScreen/{petId}/{announcementType}") {
+        fun createRoute(petId: String, announcementType: Int): String {
+            return "detailScreen/$petId/$announcementType"
+        }
+    }
 }
 
 
@@ -51,6 +55,14 @@ fun NavGraphBuilder.profileNavGraph(navController: NavController, route: String 
                 },
                 openProfileSettings = {
                     navController.navigate(ProfileRoute.ProfileSettings.route)
+                },
+                openAnnouncementDetails = { announcementId, announcementType ->
+                    navController.navigate(
+                        ProfileRoute.DetailScreen.createRoute(
+                            petId = announcementId,
+                            announcementType = announcementType
+                        )
+                    )
                 },
                 profileViewModel = profileViewModel,
                 profileSettingsViewModel = profileSettingsViewModel
@@ -100,31 +112,21 @@ fun NavGraphBuilder.profileNavGraph(navController: NavController, route: String 
         composable(
             route = ProfileRoute.DetailScreen.route,
             arguments = listOf(
-                navArgument("petId") { NavType.StringType },
-                navArgument("announcementType") { NavType.IntType }
+                navArgument("petId") { type = NavType.StringType },
+                navArgument("announcementType") { type = NavType.IntType }
             )
         ) { backStackEntry ->
-
-            val parentEntry = remember(backStackEntry) {
-                navController.getBackStackEntry(route)
-            }
-
-            val filterViewModel: FilterViewModel = koinViewModel(
-                viewModelStoreOwner = parentEntry
-            )
-
             val petId = backStackEntry.arguments?.getString("petId") ?: return@composable
             val announcementType =
                 backStackEntry.arguments?.getInt("announcementType") ?: return@composable
 
+            val detailsViewModel: ProfileAnnouncementDetailsViewModel = koinViewModel()
 
-            DetailsPetScreenProvider(
-                viewModel = filterViewModel,
-                reportViewModel = koinViewModel(),
-                petId = petId,
+            ProfileAnnouncementDetailsScreen(
+                announcementId = petId,
                 announcementType = announcementType,
-                goBackClick = { navController.popBackStack() },
-                onOwnerClick = { }
+                viewModel = detailsViewModel,
+                onBackClick = { navController.popBackStack() }
             )
         }
     }

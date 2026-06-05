@@ -40,6 +40,7 @@ import ui.viewModel.ProfileViewModel
 fun ProfileScreen(
     navigateToActionScreen: () -> Unit,
     openProfileSettings: () -> Unit,
+    openAnnouncementDetails: (String, Int) -> Unit,
     profileViewModel: ProfileViewModel,
     profileSettingsViewModel: ProfileSettingsViewModel,
 ) {
@@ -69,6 +70,7 @@ fun ProfileScreen(
             updateMethodIndex = profileViewModel::updateMethodValue,
             animalListState = animalListState,
             loadAnimalList = profileViewModel::getAnimalList,
+            openAnnouncementDetails = openAnnouncementDetails,
         )
     }
 }
@@ -82,6 +84,7 @@ fun MainContentComponent(
     navigateToActionScreen: () -> Unit,
     updateMethodIndex: (Int) -> Unit,
     loadAnimalList: () -> Unit,
+    openAnnouncementDetails: (String, Int) -> Unit,
 ) {
     Box(
         modifier = Modifier
@@ -116,11 +119,13 @@ fun MainContentComponent(
                 1 -> PetLazyRow(
                     profileScreenState = animalListState,
                     animalType = selectedIndex,
+                    openAnnouncementDetails = openAnnouncementDetails,
                 )
 
                 0 -> PetLazyRow(
                     profileScreenState = animalListState,
                     animalType = selectedIndex,
+                    openAnnouncementDetails = openAnnouncementDetails,
                 )
             }
 
@@ -144,6 +149,7 @@ fun PetLazyRow(
     modifier: Modifier = Modifier,
     profileScreenState: ProfileScreenState,
     animalType: Int,
+    openAnnouncementDetails: (String, Int) -> Unit,
 ) {
     Box(
         modifier =
@@ -188,8 +194,8 @@ fun PetLazyRow(
                             modifier = modifier,
                             petInfo = petInfo,
                             currentState = animalType,
-                            openDetails = {
-
+                            openDetails = { announcementId ->
+                                openAnnouncementDetails(announcementId, animalType)
                             }
                         )
                         Spacer(Modifier.height(24.dp))
@@ -200,7 +206,6 @@ fun PetLazyRow(
         }
     }
 }
-
 
 
 

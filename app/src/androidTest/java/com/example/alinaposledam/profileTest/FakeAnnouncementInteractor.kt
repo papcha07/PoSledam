@@ -3,7 +3,10 @@ package com.example.alinaposledam.profileTest
 import domain.interactor.announcement.AnnouncementInteractor
 import domain.model.AnnouncementInfo
 import domain.model.AnnouncementStatus
+import domain.model.ProfileAnnouncementDetails
+import domain.model.SpottedLocation
 import kotlinx.coroutines.CompletableDeferred
+import model.InternetStatus
 import ui.model.PetUiPreview
 
 class FakeAnnouncementInteractor : AnnouncementInteractor {
@@ -34,5 +37,18 @@ class FakeAnnouncementInteractor : AnnouncementInteractor {
     override suspend fun getUserAnnouncements(type: Int): Pair<List<PetUiPreview>?, Int?> {
         gate?.await()
         return getUserAnnouncementsResult
+    }
+
+    override suspend fun getAnnouncementDetails(
+        id: String,
+        type: Int
+    ): Pair<ProfileAnnouncementDetails?, InternetStatus?> {
+        return Pair(null, InternetStatus.Error)
+    }
+
+    override suspend fun getSpottedLocations(
+        announcementId: String
+    ): Pair<List<SpottedLocation>?, InternetStatus?> {
+        return Pair(emptyList(), null)
     }
 }

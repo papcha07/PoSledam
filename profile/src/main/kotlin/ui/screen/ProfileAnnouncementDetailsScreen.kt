@@ -1,0 +1,395 @@
+package ui.screen
+
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil.compose.AsyncImage
+import com.example.core.R
+import domain.model.ProfileAnnouncementDetails
+import domain.model.SpottedLocation
+import ui.BASE_URL
+import ui.components.SpottedLocationsMap
+import ui.components.SpottedMapPoint
+import ui.components.placeholder.ErrorPlaceholder
+import ui.theme.backgroundColor
+import ui.theme.buttonPrimary
+import ui.theme.eventDateComponentColor
+import ui.theme.textHint
+import ui.viewModel.ProfileAnnouncementDetailsState
+import ui.viewModel.ProfileAnnouncementDetailsViewModel
+
+@Composable
+fun ProfileAnnouncementDetailsScreen(
+    modifier: Modifier = Modifier,
+    announcementId: String,
+    announcementType: Int,
+    viewModel: ProfileAnnouncementDetailsViewModel,
+    onBackClick: () -> Unit
+) {
+    val screenState by viewModel.detailsState.collectAsStateWithLifecycle()
+
+    LaunchedEffect(announcementId, announcementType) {
+        viewModel.loadDetails(
+            announcementId = announcementId,
+            announcementType = announcementType
+        )
+    }
+
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .background(backgroundColor)
+    ) {
+        when (val state = screenState) {
+            ProfileAnnouncementDetailsState.Idle,
+            ProfileAnnouncementDetailsState.Loading -> {
+                CircularProgressIndicator(
+                    modifier = Modifier.align(Alignment.Center),
+                    color = buttonPrimary
+                )
+            }
+
+            is ProfileAnnouncementDetailsState.Failed -> {
+                Column(
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .padding(horizontal = 16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    ErrorPlaceholder()
+                    Spacer(Modifier.height(8.dp))
+                    Text(
+                        text = state.message,
+                        color = textHint,
+                        fontSize = 14.sp
+                    )
+                }
+            }
+
+            is ProfileAnnouncementDetailsState.Success -> {
+                ProfileAnnouncementDetailsContent(
+                    announcement = state.announcement,
+                    announcementType = announcementType,
+                    spottedLocations = state.spottedLocations,
+                    spottedLocationsError = state.spottedLocationsError,
+                    onBackClick = onBackClick
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun ProfileAnnouncementDetailsContent(
+    announcement: ProfileAnnouncementDetails,
+    announcementType: Int,
+    spottedLocations: List<SpottedLocation>,
+    spottedLocationsError: String?,
+    onBackClick: () -> Unit
+) {
+    Column(
+        modifier = Modifier.verticalScroll(rememberScrollState())
+    ) {
+        DetailsHeaderImage(
+            imagePath = announcement.imagePath,
+            onBackClick = onBackClick
+        )
+
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(
+                    color = Color.White,
+                    shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)
+                )
+                .padding(horizontal = 16.dp, vertical = 18.dp)
+        ) {
+            PetParametersBlock(announcement = announcement)
+
+            Spacer(Modifier.height(24.dp))
+
+            DetailsDateBlock(
+                title = if (announcementType == MISSING_ANNOUNCEMENT_TYPE) {
+                    "Когда потеряли"
+                } else {
+                    "Когда нашли"
+                },
+                value = "${announcement.eventDate} • ${announcement.eventTime}"
+            )
+
+            Spacer(Modifier.height(24.dp))
+
+            LocationBlock(announcement = announcement)
+
+            if (announcementType == MISSING_ANNOUNCEMENT_TYPE) {
+                Spacer(Modifier.height(24.dp))
+                SpottedRouteBlock(
+                    spottedLocations = spottedLocations,
+                    errorMessage = spottedLocationsError
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun DetailsHeaderImage(
+    imagePath: String?,
+    onBackClick: () -> Unit
+) {
+    Box {
+        AsyncImage(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(340.dp)
+                .clip(
+                    RoundedCornerShape(
+                        bottomStart = 20.dp,
+                        bottomEnd = 20.dp
+                    )
+                ),
+            model = imagePath?.toImageModel(),
+            placeholder = painterResource(R.drawable.ic_dog),
+            error = painterResource(R.drawable.ic_dog),
+            contentScale = ContentScale.Crop,
+            contentDescription = null
+        )
+
+        Image(
+            modifier = Modifier
+                .align(Alignment.TopStart)
+                .padding(start = 16.dp, top = 60.dp)
+                .clickable { onBackClick() },
+            painter = painterResource(R.drawable.ic_back_found),
+            contentDescription = "Назад"
+        )
+    }
+}
+
+@Composable
+private fun PetParametersBlock(
+    announcement: ProfileAnnouncementDetails
+) {
+    Column {
+        Text(
+            text = announcement.breed.ifBlank { "Порода не указана" },
+            fontSize = 22.sp
+        )
+        Spacer(Modifier.height(10.dp))
+        Text(
+            text = announcement.description.ifBlank { "Описание не указано" },
+            fontSize = 14.sp,
+            color = textHint
+        )
+        Spacer(Modifier.height(16.dp))
+        ParameterText(
+            title = "Тип",
+            value = announcement.petType.toPetTypeText()
+        )
+        Spacer(Modifier.height(8.dp))
+        ParameterText(
+            title = "Пол",
+            value = announcement.gender.toGenderText()
+        )
+        Spacer(Modifier.height(8.dp))
+        ParameterText(
+            title = "Окрас",
+            value = announcement.color.ifBlank { "Не указан" }
+        )
+    }
+}
+
+@Composable
+private fun ParameterText(
+    title: String,
+    value: String
+) {
+    Row {
+        Text(
+            text = "$title:",
+            color = textHint,
+            fontSize = 14.sp
+        )
+        Text(
+            modifier = Modifier.padding(start = 4.dp),
+            text = value,
+            fontSize = 14.sp
+        )
+    }
+}
+
+@Composable
+private fun DetailsDateBlock(
+    title: String,
+    value: String
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(eventDateComponentColor, RoundedCornerShape(10.dp))
+            .padding(horizontal = 12.dp, vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Image(
+            modifier = Modifier.size(38.dp),
+            painter = painterResource(R.drawable.ic_calendar_component),
+            contentDescription = null
+        )
+        Column(
+            modifier = Modifier.padding(start = 10.dp)
+        ) {
+            Text(
+                text = title,
+                color = textHint,
+                fontSize = 12.sp
+            )
+            Spacer(Modifier.height(4.dp))
+            Text(
+                text = value,
+                fontSize = 16.sp
+            )
+        }
+    }
+}
+
+@Composable
+private fun LocationBlock(
+    announcement: ProfileAnnouncementDetails
+) {
+    Column {
+        Text(
+            text = "Место",
+            fontSize = 18.sp
+        )
+        Spacer(Modifier.height(8.dp))
+        Text(
+            text = announcement.addressText(),
+            fontSize = 14.sp,
+            color = textHint
+        )
+    }
+}
+
+@Composable
+private fun SpottedRouteBlock(
+    spottedLocations: List<SpottedLocation>,
+    errorMessage: String?
+) {
+    Column {
+        Text(
+            text = "След питомца",
+            fontSize = 18.sp
+        )
+        Spacer(Modifier.height(8.dp))
+        Text(
+            text = "Нажмите на лапку, чтобы посмотреть отметку и фотографии",
+            fontSize = 13.sp,
+            color = textHint
+        )
+        Spacer(Modifier.height(12.dp))
+
+        when {
+            errorMessage != null -> RouteMessage(text = errorMessage)
+            spottedLocations.isEmpty() -> RouteMessage(text = "Питомца пока никто не отмечал")
+            else -> SpottedLocationsMap(
+                modifier = Modifier
+                    .height(280.dp)
+                    .clip(RoundedCornerShape(15.dp)),
+                points = spottedLocations.map { it.toMapPoint() }
+            )
+        }
+    }
+}
+
+@Composable
+private fun RouteMessage(text: String) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(120.dp)
+            .background(backgroundColor, RoundedCornerShape(15.dp)),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            modifier = Modifier.padding(horizontal = 16.dp),
+            text = text,
+            color = textHint,
+            fontSize = 14.sp
+        )
+    }
+}
+
+private fun ProfileAnnouncementDetails.addressText(): String {
+    val streetAndHouse = listOfNotNull(street, house)
+        .filter { it.isNotBlank() }
+        .joinToString(separator = " ")
+    return listOfNotNull(district, streetAndHouse.ifBlank { null })
+        .filter { it.isNotBlank() }
+        .joinToString(separator = ", ")
+        .ifBlank { "Адрес не указан" }
+}
+
+private fun SpottedLocation.toMapPoint(): SpottedMapPoint {
+    return SpottedMapPoint(
+        id = id,
+        latitude = latitude,
+        longitude = longitude,
+        spottedBy = "Отметил: $spottedUserName",
+        createdAt = listOf(createdDate, createdTime)
+            .filter { it.isNotBlank() }
+            .joinToString(separator = " • "),
+        imagePaths = imagesPath
+    )
+}
+
+private fun Int.toPetTypeText(): String {
+    return when (this) {
+        0 -> "Кот"
+        1 -> "Собака"
+        else -> "Другое"
+    }
+}
+
+private fun Int.toGenderText(): String {
+    return when (this) {
+        0 -> "Мальчик"
+        1 -> "Девочка"
+        else -> "Неизвестно"
+    }
+}
+
+private fun String.toImageModel(): String {
+    return when {
+        startsWith("http://") || startsWith("https://") || startsWith("content://") -> this
+        else -> "$BASE_URL/api/image/${trimStart('/')}"
+    }
+}
+
+private const val MISSING_ANNOUNCEMENT_TYPE = 0

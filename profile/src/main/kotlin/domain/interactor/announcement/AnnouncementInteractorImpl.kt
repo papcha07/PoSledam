@@ -2,7 +2,10 @@ package domain.interactor.announcement
 
 import domain.model.AnnouncementInfo
 import domain.model.AnnouncementStatus
+import domain.model.ProfileAnnouncementDetails
+import domain.model.SpottedLocation
 import domain.repository.AnnouncementRepository
+import model.InternetStatus
 import ui.model.PetUiPreview
 
 class AnnouncementInteractorImpl(
@@ -17,6 +20,19 @@ class AnnouncementInteractorImpl(
 
     override suspend fun getUserAnnouncements(type: Int): Pair<List<PetUiPreview>?, Int?> {
         return announcementRepository.getUserAnnouncements(type)
+    }
+
+    override suspend fun getAnnouncementDetails(
+        id: String,
+        type: Int
+    ): Pair<ProfileAnnouncementDetails?, InternetStatus?> {
+        return announcementRepository.getAnnouncementDetails(id, type)
+    }
+
+    override suspend fun getSpottedLocations(
+        announcementId: String
+    ): Pair<List<SpottedLocation>?, InternetStatus?> {
+        return announcementRepository.getSpottedLocations(announcementId)
     }
 
 }

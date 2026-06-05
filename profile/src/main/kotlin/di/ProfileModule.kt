@@ -12,6 +12,7 @@ import domain.repository.ImageLoaderRepository
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 import ui.viewModel.ActionViewModel
+import ui.viewModel.ProfileAnnouncementDetailsViewModel
 import ui.viewModel.ProfileSettingsViewModel
 import ui.viewModel.ProfileViewModel
 
@@ -69,5 +70,9 @@ fun getActionViewModel() = module {
 
     viewModel {
         ProfileViewModel(get())
+    }
+
+    viewModel {
+        ProfileAnnouncementDetailsViewModel(get())
     }
 }

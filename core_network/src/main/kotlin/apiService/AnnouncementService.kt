@@ -5,6 +5,7 @@ import ApiResponse
 import SendResult
 import android.util.Log
 import apiService.models.announcement_models.UserPetInfoResponse
+import apiService.models.announcement_models.SpottedLocationResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.forms.MultiPartFormDataContent
@@ -132,6 +133,23 @@ class AnnouncementService(private val client: HttpClient) {
                 }
 
                 else -> ApiResponse.Error(400)
+            }
+        } catch (e: Exception) {
+            ApiResponse.Error(-1)
+        }
+    }
+
+    suspend fun getSpottedLocations(
+        announcementId: String
+    ): ApiResponse<List<SpottedLocationResponse>> {
+        return try {
+            val response = client.get("api/$MISS/$announcementId/spotted-locations")
+            when {
+                response.status.isSuccess() -> {
+                    ApiResponse.Success(response.body<List<SpottedLocationResponse>>())
+                }
+
+                else -> ApiResponse.Error(response.status.value)
             }
         } catch (e: Exception) {
             ApiResponse.Error(-1)
