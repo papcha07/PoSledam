@@ -2,7 +2,9 @@ package domain.repository
 
 import domain.model.AnnouncementInfo
 import domain.model.AnnouncementStatus
-import kotlinx.coroutines.flow.Flow
+import domain.model.ProfileAnnouncementDetails
+import domain.model.SpottedLocation
+import model.InternetStatus
 import ui.model.PetUiPreview
 
 interface AnnouncementRepository {
@@ -14,5 +16,13 @@ interface AnnouncementRepository {
 
     suspend fun getUserAnnouncements(type: Int): Pair<List<PetUiPreview>?, Int?>
 
+    suspend fun getAnnouncementDetails(
+        id: String,
+        type: Int
+    ): Pair<ProfileAnnouncementDetails?, InternetStatus?>
+
+    suspend fun getSpottedLocations(
+        announcementId: String
+    ): Pair<List<SpottedLocation>?, InternetStatus?>
 
 }
