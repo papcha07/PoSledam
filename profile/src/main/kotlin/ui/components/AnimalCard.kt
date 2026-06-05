@@ -26,7 +26,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.core.R
-import ui.BASE_URL
 import ui.model.PetUiPreview
 import ui.theme.addressSearchColor
 
@@ -35,6 +34,7 @@ fun AnimalCard(
     modifier: Modifier = Modifier,
     petInfo: PetUiPreview,
     currentState: Int,
+    openDetails: (String) -> Unit
 ) {
 
     Box(
@@ -53,6 +53,7 @@ fun AnimalCard(
             )
             .clip(RoundedCornerShape(15.dp))
             .clickable {
+                openDetails(petInfo.id)
             }
     ) {
         Row(
