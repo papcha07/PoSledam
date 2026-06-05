@@ -1,12 +1,18 @@
 package com.example.alinaposledam.firebase
 
+import android.Manifest
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
+import android.content.Intent
 import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresPermission
 import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import apiService.AuthService
 import apiService.models.auth_models.DeviceTokenRequest
+import com.example.alinaposledam.MainActivity
 import com.example.core.R
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
@@ -32,6 +38,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService(), KoinComponent {
         }
     }
 
+    @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
     override fun onMessageReceived(message: RemoteMessage) {
         super.onMessageReceived(message)
         val title = message.notification?.title
@@ -42,7 +49,21 @@ class MyFirebaseMessagingService : FirebaseMessagingService(), KoinComponent {
             ?: message.data["body"]
             ?: "У вас новое сообщение"
 
-        showNotification(title, body)
+
+        val notificationType = message.data["notification_type"]!!
+        val entityId = message.data["entity_id"]!!
+        when (notificationType) {
+            REPORT_SPOTTED -> showNotificationSpotted(
+                title = title,
+                body = body,
+                entityId = entityId,
+                notificationType = notificationType
+            )
+
+            REPORT_FOUND -> {}
+            else -> showNotification(title, body)
+
+        }
     }
 
     private suspend fun sendTokenToServer(token: String) {
@@ -55,7 +76,10 @@ class MyFirebaseMessagingService : FirebaseMessagingService(), KoinComponent {
         }
     }
 
-    private fun showNotification(title: String, body: String) {
+    private fun showNotification(
+        title: String,
+        body: String,
+    ) {
         val channelId = "default_channel"
 
         val notificationManager =
@@ -81,8 +105,66 @@ class MyFirebaseMessagingService : FirebaseMessagingService(), KoinComponent {
         notificationManager.notify(System.currentTimeMillis().toInt(), notification)
     }
 
+
+    @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
+    private fun showNotificationSpotted(
+        title: String,
+        body: String,
+        entityId: String,
+        notificationType: String
+    ) {
+        val channelId = "spotted_channel"
+        val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(
+                channelId,
+                "Уведомления о заметках пользователей",
+                NotificationManager.IMPORTANCE_DEFAULT
+            )
+            notificationManager.createNotificationChannel(channel)
+        }
+
+        val intent = Intent(this, MainActivity::class.java).apply {
+            action = "OPEN_FROM_NOTIFICATION"
+
+            flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or
+                    Intent.FLAG_ACTIVITY_SINGLE_TOP
+
+            putExtra("notification_type", notificationType)
+            putExtra("entity_id", entityId)
+        }
+
+        val pendingIntent = PendingIntent.getActivity(
+            this,
+            entityId.hashCode(),
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        val notification = NotificationCompat.Builder(this, channelId)
+            .setSmallIcon(R.drawable.ic_lapa)
+            .setContentTitle(title)
+            .setContentText(body)
+            .setStyle(NotificationCompat.BigTextStyle().bigText(body))
+            .setAutoCancel(true)
+            .setContentIntent(pendingIntent)
+            .build()
+
+        NotificationManagerCompat.from(this).notify(
+            entityId.hashCode(),
+            notification
+        )
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         serviceJob.cancel()
+    }
+
+
+    companion object {
+        private const val REPORT_SPOTTED = "ReportSpotted"
+        private const val REPORT_FOUND = "ReportFound"
     }
 }

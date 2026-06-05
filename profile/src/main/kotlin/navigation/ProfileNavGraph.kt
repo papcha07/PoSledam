@@ -11,11 +11,11 @@ import androidx.navigation.navArgument
 import androidx.navigation.navigation
 import org.koin.androidx.compose.koinViewModel
 import ui.DetailsPetScreenProvider
-import ui.viewModel.FilterViewModel
 import ui.screen.ActionScreen
 import ui.screen.ProfileScreen
 import ui.screen.ProfileSettingsScreen
 import ui.viewModel.ActionViewModel
+import ui.viewModel.FilterViewModel
 import ui.viewModel.ProfileSettingsViewModel
 import ui.viewModel.ProfileViewModel
 
@@ -23,7 +23,14 @@ sealed class ProfileRoute(val route: String) {
     object Profile : ProfileRoute("profileMain")
     object ProfileSettings : ProfileRoute("settings")
     object ActionScreen : ProfileRoute("actionScreen")
-    object DetailScreen : ProfileRoute("detailScreen/{petId}/{announcementType}")
+    object DetailScreen : ProfileRoute("detailScreen/{petId}/{announcementType}") {
+        fun createRoute(
+            petId: String,
+            announcementType: Int = 0
+        ): String {
+            return "detailScreen/$petId/$announcementType"
+        }
+    }
 }
 
 

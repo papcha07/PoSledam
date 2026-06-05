@@ -1,5 +1,6 @@
 package com.example.alinaposledam
 
+import android.content.Intent
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.foundation.layout.Box
@@ -16,10 +17,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.alinaposledam.firebase.FirebaseTokenProvider
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
+import navigation.ProfileRoute
 import navigation.authNavGraph
 import navigation.mainNavGraph
 import navigation.profileNavGraph
@@ -36,21 +41,29 @@ private val bottomBarLeafRoutes = setOf(
 
 
 @Composable
-fun AppNavGraph() {
+fun AppNavGraph(
+    initialIntent: Intent? = null,
+    notificationIntents: Flow<Intent> = emptyFlow()
+) {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
     val showBottomBar = currentRoute in bottomBarLeafRoutes
 
     var startDestination by remember { mutableStateOf<String?>(null) }
-    val koin = getKoin()
 
+    var pendingNotificationIntent by remember {
+        mutableStateOf<Intent?>(initialIntent.takeIf { it.isNotificationIntent() })
+    }
+
+    val koin = getKoin()
 
     LaunchedEffect(Unit) {
         val tokenRepository: TokenRepository = koin.get()
         val token = tokenRepository.getToken()
 
         val firebaseTokenProvider: FirebaseTokenProvider = koin.get()
+
         if (token.isNullOrBlank()) {
             startDestination = "auth"
         } else {
@@ -59,9 +72,24 @@ fun AppNavGraph() {
         }
     }
 
+    LaunchedEffect(Unit) {
+        notificationIntents.collect { intent ->
+            if (intent.isNotificationIntent()) {
+                pendingNotificationIntent = intent
+            }
+        }
+    }
 
+    LaunchedEffect(startDestination, pendingNotificationIntent) {
+        if (startDestination == "main" && pendingNotificationIntent != null) {
+            handleNotificationIntent(
+                intent = pendingNotificationIntent,
+                navController = navController
+            )
 
-
+            pendingNotificationIntent = null
+        }
+    }
 
     Scaffold(
         bottomBar = { if (showBottomBar) BottomNavBar(navController) },
@@ -97,3 +125,31 @@ fun AppNavGraph() {
     }
 }
 
+private const val ACTION_OPEN_FROM_NOTIFICATION = "OPEN_FROM_NOTIFICATION"
+
+private fun Intent?.isNotificationIntent(): Boolean {
+    return this?.action == ACTION_OPEN_FROM_NOTIFICATION
+}
+
+private fun handleNotificationIntent(
+    intent: Intent?,
+    navController: NavController
+) {
+    if (!intent.isNotificationIntent()) return
+
+    val notificationType = intent?.getStringExtra("notification_type")
+    val entityId = intent?.getStringExtra("entity_id") ?: return
+
+    when (notificationType) {
+        "ReportSpotted" -> {
+            navController.navigate(
+                ProfileRoute.DetailScreen.createRoute(
+                    petId = entityId,
+                    announcementType = 0
+                )
+            ) {
+                launchSingleTop = true
+            }
+        }
+    }
+}
