@@ -30,6 +30,27 @@ class AnnouncementRepositoryImpl(
     private val apiService: AnnouncementService,
     private val converter: Converter
 ) : AnnouncementRepository {
+    override suspend fun cancelAnnouncement(cancelReason: CancelReason): Pair<Boolean, InternetStatus?> {
+        val requestModel = cancelReason.toCancelAnnouncementRequest()
+        val response = apiService.cancelMissAnnouncement(
+            cancelAnnouncementRequest = requestModel,
+            type = cancelReason.type.toMethodType()
+        )
+
+        return when (response) {
+            is SendResult.BadRequest -> {
+                Pair(false, InternetStatus.Error)
+            }
+
+            is SendResult.Error -> {
+                Pair(false, InternetStatus.NoInternet)
+            }
+
+            SendResult.Success -> {
+                Pair(true, InternetStatus.Error)
+            }
+        }
+    }
 
 
     @RequiresApi(Build.VERSION_CODES.O)
