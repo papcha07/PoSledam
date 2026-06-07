@@ -9,6 +9,10 @@ import ui.model.PetUiPreview
 
 interface AnnouncementInteractor {
 
+    suspend fun cancelAnnouncement(
+        cancelReason: CancelReason
+    ): Pair<Boolean, InternetStatus?>
+
     suspend fun sendAnnouncement(
         announcementInfo: AnnouncementInfo,
         files: List<String>,
