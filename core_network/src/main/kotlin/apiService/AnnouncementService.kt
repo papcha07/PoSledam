@@ -226,6 +226,24 @@ class AnnouncementService(private val client: HttpClient) {
         }
     }
 
+    suspend fun cancelAnnouncement(cancelAnnouncementRequest: CancelAnnouncementRequest): SendResult {
+        return withContext(Dispatchers.IO) {
+            try {
+                val request = client.post("api/$MISS/cancel/${cancelAnnouncementRequest.id}") {
+                    parameter("deleteReason", cancelAnnouncementRequest.cancelReason)
+                }
+                if (request.status.isSuccess()) {
+                    SendResult.Success
+                } else {
+                    SendResult.BadRequest()
+                }
+            } catch (e: Exception) {
+                SendResult.Error("Проблемы с соединением")
+            }
+
+        }
+    }
+
     suspend fun reportFoundAnimal(id: String): SendResult {
         return withContext(Dispatchers.IO) {
             try {
