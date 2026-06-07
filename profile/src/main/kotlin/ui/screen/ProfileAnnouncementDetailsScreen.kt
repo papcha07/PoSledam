@@ -3,7 +3,6 @@ package ui.screen
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -115,7 +114,8 @@ private fun ProfileAnnouncementDetailsContent(
     onBackClick: () -> Unit
 ) {
     Column(
-        modifier = Modifier.verticalScroll(rememberScrollState())
+        modifier = Modifier
+            .verticalScroll(rememberScrollState())
     ) {
         DetailsHeaderImage(
             imagePath = announcement.imagePath,
@@ -124,7 +124,7 @@ private fun ProfileAnnouncementDetailsContent(
 
         Column(
             modifier = Modifier
-                .fillMaxWidth()
+                .fillMaxSize()
                 .background(
                     color = Color.White,
                     shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)

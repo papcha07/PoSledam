@@ -4,13 +4,15 @@ import AnnouncementType
 import ApiResponse
 import SendResult
 import android.util.Log
-import apiService.models.announcement_models.UserPetInfoResponse
+import apiService.models.announcement_models.CancelAnnouncementRequest
 import apiService.models.announcement_models.SpottedLocationResponse
+import apiService.models.announcement_models.UserPetInfoResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.forms.MultiPartFormDataContent
 import io.ktor.client.request.forms.formData
 import io.ktor.client.request.get
+import io.ktor.client.request.parameter
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsText
@@ -247,6 +249,7 @@ class AnnouncementService(private val client: HttpClient) {
 
         }
     }
+
 
     suspend fun reportFoundAnimal(id: String): SendResult {
         return withContext(Dispatchers.IO) {
