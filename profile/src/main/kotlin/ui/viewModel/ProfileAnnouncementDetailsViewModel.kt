@@ -24,6 +24,12 @@ sealed class ProfileAnnouncementDetailsState {
     data class Failed(val message: String) : ProfileAnnouncementDetailsState()
 }
 
+data class CancelAnnouncementState(
+    val isLoading: Boolean = false,
+    val isSuccess: Boolean = false,
+    val errorMessage: String? = null
+)
+
 class ProfileAnnouncementDetailsViewModel(
     private val announcementInteractor: AnnouncementInteractor
 ) : ViewModel() {
@@ -32,6 +38,8 @@ class ProfileAnnouncementDetailsViewModel(
         MutableStateFlow<ProfileAnnouncementDetailsState>(ProfileAnnouncementDetailsState.Idle)
     val detailsState = _detailsState.asStateFlow()
 
+    private val _cancelState = MutableStateFlow(CancelAnnouncementState())
+    val cancelState = _cancelState.asStateFlow()
 
     fun loadDetails(
         announcementId: String,
@@ -78,8 +86,12 @@ class ProfileAnnouncementDetailsViewModel(
     }
 
     fun cancelAnnouncement(reasonId: Int, announcementType: Int, announcementId: String) {
+        if (_cancelState.value.isLoading) return
+
         viewModelScope.launch {
-            announcementInteractor.cancelAnnouncement(
+            _cancelState.update { CancelAnnouncementState(isLoading = true) }
+
+            val result = announcementInteractor.cancelAnnouncement(
                 CancelReason(
                     id = announcementId,
                     reason = reasonId,
@@ -87,7 +99,26 @@ class ProfileAnnouncementDetailsViewModel(
                 )
             )
 
+            _cancelState.update {
+                if (result.first) {
+                    CancelAnnouncementState(isSuccess = true)
+                } else {
+                    CancelAnnouncementState(
+                        errorMessage = result.second.toMessage()
+                    )
+                }
+            }
         }
+    }
+
+    fun clearCancelError() {
+        _cancelState.update { state ->
+            state.copy(errorMessage = null)
+        }
+    }
+
+    fun clearCancelResult() {
+        _cancelState.update { CancelAnnouncementState() }
     }
 
     private fun InternetStatus?.toMessage(): String {

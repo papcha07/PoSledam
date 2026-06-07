@@ -47,6 +47,7 @@ import ui.BASE_URL
 import ui.components.SpottedLocationsMap
 import ui.components.SpottedMapPoint
 import ui.components.announcement.CancelAnnouncementReasonContent
+import ui.components.default_component.AnimatedToast
 import ui.components.placeholder.ErrorPlaceholder
 import ui.model.AnnouncementCancelReason
 import ui.theme.backgroundColor
@@ -75,6 +76,7 @@ fun ProfileAnnouncementDetailsProvider(
     }
 
     val screenState by viewModel.detailsState.collectAsStateWithLifecycle()
+    val cancelState by viewModel.cancelState.collectAsStateWithLifecycle()
 
     LaunchedEffect(announcementId, announcementType) {
         viewModel.loadDetails(
@@ -82,47 +84,72 @@ fun ProfileAnnouncementDetailsProvider(
             announcementType = announcementType
         )
     }
+
+    LaunchedEffect(cancelState.isSuccess) {
+        if (cancelState.isSuccess) {
+            scaffoldState.bottomSheetState.partialExpand()
+            viewModel.clearCancelResult()
+            onBackClick()
+        }
+    }
+
     var selectedReasonId by remember { mutableStateOf(-1) }
 
-    BottomSheetScaffold(
-        modifier = modifier.fillMaxSize(),
-        scaffoldState = scaffoldState,
-        sheetPeekHeight = 1.dp,
-        sheetShape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
-        sheetContainerColor = Color(0xFFFAFAFA),
-        sheetContentColor = Color(0xFF222222),
-        sheetSwipeEnabled = true,
-        sheetContent = {
-            val cancelReasons = if (announcementType == MISSING_ANNOUNCEMENT_TYPE) {
-                AnnouncementCancelReason.missingAnnouncementOptions
-            } else {
-                AnnouncementCancelReason.foundAnnouncementOptions
-            }
+    Box(modifier = modifier.fillMaxSize()) {
+        BottomSheetScaffold(
+            modifier = Modifier.fillMaxSize(),
+            scaffoldState = scaffoldState,
+            sheetPeekHeight = 1.dp,
+            sheetShape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
+            sheetContainerColor = Color(0xFFFAFAFA),
+            sheetContentColor = Color(0xFF222222),
+            sheetSwipeEnabled = true,
+            sheetContent = {
+                val cancelReasons = if (announcementType == MISSING_ANNOUNCEMENT_TYPE) {
+                    AnnouncementCancelReason.missingAnnouncementOptions
+                } else {
+                    AnnouncementCancelReason.foundAnnouncementOptions
+                }
 
-            CancelAnnouncementReasonContent(
-                selectedReasonId = selectedReasonId,
-                reasons = cancelReasons,
-                onReasonSelected = { reasonId ->
-                    selectedReasonId = reasonId
-                },
-                onCancelAnnouncement = { reasonId ->
-                    viewModel.cancelAnnouncement(reasonId, announcementType, announcementId)
+                CancelAnnouncementReasonContent(
+                    selectedReasonId = selectedReasonId,
+                    reasons = cancelReasons,
+                    onReasonSelected = { reasonId ->
+                        selectedReasonId = reasonId
+                    },
+                    onCancelAnnouncement = { reasonId ->
+                        viewModel.cancelAnnouncement(reasonId, announcementType, announcementId)
+                    }
+                )
+            }
+        ) { paddingValues ->
+            ProfileAnnouncementDetailsScreen(
+                modifier = Modifier.padding(paddingValues),
+                announcementId = announcementId,
+                announcementType = announcementType,
+                profileAnnouncementDetailsState = screenState,
+                onBackClick = onBackClick,
+                openBottom = {
+                    scope.launch {
+                        scaffoldState.bottomSheetState.expand()
+                    }
                 }
             )
         }
-    ) { paddingValues ->
-        ProfileAnnouncementDetailsScreen(
-            modifier = Modifier.padding(paddingValues),
-            announcementId = announcementId,
-            announcementType = announcementType,
-            profileAnnouncementDetailsState = screenState,
-            onBackClick = onBackClick,
-            openBottom = {
-                scope.launch {
-                    scaffoldState.bottomSheetState.expand()
-                }
-            }
-        )
+
+        if (cancelState.isLoading) {
+            CircularProgressIndicator(
+                modifier = Modifier.align(Alignment.Center),
+                color = buttonPrimary
+            )
+        }
+
+        cancelState.errorMessage?.let { message ->
+            AnimatedToast(
+                message = message,
+                onDismiss = viewModel::clearCancelError
+            )
+        }
     }
 }
 
