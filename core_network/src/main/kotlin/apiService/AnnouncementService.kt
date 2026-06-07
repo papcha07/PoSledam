@@ -226,7 +226,10 @@ class AnnouncementService(private val client: HttpClient) {
         }
     }
 
-    suspend fun cancelAnnouncement(cancelAnnouncementRequest: CancelAnnouncementRequest): SendResult {
+    suspend fun cancelMissAnnouncement(
+        cancelAnnouncementRequest: CancelAnnouncementRequest,
+        type: AnnouncementType
+    ): SendResult {
         return withContext(Dispatchers.IO) {
             try {
                 val urlType = if (type == AnnouncementType.Miss) MISS else FIND
