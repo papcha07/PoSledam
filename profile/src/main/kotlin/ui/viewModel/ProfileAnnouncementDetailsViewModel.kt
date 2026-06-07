@@ -3,6 +3,7 @@ package ui.viewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import domain.interactor.announcement.AnnouncementInteractor
+import domain.model.CancelReason
 import domain.model.ProfileAnnouncementDetails
 import domain.model.SpottedLocation
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -30,6 +31,7 @@ class ProfileAnnouncementDetailsViewModel(
     private val _detailsState =
         MutableStateFlow<ProfileAnnouncementDetailsState>(ProfileAnnouncementDetailsState.Idle)
     val detailsState = _detailsState.asStateFlow()
+
 
     fun loadDetails(
         announcementId: String,
@@ -71,6 +73,20 @@ class ProfileAnnouncementDetailsViewModel(
                     spottedLocationsError = spottedLocationsResult.second?.toMessage()
                 )
             }
+        }
+
+    }
+
+    fun cancelAnnouncement(reasonId: Int, announcementType: Int, announcementId: String) {
+        viewModelScope.launch {
+            announcementInteractor.cancelAnnouncement(
+                CancelReason(
+                    id = announcementId,
+                    reason = reasonId,
+                    type = announcementType
+                )
+            )
+
         }
     }
 

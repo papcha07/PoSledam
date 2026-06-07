@@ -12,7 +12,6 @@ import io.ktor.client.call.body
 import io.ktor.client.request.forms.MultiPartFormDataContent
 import io.ktor.client.request.forms.formData
 import io.ktor.client.request.get
-import io.ktor.client.request.parameter
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsText
@@ -21,6 +20,7 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.isSuccess
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.Serializable
 import model.announcement.AnnouncementRequest
 import model.announcement.FoundPetRequest
 import model.announcement.FoundPetResponse
@@ -236,7 +236,17 @@ class AnnouncementService(private val client: HttpClient) {
             try {
                 val urlType = if (type == AnnouncementType.Miss) MISS else FIND
                 val request = client.post("api/$urlType/cancel/${cancelAnnouncementRequest.id}") {
-                    parameter("deleteReason", cancelAnnouncementRequest.cancelReason)
+                    setBody(
+                        if (type == AnnouncementType.Miss) {
+                            CancelMissingAnnouncementBody(
+                                deleteReason = cancelAnnouncementRequest.deleteReason
+                            )
+                        } else {
+                            CancelFindAnnouncementBody(
+                                cancelReason = cancelAnnouncementRequest.deleteReason
+                            )
+                        }
+                    )
                 }
                 if (request.status.isSuccess()) {
                     SendResult.Success
@@ -308,3 +318,13 @@ class AnnouncementService(private val client: HttpClient) {
         private const val FIND = "find-announcement"
     }
 }
+
+@Serializable
+private data class CancelMissingAnnouncementBody(
+    val deleteReason: Int
+)
+
+@Serializable
+private data class CancelFindAnnouncementBody(
+    val cancelReason: Int
+)

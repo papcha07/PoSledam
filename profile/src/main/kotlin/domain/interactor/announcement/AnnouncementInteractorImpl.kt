@@ -2,6 +2,7 @@ package domain.interactor.announcement
 
 import domain.model.AnnouncementInfo
 import domain.model.AnnouncementStatus
+import domain.model.CancelReason
 import domain.model.ProfileAnnouncementDetails
 import domain.model.SpottedLocation
 import domain.repository.AnnouncementRepository

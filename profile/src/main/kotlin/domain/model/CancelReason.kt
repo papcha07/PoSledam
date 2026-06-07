@@ -13,7 +13,7 @@ data class CancelReason(
 fun CancelReason.toCancelAnnouncementRequest(): CancelAnnouncementRequest {
     return CancelAnnouncementRequest(
         id = this.id,
-        cancelReason = this.reason
+        deleteReason = this.reason
     )
 }
 

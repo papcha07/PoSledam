@@ -15,11 +15,20 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.BottomSheetScaffold
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -33,10 +42,13 @@ import coil.compose.AsyncImage
 import com.example.core.R
 import domain.model.ProfileAnnouncementDetails
 import domain.model.SpottedLocation
+import kotlinx.coroutines.launch
 import ui.BASE_URL
 import ui.components.SpottedLocationsMap
 import ui.components.SpottedMapPoint
+import ui.components.announcement.CancelAnnouncementReasonContent
 import ui.components.placeholder.ErrorPlaceholder
+import ui.model.AnnouncementCancelReason
 import ui.theme.backgroundColor
 import ui.theme.buttonPrimary
 import ui.theme.eventDateComponentColor
@@ -70,6 +82,7 @@ fun ProfileAnnouncementDetailsProvider(
             announcementType = announcementType
         )
     }
+    var selectedReasonId by remember { mutableStateOf(-1) }
 
     BottomSheetScaffold(
         modifier = modifier.fillMaxSize(),
@@ -80,7 +93,22 @@ fun ProfileAnnouncementDetailsProvider(
         sheetContentColor = Color(0xFF222222),
         sheetSwipeEnabled = true,
         sheetContent = {
+            val cancelReasons = if (announcementType == MISSING_ANNOUNCEMENT_TYPE) {
+                AnnouncementCancelReason.missingAnnouncementOptions
+            } else {
+                AnnouncementCancelReason.foundAnnouncementOptions
+            }
 
+            CancelAnnouncementReasonContent(
+                selectedReasonId = selectedReasonId,
+                reasons = cancelReasons,
+                onReasonSelected = { reasonId ->
+                    selectedReasonId = reasonId
+                },
+                onCancelAnnouncement = { reasonId ->
+                    viewModel.cancelAnnouncement(reasonId, announcementType, announcementId)
+                }
+            )
         }
     ) { paddingValues ->
         ProfileAnnouncementDetailsScreen(
@@ -88,7 +116,12 @@ fun ProfileAnnouncementDetailsProvider(
             announcementId = announcementId,
             announcementType = announcementType,
             profileAnnouncementDetailsState = screenState,
-            onBackClick = onBackClick
+            onBackClick = onBackClick,
+            openBottom = {
+                scope.launch {
+                    scaffoldState.bottomSheetState.expand()
+                }
+            }
         )
     }
 }
@@ -98,24 +131,18 @@ fun ProfileAnnouncementDetailsScreen(
     modifier: Modifier = Modifier,
     announcementId: String,
     announcementType: Int,
-    viewModel: ProfileAnnouncementDetailsViewModel,
-    onBackClick: () -> Unit
+    profileAnnouncementDetailsState: ProfileAnnouncementDetailsState,
+    onBackClick: () -> Unit,
+    openBottom: () -> Unit
 ) {
-    val screenState by viewModel.detailsState.collectAsStateWithLifecycle()
 
-    LaunchedEffect(announcementId, announcementType) {
-        viewModel.loadDetails(
-            announcementId = announcementId,
-            announcementType = announcementType
-        )
-    }
-
+    val state = profileAnnouncementDetailsState
     Box(
         modifier = modifier
             .fillMaxSize()
             .background(backgroundColor)
     ) {
-        when (val state = screenState) {
+        when (state) {
             ProfileAnnouncementDetailsState.Idle,
             ProfileAnnouncementDetailsState.Loading -> {
                 CircularProgressIndicator(
@@ -147,7 +174,8 @@ fun ProfileAnnouncementDetailsScreen(
                     announcementType = announcementType,
                     spottedLocations = state.spottedLocations,
                     spottedLocationsError = state.spottedLocationsError,
-                    onBackClick = onBackClick
+                    onBackClick = onBackClick,
+                    openBottom = openBottom
                 )
             }
         }
@@ -160,7 +188,8 @@ private fun ProfileAnnouncementDetailsContent(
     announcementType: Int,
     spottedLocations: List<SpottedLocation>,
     spottedLocationsError: String?,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    openBottom: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -204,6 +233,10 @@ private fun ProfileAnnouncementDetailsContent(
                     errorMessage = spottedLocationsError
                 )
             }
+
+            DeleteButton(
+                openBottom = openBottom
+            )
         }
     }
 }
@@ -438,6 +471,31 @@ private fun String.toImageModel(): String {
     return when {
         startsWith("http://") || startsWith("https://") || startsWith("content://") -> this
         else -> "$BASE_URL/api/image/${trimStart('/')}"
+    }
+}
+
+@Composable
+fun DeleteButton(
+    modifier: Modifier = Modifier,
+    openBottom: () -> Unit
+) {
+    Button(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(52.dp),
+        onClick = openBottom,
+        colors = ButtonDefaults.buttonColors(
+            containerColor = Color(0xFFFFE7E7),
+            contentColor = Color(0xFFFF3B3B),
+            disabledContainerColor = Color(0xFFFFE7E7).copy(alpha = 0.5f),
+            disabledContentColor = Color(0xFFFF3B3B).copy(alpha = 0.5f)
+        ),
+        shape = RoundedCornerShape(14.dp)
+    ) {
+        Text(
+            text = "Снять с публикации",
+            fontSize = 16.sp
+        )
     }
 }
 
