@@ -44,6 +44,55 @@ import ui.theme.textHint
 import ui.viewModel.ProfileAnnouncementDetailsState
 import ui.viewModel.ProfileAnnouncementDetailsViewModel
 
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ProfileAnnouncementDetailsProvider(
+    modifier: Modifier = Modifier,
+    announcementId: String,
+    announcementType: Int,
+    viewModel: ProfileAnnouncementDetailsViewModel,
+    onBackClick: () -> Unit
+) {
+
+    val scaffoldState = rememberBottomSheetScaffoldState()
+    val scope = rememberCoroutineScope()
+
+    var isMapSheetOpen by remember {
+        mutableStateOf(false)
+    }
+
+    val screenState by viewModel.detailsState.collectAsStateWithLifecycle()
+
+    LaunchedEffect(announcementId, announcementType) {
+        viewModel.loadDetails(
+            announcementId = announcementId,
+            announcementType = announcementType
+        )
+    }
+
+    BottomSheetScaffold(
+        modifier = modifier.fillMaxSize(),
+        scaffoldState = scaffoldState,
+        sheetPeekHeight = 1.dp,
+        sheetShape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
+        sheetContainerColor = Color(0xFFFAFAFA),
+        sheetContentColor = Color(0xFF222222),
+        sheetSwipeEnabled = true,
+        sheetContent = {
+
+        }
+    ) { paddingValues ->
+        ProfileAnnouncementDetailsScreen(
+            modifier = Modifier.padding(paddingValues),
+            announcementId = announcementId,
+            announcementType = announcementType,
+            profileAnnouncementDetailsState = screenState,
+            onBackClick = onBackClick
+        )
+    }
+}
+
 @Composable
 fun ProfileAnnouncementDetailsScreen(
     modifier: Modifier = Modifier,
