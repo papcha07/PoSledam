@@ -8,6 +8,11 @@ import model.InternetStatus
 import ui.model.PetUiPreview
 
 interface AnnouncementRepository {
+
+    suspend fun cancelAnnouncement(
+        cancelReason: CancelReason
+    ): Pair<Boolean, InternetStatus?>
+
     suspend fun sendAnnouncement(
         announcementInfo: AnnouncementInfo,
         files: List<String>,
