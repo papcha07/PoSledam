@@ -11,6 +11,10 @@ import ui.model.PetUiPreview
 class AnnouncementInteractorImpl(
     private val announcementRepository: AnnouncementRepository
 ) : AnnouncementInteractor {
+    override suspend fun cancelAnnouncement(cancelReason: CancelReason): Pair<Boolean, InternetStatus?> {
+        return announcementRepository.cancelAnnouncement(cancelReason)
+    }
+
     override suspend fun sendAnnouncement(
         announcementInfo: AnnouncementInfo,
         files: List<String>,
