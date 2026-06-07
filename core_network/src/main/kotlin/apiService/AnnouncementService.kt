@@ -229,7 +229,8 @@ class AnnouncementService(private val client: HttpClient) {
     suspend fun cancelAnnouncement(cancelAnnouncementRequest: CancelAnnouncementRequest): SendResult {
         return withContext(Dispatchers.IO) {
             try {
-                val request = client.post("api/$MISS/cancel/${cancelAnnouncementRequest.id}") {
+                val urlType = if (type == AnnouncementType.Miss) MISS else FIND
+                val request = client.post("api/$urlType/cancel/${cancelAnnouncementRequest.id}") {
                     parameter("deleteReason", cancelAnnouncementRequest.cancelReason)
                 }
                 if (request.status.isSuccess()) {
