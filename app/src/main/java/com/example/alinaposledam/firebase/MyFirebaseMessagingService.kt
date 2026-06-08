@@ -16,6 +16,8 @@ import com.example.alinaposledam.MainActivity
 import com.example.core.R
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
+import domain.notification.Notification
+import domain.notification.NotificationInteractor
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -26,7 +28,7 @@ import org.koin.core.component.inject
 class MyFirebaseMessagingService : FirebaseMessagingService(), KoinComponent {
 
     private val authService: AuthService by inject()
-
+    private val notificationInteractor: NotificationInteractor by inject()
     private val serviceJob = SupervisorJob()
     private val serviceScope = CoroutineScope(Dispatchers.IO + serviceJob)
 
@@ -49,6 +51,18 @@ class MyFirebaseMessagingService : FirebaseMessagingService(), KoinComponent {
             ?: message.data["body"]
             ?: "У вас новое сообщение"
 
+        serviceScope.launch {
+            notificationInteractor.insert(
+                Notification(
+                    id = 0,
+                    title = title,
+                    body = body,
+                    isRead = false,
+                    type = 1,
+                    time = System.currentTimeMillis()
+                )
+            )
+        }
 
         val notificationType = message.data["notification_type"]!!
         val entityId = message.data["entity_id"]!!
@@ -105,7 +119,6 @@ class MyFirebaseMessagingService : FirebaseMessagingService(), KoinComponent {
         notificationManager.notify(System.currentTimeMillis().toInt(), notification)
     }
 
-
     @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
     private fun showNotificationSpotted(
         title: String,
@@ -155,6 +168,10 @@ class MyFirebaseMessagingService : FirebaseMessagingService(), KoinComponent {
             entityId.hashCode(),
             notification
         )
+    }
+
+    private fun saveNotification(notification: Notification) {
+
     }
 
     override fun onDestroy() {
