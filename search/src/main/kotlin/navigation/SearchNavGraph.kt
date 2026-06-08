@@ -19,7 +19,16 @@ import java.net.URLEncoder
 sealed class SearchRoute(val route: String) {
     object SearchScreen : SearchRoute("searchMain")
     object FiltersScreen : SearchRoute("filtersScreen")
-    object FoundPetScreen : SearchRoute("foundPetScreen/{petId}/{announcementType}")
+    data object FoundPetScreen : SearchRoute(
+        route = "foundPetScreen/{petId}/{announcementType}"
+    ) {
+        fun createRoute(
+            petId: String,
+            announcementType: Int
+        ): String {
+            return "foundPetScreen/$petId/$announcementType"
+        }
+    }
     object ProfileScreen : SearchRoute("searchProfile")
 }
 

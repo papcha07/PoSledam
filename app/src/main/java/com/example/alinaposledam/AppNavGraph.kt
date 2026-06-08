@@ -192,7 +192,18 @@ private fun handleNotificationIntent(
             navController.navigate(
                 ProfileRoute.DetailScreen.createRoute(
                     petId = entityId,
-                    announcementType = 0
+                    announcementType = FIND
+                )
+            ) {
+                launchSingleTop = true
+            }
+        }
+
+        "MissingAnnouncementCreated" -> {
+            navController.navigate(
+                SearchRoute.FoundPetScreen.createRoute(
+                    petId = entityId,
+                    announcementType = MISS
                 )
             ) {
                 launchSingleTop = true
@@ -200,3 +211,7 @@ private fun handleNotificationIntent(
         }
     }
 }
+
+private const val MISS = 1
+private const val FIND = 0
+

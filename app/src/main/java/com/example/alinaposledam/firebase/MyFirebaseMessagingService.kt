@@ -74,6 +74,15 @@ class MyFirebaseMessagingService : FirebaseMessagingService(), KoinComponent {
                 notificationType = notificationType
             )
 
+            MISS_CREATED -> {
+                showNotificationSpotted(
+                    title = title,
+                    body = body,
+                    entityId = entityId,
+                    notificationType = notificationType
+                )
+            }
+
             REPORT_FOUND -> {}
             else -> showNotification(title, body)
 
@@ -170,9 +179,6 @@ class MyFirebaseMessagingService : FirebaseMessagingService(), KoinComponent {
         )
     }
 
-    private fun saveNotification(notification: Notification) {
-
-    }
 
     override fun onDestroy() {
         super.onDestroy()
@@ -183,5 +189,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService(), KoinComponent {
     companion object {
         private const val REPORT_SPOTTED = "ReportSpotted"
         private const val REPORT_FOUND = "ReportFound"
+
+        private const val MISS_CREATED = "MissingAnnouncementCreated"
     }
 }

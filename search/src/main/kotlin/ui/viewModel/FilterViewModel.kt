@@ -157,10 +157,18 @@ class FilterViewModel(
         _petInfoState.value = PetDetailsScreenState.Loading
     }
 
-    fun getInfoAboutPet(id: String) {
+    fun getInfoAboutPet(
+        id: String,
+        announcementType: Int = currentTab.value
+    ) {
         viewModelScope.launch {
             _petInfoState.value = PetDetailsScreenState.Loading
-            val petInfo = searchInteractor.getInfoAboutPet(id, currentTab.value)
+
+            val petInfo = searchInteractor.getInfoAboutPet(
+                id = id,
+                announcementType = announcementType
+            )
+
             val data = petInfo.first
             val message = petInfo.second
 

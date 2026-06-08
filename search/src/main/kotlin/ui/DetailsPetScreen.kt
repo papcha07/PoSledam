@@ -89,8 +89,11 @@ fun DetailsPetScreenProvider(
         uri?.let(reportViewModel::addImage)
     }
 
-    LaunchedEffect(petId) {
-        viewModel.getInfoAboutPet(petId)
+    LaunchedEffect(petId, announcementType) {
+        viewModel.getInfoAboutPet(
+            id = petId,
+            announcementType = announcementType
+        )
     }
 
     LaunchedEffect(scaffoldState.bottomSheetState.currentValue) {
