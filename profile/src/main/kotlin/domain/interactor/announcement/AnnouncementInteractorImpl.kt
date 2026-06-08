@@ -2,6 +2,7 @@ package domain.interactor.announcement
 
 import domain.model.AnnouncementInfo
 import domain.model.AnnouncementStatus
+import domain.model.CancelReason
 import domain.model.ProfileAnnouncementDetails
 import domain.model.SpottedLocation
 import domain.repository.AnnouncementRepository
@@ -11,6 +12,10 @@ import ui.model.PetUiPreview
 class AnnouncementInteractorImpl(
     private val announcementRepository: AnnouncementRepository
 ) : AnnouncementInteractor {
+    override suspend fun cancelAnnouncement(cancelReason: CancelReason): Pair<Boolean, InternetStatus?> {
+        return announcementRepository.cancelAnnouncement(cancelReason)
+    }
+
     override suspend fun sendAnnouncement(
         announcementInfo: AnnouncementInfo,
         files: List<String>,

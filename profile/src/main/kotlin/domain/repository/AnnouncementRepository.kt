@@ -2,12 +2,18 @@ package domain.repository
 
 import domain.model.AnnouncementInfo
 import domain.model.AnnouncementStatus
+import domain.model.CancelReason
 import domain.model.ProfileAnnouncementDetails
 import domain.model.SpottedLocation
 import model.InternetStatus
 import ui.model.PetUiPreview
 
 interface AnnouncementRepository {
+
+    suspend fun cancelAnnouncement(
+        cancelReason: CancelReason
+    ): Pair<Boolean, InternetStatus?>
+
     suspend fun sendAnnouncement(
         announcementInfo: AnnouncementInfo,
         files: List<String>,

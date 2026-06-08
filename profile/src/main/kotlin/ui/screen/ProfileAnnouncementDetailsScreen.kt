@@ -3,7 +3,6 @@ package ui.screen
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -16,11 +15,20 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.BottomSheetScaffold
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -34,10 +42,14 @@ import coil.compose.AsyncImage
 import com.example.core.R
 import domain.model.ProfileAnnouncementDetails
 import domain.model.SpottedLocation
+import kotlinx.coroutines.launch
 import ui.BASE_URL
 import ui.components.SpottedLocationsMap
 import ui.components.SpottedMapPoint
+import ui.components.announcement.CancelAnnouncementReasonContent
+import ui.components.default_component.AnimatedToast
 import ui.components.placeholder.ErrorPlaceholder
+import ui.model.AnnouncementCancelReason
 import ui.theme.backgroundColor
 import ui.theme.buttonPrimary
 import ui.theme.eventDateComponentColor
@@ -45,15 +57,22 @@ import ui.theme.textHint
 import ui.viewModel.ProfileAnnouncementDetailsState
 import ui.viewModel.ProfileAnnouncementDetailsViewModel
 
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProfileAnnouncementDetailsScreen(
+fun ProfileAnnouncementDetailsProvider(
     modifier: Modifier = Modifier,
     announcementId: String,
     announcementType: Int,
     viewModel: ProfileAnnouncementDetailsViewModel,
     onBackClick: () -> Unit
 ) {
+
+    val scaffoldState = rememberBottomSheetScaffoldState()
+    val scope = rememberCoroutineScope()
+
     val screenState by viewModel.detailsState.collectAsStateWithLifecycle()
+    val cancelState by viewModel.cancelState.collectAsStateWithLifecycle()
 
     LaunchedEffect(announcementId, announcementType) {
         viewModel.loadDetails(
@@ -62,12 +81,90 @@ fun ProfileAnnouncementDetailsScreen(
         )
     }
 
+    LaunchedEffect(cancelState.isSuccess) {
+        if (cancelState.isSuccess) {
+            scaffoldState.bottomSheetState.partialExpand()
+            viewModel.clearCancelResult()
+            onBackClick()
+        }
+    }
+
+    var selectedReasonId by remember { mutableStateOf(-1) }
+
+    Box(modifier = modifier.fillMaxSize()) {
+        BottomSheetScaffold(
+            modifier = Modifier.fillMaxSize(),
+            scaffoldState = scaffoldState,
+            sheetPeekHeight = 1.dp,
+            sheetShape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
+            sheetContainerColor = Color(0xFFFAFAFA),
+            sheetContentColor = Color(0xFF222222),
+            sheetSwipeEnabled = true,
+            sheetContent = {
+                val cancelReasons = if (announcementType == MISSING_ANNOUNCEMENT_TYPE) {
+                    AnnouncementCancelReason.missingAnnouncementOptions
+                } else {
+                    AnnouncementCancelReason.foundAnnouncementOptions
+                }
+                CancelAnnouncementReasonContent(
+                    selectedReasonId = selectedReasonId,
+                    reasons = cancelReasons,
+                    onReasonSelected = { reasonId ->
+                        selectedReasonId = reasonId
+                    },
+                    onCancelAnnouncement = { reasonId ->
+                        viewModel.cancelAnnouncement(reasonId, announcementType, announcementId)
+                    }
+                )
+            }
+        ) { paddingValues ->
+            ProfileAnnouncementDetailsScreen(
+                modifier = Modifier.padding(paddingValues),
+                announcementId = announcementId,
+                announcementType = announcementType,
+                profileAnnouncementDetailsState = screenState,
+                onBackClick = onBackClick,
+                openBottom = {
+                    scope.launch {
+                        scaffoldState.bottomSheetState.expand()
+                    }
+                }
+            )
+        }
+
+        if (cancelState.isLoading) {
+            CircularProgressIndicator(
+                modifier = Modifier.align(Alignment.Center),
+                color = buttonPrimary
+            )
+        }
+
+        cancelState.errorMessage?.let { message ->
+            AnimatedToast(
+                message = message,
+                onDismiss = viewModel::clearCancelError
+            )
+        }
+    }
+}
+
+@Composable
+fun ProfileAnnouncementDetailsScreen(
+    modifier: Modifier = Modifier,
+    announcementId: String,
+    announcementType: Int,
+    profileAnnouncementDetailsState: ProfileAnnouncementDetailsState,
+    onBackClick: () -> Unit,
+    openBottom: () -> Unit
+) {
+
+    val state = profileAnnouncementDetailsState
     Box(
         modifier = modifier
             .fillMaxSize()
             .background(backgroundColor)
     ) {
-        when (val state = screenState) {
+        when (state) {
             ProfileAnnouncementDetailsState.Idle,
             ProfileAnnouncementDetailsState.Loading -> {
                 CircularProgressIndicator(
@@ -99,7 +196,8 @@ fun ProfileAnnouncementDetailsScreen(
                     announcementType = announcementType,
                     spottedLocations = state.spottedLocations,
                     spottedLocationsError = state.spottedLocationsError,
-                    onBackClick = onBackClick
+                    onBackClick = onBackClick,
+                    openBottom = openBottom
                 )
             }
         }
@@ -112,50 +210,63 @@ private fun ProfileAnnouncementDetailsContent(
     announcementType: Int,
     spottedLocations: List<SpottedLocation>,
     spottedLocationsError: String?,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    openBottom: () -> Unit
 ) {
-    Column(
-        modifier = Modifier.verticalScroll(rememberScrollState())
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
     ) {
-        DetailsHeaderImage(
-            imagePath = announcement.imagePath,
-            onBackClick = onBackClick
-        )
-
         Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .background(
-                    color = Color.White,
-                    shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)
-                )
-                .padding(horizontal = 16.dp, vertical = 18.dp)
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
         ) {
-            PetParametersBlock(announcement = announcement)
-
-            Spacer(Modifier.height(24.dp))
-
-            DetailsDateBlock(
-                title = if (announcementType == MISSING_ANNOUNCEMENT_TYPE) {
-                    "Когда потеряли"
-                } else {
-                    "Когда нашли"
-                },
-                value = "${announcement.eventDate} • ${announcement.eventTime}"
+            DetailsHeaderImage(
+                imagePath = announcement.imagePath,
+                onBackClick = onBackClick
             )
 
-            Spacer(Modifier.height(24.dp))
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(
+                        color = Color.White,
+                        shape = RoundedCornerShape(16.dp)
+                    )
+                    .padding(horizontal = 16.dp, vertical = 18.dp)
+            ) {
+                PetParametersBlock(announcement = announcement)
 
-            LocationBlock(announcement = announcement)
-
-            if (announcementType == MISSING_ANNOUNCEMENT_TYPE) {
                 Spacer(Modifier.height(24.dp))
-                SpottedRouteBlock(
-                    spottedLocations = spottedLocations,
-                    errorMessage = spottedLocationsError
+
+                DetailsDateBlock(
+                    title = if (announcementType == MISSING_ANNOUNCEMENT_TYPE) {
+                        "Когда потеряли"
+                    } else {
+                        "Когда нашли"
+                    },
+                    value = "${announcement.eventDate} • ${announcement.eventTime}"
                 )
+
+                Spacer(Modifier.height(24.dp))
+
+                LocationBlock(announcement = announcement)
+
+                if (announcementType == MISSING_ANNOUNCEMENT_TYPE) {
+                    Spacer(Modifier.height(24.dp))
+                    SpottedRouteBlock(
+                        spottedLocations = spottedLocations,
+                        errorMessage = spottedLocationsError
+                    )
+                }
             }
         }
+
+        DeleteButton(
+            modifier = Modifier.align(Alignment.BottomCenter),
+            openBottom = openBottom
+        )
     }
 }
 
@@ -389,6 +500,40 @@ private fun String.toImageModel(): String {
     return when {
         startsWith("http://") || startsWith("https://") || startsWith("content://") -> this
         else -> "$BASE_URL/api/image/${trimStart('/')}"
+    }
+}
+
+@Composable
+fun DeleteButton(
+    modifier: Modifier = Modifier,
+    openBottom: () -> Unit
+) {
+    Box(
+        modifier = modifier
+            .background(
+                color = Color.White,
+                shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)
+            )
+            .padding(horizontal = 16.dp, vertical = 16.dp)
+    ) {
+        Button(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(52.dp),
+            onClick = openBottom,
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color(0xFFFFE7E7),
+                contentColor = Color(0xFFFF3B3B),
+                disabledContainerColor = Color(0xFFFFE7E7).copy(alpha = 0.5f),
+                disabledContentColor = Color(0xFFFF3B3B).copy(alpha = 0.5f)
+            ),
+            shape = RoundedCornerShape(14.dp)
+        ) {
+            Text(
+                text = "Снять с публикации",
+                fontSize = 16.sp
+            )
+        }
     }
 }
 

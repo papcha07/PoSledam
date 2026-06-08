@@ -10,15 +10,18 @@ import apiService.models.announcement_models.SpottedLocationResponse
 import apiService.models.announcement_models.UserPetInfoResponse
 import domain.model.AnnouncementInfo
 import domain.model.AnnouncementStatus
+import domain.model.CancelReason
 import domain.model.ProfileAnnouncementDetails
 import domain.model.SpottedLocation
 import domain.model.toAnnouncementRequest
+import domain.model.toCancelAnnouncementRequest
+import domain.model.toMethodType
 import domain.repository.AnnouncementRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import model.InternetStatus
 import model.announcement.FoundPetRequest
 import model.announcement.FoundPetResponse
-import model.InternetStatus
 import ui.model.PetUiPreview
 import ui.other.Converter
 import java.time.OffsetDateTime
@@ -30,6 +33,27 @@ class AnnouncementRepositoryImpl(
     private val apiService: AnnouncementService,
     private val converter: Converter
 ) : AnnouncementRepository {
+    override suspend fun cancelAnnouncement(cancelReason: CancelReason): Pair<Boolean, InternetStatus?> {
+        val requestModel = cancelReason.toCancelAnnouncementRequest()
+        val response = apiService.cancelMissAnnouncement(
+            cancelAnnouncementRequest = requestModel,
+            type = cancelReason.type.toMethodType()
+        )
+
+        return when (response) {
+            is SendResult.BadRequest -> {
+                Pair(false, InternetStatus.Error)
+            }
+
+            is SendResult.Error -> {
+                Pair(false, InternetStatus.NoInternet)
+            }
+
+            SendResult.Success -> {
+                Pair(true, InternetStatus.Error)
+            }
+        }
+    }
 
 
     @RequiresApi(Build.VERSION_CODES.O)

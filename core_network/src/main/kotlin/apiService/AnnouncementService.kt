@@ -4,8 +4,9 @@ import AnnouncementType
 import ApiResponse
 import SendResult
 import android.util.Log
-import apiService.models.announcement_models.UserPetInfoResponse
+import apiService.models.announcement_models.CancelAnnouncementRequest
 import apiService.models.announcement_models.SpottedLocationResponse
+import apiService.models.announcement_models.UserPetInfoResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.forms.MultiPartFormDataContent
@@ -19,6 +20,7 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.isSuccess
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.Serializable
 import model.announcement.AnnouncementRequest
 import model.announcement.FoundPetRequest
 import model.announcement.FoundPetResponse
@@ -226,6 +228,39 @@ class AnnouncementService(private val client: HttpClient) {
         }
     }
 
+    suspend fun cancelMissAnnouncement(
+        cancelAnnouncementRequest: CancelAnnouncementRequest,
+        type: AnnouncementType
+    ): SendResult {
+        return withContext(Dispatchers.IO) {
+            try {
+                val urlType = if (type == AnnouncementType.Miss) MISS else FIND
+                val request = client.post("api/$urlType/cancel/${cancelAnnouncementRequest.id}") {
+                    setBody(
+                        if (type == AnnouncementType.Miss) {
+                            CancelMissingAnnouncementBody(
+                                deleteReason = cancelAnnouncementRequest.deleteReason
+                            )
+                        } else {
+                            CancelFindAnnouncementBody(
+                                cancelReason = cancelAnnouncementRequest.deleteReason
+                            )
+                        }
+                    )
+                }
+                if (request.status.isSuccess()) {
+                    SendResult.Success
+                } else {
+                    SendResult.BadRequest()
+                }
+            } catch (e: Exception) {
+                SendResult.Error("Проблемы с соединением")
+            }
+
+        }
+    }
+
+
     suspend fun reportFoundAnimal(id: String): SendResult {
         return withContext(Dispatchers.IO) {
             try {
@@ -283,3 +318,13 @@ class AnnouncementService(private val client: HttpClient) {
         private const val FIND = "find-announcement"
     }
 }
+
+@Serializable
+private data class CancelMissingAnnouncementBody(
+    val deleteReason: Int
+)
+
+@Serializable
+private data class CancelFindAnnouncementBody(
+    val cancelReason: Int
+)

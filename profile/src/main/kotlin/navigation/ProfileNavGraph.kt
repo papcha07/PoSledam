@@ -11,7 +11,7 @@ import androidx.navigation.navArgument
 import androidx.navigation.navigation
 import org.koin.androidx.compose.koinViewModel
 import ui.screen.ActionScreen
-import ui.screen.ProfileAnnouncementDetailsScreen
+import ui.screen.ProfileAnnouncementDetailsProvider
 import ui.screen.ProfileScreen
 import ui.screen.ProfileSettingsScreen
 import ui.viewModel.ActionViewModel
@@ -125,7 +125,7 @@ fun NavGraphBuilder.profileNavGraph(navController: NavController, route: String 
 
             val detailsViewModel: ProfileAnnouncementDetailsViewModel = koinViewModel()
 
-            ProfileAnnouncementDetailsScreen(
+            ProfileAnnouncementDetailsProvider(
                 announcementId = petId,
                 announcementType = announcementType,
                 viewModel = detailsViewModel,
