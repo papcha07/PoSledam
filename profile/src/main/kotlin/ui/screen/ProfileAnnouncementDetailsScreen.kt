@@ -71,10 +71,6 @@ fun ProfileAnnouncementDetailsProvider(
     val scaffoldState = rememberBottomSheetScaffoldState()
     val scope = rememberCoroutineScope()
 
-    var isMapSheetOpen by remember {
-        mutableStateOf(false)
-    }
-
     val screenState by viewModel.detailsState.collectAsStateWithLifecycle()
     val cancelState by viewModel.cancelState.collectAsStateWithLifecycle()
 
@@ -110,7 +106,6 @@ fun ProfileAnnouncementDetailsProvider(
                 } else {
                     AnnouncementCancelReason.foundAnnouncementOptions
                 }
-
                 CancelAnnouncementReasonContent(
                     selectedReasonId = selectedReasonId,
                     reasons = cancelReasons,
@@ -218,53 +213,60 @@ private fun ProfileAnnouncementDetailsContent(
     onBackClick: () -> Unit,
     openBottom: () -> Unit
 ) {
-    Column(
+    Box(
         modifier = Modifier
-            .verticalScroll(rememberScrollState())
+            .fillMaxSize()
     ) {
-        DetailsHeaderImage(
-            imagePath = announcement.imagePath,
-            onBackClick = onBackClick
-        )
-
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(
-                    color = Color.White,
-                    shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)
-                )
-                .padding(horizontal = 16.dp, vertical = 18.dp)
+                .verticalScroll(rememberScrollState())
         ) {
-            PetParametersBlock(announcement = announcement)
-
-            Spacer(Modifier.height(24.dp))
-
-            DetailsDateBlock(
-                title = if (announcementType == MISSING_ANNOUNCEMENT_TYPE) {
-                    "Когда потеряли"
-                } else {
-                    "Когда нашли"
-                },
-                value = "${announcement.eventDate} • ${announcement.eventTime}"
+            DetailsHeaderImage(
+                imagePath = announcement.imagePath,
+                onBackClick = onBackClick
             )
 
-            Spacer(Modifier.height(24.dp))
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(
+                        color = Color.White,
+                        shape = RoundedCornerShape(16.dp)
+                    )
+                    .padding(horizontal = 16.dp, vertical = 18.dp)
+            ) {
+                PetParametersBlock(announcement = announcement)
 
-            LocationBlock(announcement = announcement)
-
-            if (announcementType == MISSING_ANNOUNCEMENT_TYPE) {
                 Spacer(Modifier.height(24.dp))
-                SpottedRouteBlock(
-                    spottedLocations = spottedLocations,
-                    errorMessage = spottedLocationsError
-                )
-            }
 
-            DeleteButton(
-                openBottom = openBottom
-            )
+                DetailsDateBlock(
+                    title = if (announcementType == MISSING_ANNOUNCEMENT_TYPE) {
+                        "Когда потеряли"
+                    } else {
+                        "Когда нашли"
+                    },
+                    value = "${announcement.eventDate} • ${announcement.eventTime}"
+                )
+
+                Spacer(Modifier.height(24.dp))
+
+                LocationBlock(announcement = announcement)
+
+                if (announcementType == MISSING_ANNOUNCEMENT_TYPE) {
+                    Spacer(Modifier.height(24.dp))
+                    SpottedRouteBlock(
+                        spottedLocations = spottedLocations,
+                        errorMessage = spottedLocationsError
+                    )
+                }
+            }
         }
+
+        DeleteButton(
+            modifier = Modifier.align(Alignment.BottomCenter),
+            openBottom = openBottom
+        )
     }
 }
 
@@ -506,23 +508,32 @@ fun DeleteButton(
     modifier: Modifier = Modifier,
     openBottom: () -> Unit
 ) {
-    Button(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(52.dp),
-        onClick = openBottom,
-        colors = ButtonDefaults.buttonColors(
-            containerColor = Color(0xFFFFE7E7),
-            contentColor = Color(0xFFFF3B3B),
-            disabledContainerColor = Color(0xFFFFE7E7).copy(alpha = 0.5f),
-            disabledContentColor = Color(0xFFFF3B3B).copy(alpha = 0.5f)
-        ),
-        shape = RoundedCornerShape(14.dp)
+    Box(
+        modifier = modifier
+            .background(
+                color = Color.White,
+                shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)
+            )
+            .padding(horizontal = 16.dp, vertical = 16.dp)
     ) {
-        Text(
-            text = "Снять с публикации",
-            fontSize = 16.sp
-        )
+        Button(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(52.dp),
+            onClick = openBottom,
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color(0xFFFFE7E7),
+                contentColor = Color(0xFFFF3B3B),
+                disabledContainerColor = Color(0xFFFFE7E7).copy(alpha = 0.5f),
+                disabledContentColor = Color(0xFFFF3B3B).copy(alpha = 0.5f)
+            ),
+            shape = RoundedCornerShape(14.dp)
+        ) {
+            Text(
+                text = "Снять с публикации",
+                fontSize = 16.sp
+            )
+        }
     }
 }
 
