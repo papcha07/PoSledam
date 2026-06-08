@@ -23,6 +23,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -73,6 +74,10 @@ fun ProfileSettingsScreen(
     }
     val screenState by settingsViewModel.profileInfoState.collectAsState()
     val notificationsEnabled by settingsViewModel.notificationsEnabled.collectAsState()
+
+    LaunchedEffect(Unit) {
+        settingsViewModel.observeUser()
+    }
 
     LazyColumn(Modifier.fillMaxHeight()) {
         item {
@@ -385,5 +390,4 @@ fun VerifyComponent(
 
     }
 }
-
 

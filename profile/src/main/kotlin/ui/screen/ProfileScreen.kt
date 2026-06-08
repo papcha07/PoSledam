@@ -22,48 +22,33 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import ui.components.AnimalCard
 import ui.components.PetButton
 import ui.components.default_component.TabRowSelection
 import ui.components.placeholder.EmptyAnimalList
 import ui.components.placeholder.ErrorPlaceholder
-import ui.components.profilebar.ProfileBarComponent
 import ui.model.TabRowInfo
 import ui.theme.backgroundColor
 import ui.viewModel.ProfileScreenState
-import ui.viewModel.ProfileSettingsViewModel
 import ui.viewModel.ProfileViewModel
 
 
 @Composable
 fun ProfileScreen(
     navigateToActionScreen: () -> Unit,
-    openProfileSettings: () -> Unit,
     openAnnouncementDetails: (String, Int) -> Unit,
     profileViewModel: ProfileViewModel,
-    profileSettingsViewModel: ProfileSettingsViewModel,
 ) {
 
 
     LaunchedEffect(Unit) {
-        profileSettingsViewModel.observeUser()
         profileViewModel.getAnimalList()
     }
 
-    val userInfoState by profileSettingsViewModel.userInfoState.collectAsStateWithLifecycle()
     val methodIndex by profileViewModel.userMethodState.collectAsState()
     val animalListState by profileViewModel.userPetState.collectAsState()
 
     Column(modifier = Modifier.background(backgroundColor)) {
-        ProfileBarComponent(
-            profileBarState = userInfoState,
-            onSettingsClick = openProfileSettings,
-            notificationsIsNotRead = false,
-            onNotifyClick = {
-
-            }
-        )
         MainContentComponent(
             selectedIndex = methodIndex,
             navigateToActionScreen = navigateToActionScreen,
@@ -206,7 +191,5 @@ fun PetLazyRow(
         }
     }
 }
-
-
 
 

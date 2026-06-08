@@ -6,15 +6,11 @@ import androidx.lifecycle.viewModelScope
 import domain.notification.Notification
 import domain.notification.NotificationInteractor
 import domain.user.UserInteractor
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import ui.LocationProvider
-import ui.components.profilebar.ProfileBarState
 import worker.location_worker.WorkerInteractor
 
 class MainScreenViewModel(
@@ -23,8 +19,6 @@ class MainScreenViewModel(
     private val workerInteractor: WorkerInteractor,
     private val locationProvider: LocationProvider
 ) : ViewModel() {
-    private val _userInfoState = MutableStateFlow<ProfileBarState>(ProfileBarState.Idle)
-    val userInfoState = _userInfoState.asStateFlow()
 
     val notificationState: StateFlow<List<Notification>> =
         notificationInteractor
@@ -35,15 +29,6 @@ class MainScreenViewModel(
                 initialValue = emptyList()
             )
 
-    val markNotificationState: StateFlow<Boolean> =
-        notificationState
-            .map { it.any { notification -> !notification.isRead } }
-            .stateIn(
-                viewModelScope,
-                SharingStarted.WhileSubscribed(5_000),
-                false
-            )
-
     fun deleteById(id: Long) {
         viewModelScope.launch {
             notificationInteractor.deleteById(id)
@@ -52,19 +37,6 @@ class MainScreenViewModel(
 
     fun startLocationWorker() {
         workerInteractor.startLocationWorker()
-    }
-
-    fun observeUser() {
-        viewModelScope.launch {
-            _userInfoState.value = ProfileBarState.Loading
-            userInteractor.observeUser().collect { user ->
-                if (user == null) {
-                    _userInfoState.value = ProfileBarState.Loading
-                } else {
-                    _userInfoState.value = ProfileBarState.Success(user)
-                }
-            }
-        }
     }
 
     suspend fun updateUserLocation(): Boolean {

@@ -43,13 +43,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.core.R
 import domain.models.StreetPetPreviewModel
 import helper.RequestLocationPermission
 import helper.RequestNotificationPermission
 import ui.components.other.NearPetCardComponent
-import ui.components.profilebar.ProfileBarComponent
 import ui.model.ArticleInfo
 import ui.theme.backgroundColor
 
@@ -76,20 +74,11 @@ val articleInfoList = listOf(
 
 @Composable
 fun MainScreen(
-    navigateToNotificationScreen: () -> Unit,
     navigateToStreetPetScreen: () -> Unit,
     navigateToCameraScreen: () -> Unit,
     navigateToNewsScreen: () -> Unit,
     mainScreenViewModel: MainScreenViewModel,
 ) {
-
-
-    val userInfoState by mainScreenViewModel.userInfoState.collectAsStateWithLifecycle()
-    val markIsReadState by mainScreenViewModel.markNotificationState.collectAsStateWithLifecycle()
-    LaunchedEffect(Unit) {
-        mainScreenViewModel.observeUser()
-        mainScreenViewModel.refreshUser()
-    }
 
     var locationEnabled by remember { mutableStateOf(false) }
 
@@ -120,17 +109,6 @@ fun MainScreen(
             .fillMaxSize()
             .background(color = backgroundColor)
     ) {
-        item {
-            ProfileBarComponent(
-                profileBarState = userInfoState,
-                onSettingsClick = {},
-                notificationsIsNotRead = markIsReadState,
-                onNotifyClick = {
-                    navigateToNotificationScreen()
-                }
-
-            )
-        }
         item {
             ArticleSectionComponent(
                 modifier = Modifier,
@@ -390,7 +368,6 @@ fun NearPetMainComponentPreview() {
 
     }
 }
-
 
 
 
