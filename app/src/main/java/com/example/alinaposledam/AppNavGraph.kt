@@ -10,9 +10,11 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -24,19 +26,31 @@ import androidx.navigation.compose.rememberNavController
 import com.example.alinaposledam.firebase.FirebaseTokenProvider
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
+import navigation.MainRoute
 import navigation.ProfileRoute
+import navigation.SearchRoute
 import navigation.authNavGraph
 import navigation.mainNavGraph
 import navigation.profileNavGraph
 import navigation.searchNavGraph
+import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.koinInject
+import org.koin.core.parameter.parametersOf
 import org.koin.java.KoinJavaComponent.getKoin
 import storage.TokenRepository
+import ui.components.profilebar.ProfileBarComponent
+import ui.other.DebouncerManager
 
 
 private val bottomBarLeafRoutes = setOf(
-    "mainScreen",
-    "searchMain",
-    "profileMain"
+    MainRoute.MainScreen.route,
+    SearchRoute.SearchScreen.route,
+    ProfileRoute.Profile.route
+)
+
+private val profileBarLeafRoutes = setOf(
+    MainRoute.MainScreen.route,
+    ProfileRoute.Profile.route
 )
 
 
@@ -49,6 +63,11 @@ fun AppNavGraph(
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
     val showBottomBar = currentRoute in bottomBarLeafRoutes
+    val showProfileBar = currentRoute in profileBarLeafRoutes
+    val coroutineScope = rememberCoroutineScope()
+    val notificationNavigationDebouncer = koinInject<DebouncerManager>(
+        parameters = { parametersOf(coroutineScope, 5000L) }
+    )
 
     var startDestination by remember { mutableStateOf<String?>(null) }
 
@@ -92,6 +111,38 @@ fun AppNavGraph(
     }
 
     Scaffold(
+        topBar = {
+            if (showProfileBar) {
+                val profileBarViewModel: ProfileBarViewModel = koinViewModel()
+                val profileBarState by profileBarViewModel.profileBarState.collectAsState()
+                val notificationsIsNotRead by profileBarViewModel.notificationsIsNotRead.collectAsState()
+
+                LaunchedEffect(currentRoute) {
+                    if (currentRoute == MainRoute.MainScreen.route) {
+                        profileBarViewModel.refreshUser()
+                    }
+                }
+
+                ProfileBarComponent(
+                    profileBarState = profileBarState,
+                    onSettingsClick = {
+                        navController.navigate(ProfileRoute.ProfileSettings.route) {
+                            launchSingleTop = true
+                        }
+                    },
+                    notificationsIsNotRead = if (currentRoute == MainRoute.MainScreen.route) {
+                        notificationsIsNotRead
+                    } else {
+                        false
+                    },
+                    onNotifyClick = {
+                        navController.navigate(MainRoute.Notifications.route) {
+                            launchSingleTop = true
+                        }
+                    }
+                )
+            }
+        },
         bottomBar = { if (showBottomBar) BottomNavBar(navController) },
         containerColor = Color.White
     ) { innerPadding ->
@@ -99,7 +150,7 @@ fun AppNavGraph(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(bottom = innerPadding.calculateBottomPadding()),
+                    .padding(innerPadding),
                 contentAlignment = Alignment.Center
             ) {
                 CircularProgressIndicator()
@@ -110,7 +161,7 @@ fun AppNavGraph(
                 startDestination = startDestination!!,
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(bottom = innerPadding.calculateBottomPadding()),
+                    .padding(innerPadding),
                 enterTransition = { EnterTransition.None },
                 exitTransition = { ExitTransition.None },
                 popEnterTransition = { EnterTransition.None },

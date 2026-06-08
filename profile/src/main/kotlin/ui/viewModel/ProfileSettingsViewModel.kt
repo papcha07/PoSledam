@@ -6,6 +6,7 @@ import domain.interactor.loader.ImageLoaderInteractor
 import domain.notification.NotificationSettingsInteractor
 import domain.user.UserInteractor
 import domain.user.model.User
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -29,6 +30,7 @@ class ProfileSettingsViewModel(
     private val _notificationsEnabled = MutableStateFlow(false)
     val notificationsEnabled = _notificationsEnabled.asStateFlow()
 
+    private var observeUserJob: Job? = null
 
     init {
         viewModelScope.launch {
@@ -68,7 +70,9 @@ class ProfileSettingsViewModel(
     }
 
     fun observeUser() {
-        viewModelScope.launch {
+        if (observeUserJob?.isActive == true) return
+
+        observeUserJob = viewModelScope.launch {
             _userInfoState.value = ProfileBarState.Loading
             userInteractor.observeUser().collect { user ->
                 if (user == null) {

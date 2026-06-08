@@ -8,10 +8,8 @@
     import org.junit.Rule
     import org.junit.Test
     import org.junit.runner.RunWith
-    import org.koin.java.KoinJavaComponent.getKoin
     import ui.model.PetUiPreview
     import ui.screen.ProfileScreen
-    import ui.viewModel.ProfileSettingsViewModel
     import ui.viewModel.ProfileViewModel
 
     @RunWith(AndroidJUnit4::class)
@@ -21,11 +19,9 @@
 
         private lateinit var profileViewModel: ProfileViewModel
         private lateinit var page: ProfilePage
-        private lateinit var profileSettingsViewModel: ProfileSettingsViewModel
 
         @Before
         fun setUp() {
-            profileSettingsViewModel = getKoin().get()
             page = ProfilePage(rule)
         }
 
@@ -132,10 +128,8 @@
             rule.setContent {
                 ProfileScreen(
                     navigateToActionScreen = {},
-                    openProfileSettings = {},
                     openAnnouncementDetails = { _, _ -> },
                     profileViewModel = vm,
-                    profileSettingsViewModel = profileSettingsViewModel,
                 )
             }
             return vm

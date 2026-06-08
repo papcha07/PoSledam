@@ -2,7 +2,6 @@ package navigation
 
 import NewsScreen
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavType
@@ -10,9 +9,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import androidx.navigation.navigation
 import org.koin.androidx.compose.koinViewModel
-import org.koin.compose.koinInject
-import org.koin.core.parameter.parametersOf
-import ui.other.DebouncerManager
 import ui.screen.NotificationScreen
 import ui.screen.camera.CameraScreen
 import ui.screen.camera.CameraViewModel
@@ -52,21 +48,7 @@ fun NavGraphBuilder.mainNavGraph(navController: NavController, route: String = "
             val mainViewModel: MainScreenViewModel =
                 koinViewModel(viewModelStoreOwner = parentEntry)
 
-            val scope = rememberCoroutineScope()
-            val delay = 5000L
-
-            val debouncerManager = koinInject<DebouncerManager>(
-                parameters = { parametersOf(scope, delay) }
-            )
-
             MainScreen(
-                navigateToNotificationScreen = {
-                    debouncerManager.debounce {
-                        navController.navigate(MainRoute.Notifications.route) {
-                            launchSingleTop = true
-                        }
-                    }
-                },
                 navigateToStreetPetScreen = {
                     navController.navigate(MainRoute.StreetPetsScreen.route) {
                         launchSingleTop = true

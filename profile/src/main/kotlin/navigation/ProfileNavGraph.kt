@@ -49,18 +49,11 @@ fun NavGraphBuilder.profileNavGraph(navController: NavController, route: String 
             val profileViewModel: ProfileViewModel =
                 koinViewModel(viewModelStoreOwner = parentEntry)
 
-            val profileSettingsViewModel: ProfileSettingsViewModel =
-                koinViewModel(viewModelStoreOwner = parentEntry)
-
             ProfileScreen(
                 navigateToActionScreen = {
                     navController.navigate(ProfileRoute.ActionScreen.route)
                 },
-                openProfileSettings = {
-                    navController.navigate(ProfileRoute.ProfileSettings.route)
-                },
                 profileViewModel = profileViewModel,
-                profileSettingsViewModel = profileSettingsViewModel,
                 openAnnouncementDetails = { id, type ->
                     navController.navigate(
                         ProfileRoute.DetailScreen.createRoute(
