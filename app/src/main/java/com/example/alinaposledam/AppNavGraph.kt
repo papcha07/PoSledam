@@ -130,11 +130,7 @@ fun AppNavGraph(
                             launchSingleTop = true
                         }
                     },
-                    notificationsIsNotRead = if (currentRoute == MainRoute.MainScreen.route) {
-                        notificationsIsNotRead
-                    } else {
-                        false
-                    },
+                    notificationsIsNotRead = notificationsIsNotRead,
                     onNotifyClick = {
                         navController.navigate(MainRoute.Notifications.route) {
                             launchSingleTop = true

@@ -58,7 +58,9 @@ fun NotificationScreen(
     mainScreenViewModel: MainScreenViewModel
 ) {
     val notificationList by mainScreenViewModel.notificationState.collectAsState()
-
+    LaunchedEffect(Unit) {
+        mainScreenViewModel.markAllNotifications()
+    }
     Column(modifier = modifier.background(backgroundColor)) {
         ToolBar(
             toolBarInfo = ToolBarInfo(

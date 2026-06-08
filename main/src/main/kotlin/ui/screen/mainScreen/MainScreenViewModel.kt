@@ -29,6 +29,12 @@ class MainScreenViewModel(
                 initialValue = emptyList()
             )
 
+    fun markAllNotifications() {
+        viewModelScope.launch {
+            notificationInteractor.allMark()
+        }
+    }
+
     fun deleteById(id: Long) {
         viewModelScope.launch {
             notificationInteractor.deleteById(id)
