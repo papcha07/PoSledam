@@ -42,8 +42,7 @@ fun ToolBar(
         modifier = modifier
             .fillMaxWidth()
             .background(Color.White)
-            .statusBarsPadding() // <-- вот это
-            .padding(horizontal = 16.dp, vertical = 18.dp)
+            .padding(horizontal = 16.dp)
     ) {
 
         if (toolBarInfo.backArrow) {
@@ -62,7 +61,7 @@ fun ToolBar(
             }
         }
 
-        if(toolBarInfo.title != null){
+        if (toolBarInfo.title != null) {
             Text(
                 text = toolBarInfo.title,
                 fontSize = 18.sp,

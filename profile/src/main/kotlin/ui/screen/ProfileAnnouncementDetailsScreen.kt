@@ -260,6 +260,8 @@ private fun ProfileAnnouncementDetailsContent(
                         errorMessage = spottedLocationsError
                     )
                 }
+
+                Spacer(Modifier.height(100.dp))
             }
         }
 
