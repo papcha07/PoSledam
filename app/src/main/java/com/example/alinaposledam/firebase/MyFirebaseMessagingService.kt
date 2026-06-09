@@ -58,7 +58,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService(), KoinComponent {
 
         when (notificationType) {
             REPORT_SPOTTED -> {
-                showNotificationSpotted(
+                showNotification(
                     title = title,
                     body = body,
                     entityId = entityId,
@@ -80,7 +80,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService(), KoinComponent {
             }
 
             MISS_CREATED -> {
-                showNotificationSpotted(
+                showNotification(
                     title = title,
                     body = body,
                     entityId = entityId,
@@ -101,9 +101,9 @@ class MyFirebaseMessagingService : FirebaseMessagingService(), KoinComponent {
                 }
             }
 
-            REPORT_FOUND -> {}
-            else -> showNotification(title, body)
+            REPORT_FOUND -> {
 
+            }
         }
     }
 
@@ -117,37 +117,8 @@ class MyFirebaseMessagingService : FirebaseMessagingService(), KoinComponent {
         }
     }
 
-    private fun showNotification(
-        title: String,
-        body: String,
-    ) {
-        val channelId = "default_channel"
-
-        val notificationManager =
-            getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(
-                channelId,
-                "Основные уведомления",
-                NotificationManager.IMPORTANCE_DEFAULT
-            )
-
-            notificationManager.createNotificationChannel(channel)
-        }
-
-        val notification = NotificationCompat.Builder(this, channelId)
-            .setSmallIcon(R.drawable.ic_lapa)
-            .setContentTitle(title)
-            .setContentText(body)
-            .setAutoCancel(true)
-            .build()
-
-        notificationManager.notify(System.currentTimeMillis().toInt(), notification)
-    }
-
     @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
-    private fun showNotificationSpotted(
+    private fun showNotification(
         title: String,
         body: String,
         entityId: String,

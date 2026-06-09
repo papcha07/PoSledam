@@ -5,6 +5,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -55,6 +56,7 @@ import ui.theme.backgroundColor
 fun NotificationScreen(
     modifier: Modifier = Modifier,
     navigateToMainScreen: () -> Unit,
+    openAnnouncement: (String, Int) -> Unit,
     mainScreenViewModel: MainScreenViewModel
 ) {
     val notificationList by mainScreenViewModel.notificationState.collectAsState()
@@ -78,7 +80,8 @@ fun NotificationScreen(
         )
         NotificationMainComponent(
             notificationList = notificationList,
-            mainScreenViewModel = mainScreenViewModel
+            mainScreenViewModel = mainScreenViewModel,
+            openAnnouncement = openAnnouncement
         )
     }
 }
@@ -86,9 +89,9 @@ fun NotificationScreen(
 
 @Composable
 fun NotificationMainComponent(
-    modifier: Modifier = Modifier,
     notificationList: List<Notification>,
-    mainScreenViewModel: MainScreenViewModel
+    mainScreenViewModel: MainScreenViewModel,
+    openAnnouncement: (String, Int) -> Unit
 ) {
     LazyColumn {
         items(
@@ -129,7 +132,10 @@ fun NotificationMainComponent(
                         }
                     }
                 ) {
-                    NotificationComponent(notificationInfo = item)
+                    NotificationComponent(
+                        notificationInfo = item,
+                        openAnnouncement = openAnnouncement
+                    )
                 }
             }
 
@@ -150,15 +156,18 @@ fun NotificationMainComponent(
 fun NotificationComponent(
     modifier: Modifier = Modifier,
     notificationInfo: Notification,
+    openAnnouncement: (String, Int) -> Unit
 ) {
     Box(
-        Modifier
+        modifier = modifier
             .fillMaxWidth()
             .background(
                 Color.White,
                 shape = RoundedCornerShape(20.dp)
             )
-
+            .clickable {
+                openAnnouncement(notificationInfo.announcementId, notificationInfo.type)
+            }
     ) {
         Row(
             modifier = Modifier
