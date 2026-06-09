@@ -79,7 +79,19 @@ fun NavGraphBuilder.mainNavGraph(navController: NavController, route: String = "
                 navigateToMainScreen = {
                     navController.popBackStack()
                 },
-                mainScreenViewModel = mainViewModel
+                mainScreenViewModel = mainViewModel,
+                openAnnouncement = { id, type ->
+                    when (type) {
+
+                        MISS_ANNOUNCEMENT -> {
+                            navController.navigate(SearchRoute.FoundPetScreen.createRoute(id, 1))
+                        }
+
+                        REPORT_ANNOUNCEMENT -> {
+                            navController.navigate("detailScreen/$id/0")
+                        }
+                    }
+                },
             )
         }
 
@@ -162,3 +174,7 @@ fun NavGraphBuilder.mainNavGraph(navController: NavController, route: String = "
 
     }
 }
+
+private const val MISS_ANNOUNCEMENT = 1
+private const val REPORT_ANNOUNCEMENT = 0
+

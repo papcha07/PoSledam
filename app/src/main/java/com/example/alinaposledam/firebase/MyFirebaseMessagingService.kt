@@ -51,41 +51,59 @@ class MyFirebaseMessagingService : FirebaseMessagingService(), KoinComponent {
             ?: message.data["body"]
             ?: "У вас новое сообщение"
 
-        serviceScope.launch {
-            notificationInteractor.insert(
-                Notification(
-                    id = 0,
-                    title = title,
-                    body = body,
-                    isRead = false,
-                    type = 1,
-                    time = System.currentTimeMillis()
-                )
-            )
-        }
 
         val notificationType = message.data["notification_type"]!!
         val entityId = message.data["entity_id"]!!
-        when (notificationType) {
-            REPORT_SPOTTED -> showNotificationSpotted(
-                title = title,
-                body = body,
-                entityId = entityId,
-                notificationType = notificationType
-            )
 
-            MISS_CREATED -> {
-                showNotificationSpotted(
+
+        when (notificationType) {
+            REPORT_SPOTTED -> {
+                showNotification(
                     title = title,
                     body = body,
                     entityId = entityId,
                     notificationType = notificationType
                 )
+                serviceScope.launch {
+                    notificationInteractor.insert(
+                        Notification(
+                            id = 0,
+                            title = title,
+                            body = body,
+                            isRead = false,
+                            type = 0,
+                            time = System.currentTimeMillis(),
+                            announcementId = entityId
+                        )
+                    )
+                }
             }
 
-            REPORT_FOUND -> {}
-            else -> showNotification(title, body)
+            MISS_CREATED -> {
+                showNotification(
+                    title = title,
+                    body = body,
+                    entityId = entityId,
+                    notificationType = notificationType
+                )
+                serviceScope.launch {
+                    notificationInteractor.insert(
+                        Notification(
+                            id = 0,
+                            title = title,
+                            body = body,
+                            isRead = false,
+                            type = 1,
+                            time = System.currentTimeMillis(),
+                            announcementId = entityId
+                        )
+                    )
+                }
+            }
 
+            REPORT_FOUND -> {
+
+            }
         }
     }
 
@@ -99,37 +117,8 @@ class MyFirebaseMessagingService : FirebaseMessagingService(), KoinComponent {
         }
     }
 
-    private fun showNotification(
-        title: String,
-        body: String,
-    ) {
-        val channelId = "default_channel"
-
-        val notificationManager =
-            getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(
-                channelId,
-                "Основные уведомления",
-                NotificationManager.IMPORTANCE_DEFAULT
-            )
-
-            notificationManager.createNotificationChannel(channel)
-        }
-
-        val notification = NotificationCompat.Builder(this, channelId)
-            .setSmallIcon(R.drawable.ic_lapa)
-            .setContentTitle(title)
-            .setContentText(body)
-            .setAutoCancel(true)
-            .build()
-
-        notificationManager.notify(System.currentTimeMillis().toInt(), notification)
-    }
-
     @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
-    private fun showNotificationSpotted(
+    private fun showNotification(
         title: String,
         body: String,
         entityId: String,

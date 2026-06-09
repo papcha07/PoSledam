@@ -43,6 +43,7 @@ dependencies {
     implementation(project(":core_network"))
     implementation(project(":auth"))
     implementation(project(":core_datastore"))
+    implementation(project(":search"))
 
     implementation(libs.koin.core)
     implementation(libs.koin.android)

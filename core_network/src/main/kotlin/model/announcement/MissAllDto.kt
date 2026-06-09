@@ -7,10 +7,9 @@ data class MissAllDto(
     val id: String,
     val createdAt: String? = null,
     val eventDate: String? = null,
-    val petName: String?,
-    val description: String?,
-    val mainImagePath: String?,
-    val district: String?,
-    val breed: String?,
+    val petName: String? = null,
+    val description: String? = null,
+    val mainImagePath: String? = null,
+    val district: String? = null,
+    val breed: String? = null,
 )
-

@@ -32,7 +32,8 @@ fun Notification.toEntity(): NotificationEntity {
         body = body,
         timestamp = time,
         isRead = isRead,
-        type = type
+        type = type,
+        announcementId = announcementId
     )
 }
 
@@ -44,6 +45,7 @@ fun NotificationEntity.toDomain(): Notification {
         time = timestamp,
         isRead = isRead,
         type = type,
+        announcementId = announcementId
     )
 }
 
@@ -72,7 +74,7 @@ fun UserEntity.toDomain(): User {
     )
 }
 
-fun LocationEntity.toLocation() : LocationDto{
+fun LocationEntity.toLocation(): LocationDto {
     return LocationDto(
         latitude = this.latitude,
         longitude = this.longitude

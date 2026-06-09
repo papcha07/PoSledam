@@ -6,5 +6,6 @@ data class Notification(
     val body: String,
     val isRead: Boolean,
     val type: Int,
-    val time: Long
+    val time: Long,
+    val announcementId: String
 )

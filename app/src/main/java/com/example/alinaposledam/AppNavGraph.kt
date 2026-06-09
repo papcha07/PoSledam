@@ -34,12 +34,9 @@ import navigation.mainNavGraph
 import navigation.profileNavGraph
 import navigation.searchNavGraph
 import org.koin.androidx.compose.koinViewModel
-import org.koin.compose.koinInject
-import org.koin.core.parameter.parametersOf
 import org.koin.java.KoinJavaComponent.getKoin
 import storage.TokenRepository
 import ui.components.profilebar.ProfileBarComponent
-import ui.other.DebouncerManager
 
 
 private val bottomBarLeafRoutes = setOf(
@@ -65,9 +62,6 @@ fun AppNavGraph(
     val showBottomBar = currentRoute in bottomBarLeafRoutes
     val showProfileBar = currentRoute in profileBarLeafRoutes
     val coroutineScope = rememberCoroutineScope()
-    val notificationNavigationDebouncer = koinInject<DebouncerManager>(
-        parameters = { parametersOf(coroutineScope, 5000L) }
-    )
 
     var startDestination by remember { mutableStateOf<String?>(null) }
 
