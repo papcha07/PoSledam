@@ -51,28 +51,33 @@ class MyFirebaseMessagingService : FirebaseMessagingService(), KoinComponent {
             ?: message.data["body"]
             ?: "У вас новое сообщение"
 
-        serviceScope.launch {
-            notificationInteractor.insert(
-                Notification(
-                    id = 0,
-                    title = title,
-                    body = body,
-                    isRead = false,
-                    type = 1,
-                    time = System.currentTimeMillis()
-                )
-            )
-        }
 
         val notificationType = message.data["notification_type"]!!
         val entityId = message.data["entity_id"]!!
+
+
         when (notificationType) {
-            REPORT_SPOTTED -> showNotificationSpotted(
-                title = title,
-                body = body,
-                entityId = entityId,
-                notificationType = notificationType
-            )
+            REPORT_SPOTTED -> {
+                showNotificationSpotted(
+                    title = title,
+                    body = body,
+                    entityId = entityId,
+                    notificationType = notificationType
+                )
+                serviceScope.launch {
+                    notificationInteractor.insert(
+                        Notification(
+                            id = 0,
+                            title = title,
+                            body = body,
+                            isRead = false,
+                            type = 0,
+                            time = System.currentTimeMillis(),
+                            announcementId = entityId
+                        )
+                    )
+                }
+            }
 
             MISS_CREATED -> {
                 showNotificationSpotted(
@@ -81,6 +86,19 @@ class MyFirebaseMessagingService : FirebaseMessagingService(), KoinComponent {
                     entityId = entityId,
                     notificationType = notificationType
                 )
+                serviceScope.launch {
+                    notificationInteractor.insert(
+                        Notification(
+                            id = 0,
+                            title = title,
+                            body = body,
+                            isRead = false,
+                            type = 1,
+                            time = System.currentTimeMillis(),
+                            announcementId = entityId
+                        )
+                    )
+                }
             }
 
             REPORT_FOUND -> {}

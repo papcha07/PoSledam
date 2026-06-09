@@ -1,6 +1,7 @@
 import androidx.room.Room
 import db.notification.NotificationDao
 import db.notification.NotificationDatabase
+import db.notification.NotificationDatabase.Companion.MIGRATION_1_2_L
 import db.user.UserDao
 import db.user.UserDatabase
 import domain.notification.NotificationInteractor
@@ -25,7 +26,9 @@ val dataStoreModule = module {
             androidApplication(),
             NotificationDatabase::class.java,
             "notification.db"
-        ).build()
+        )
+            .addMigrations(MIGRATION_1_2_L)
+            .build()
     }
 
     single<NotificationDao> {

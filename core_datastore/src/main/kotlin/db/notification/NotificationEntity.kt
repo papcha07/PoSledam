@@ -11,5 +11,6 @@ data class NotificationEntity(
     val body: String,
     val timestamp: Long,
     val isRead: Boolean = false,
-    val type: Int
+    val type: Int,
+    val announcementId: String
 )
