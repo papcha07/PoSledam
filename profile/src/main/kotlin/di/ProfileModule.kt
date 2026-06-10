@@ -64,7 +64,8 @@ fun getActionViewModel() = module {
         ActionViewModel(
             announcementInteractor = get(),
             yandexInteractor = get(),
-            notificationSettingsInteractor = get()
+            notificationSettingsInteractor = get(),
+            locationProvider = get()
         )
     }
 

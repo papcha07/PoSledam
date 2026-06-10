@@ -64,6 +64,7 @@ import com.maxkeppeler.sheets.calendar.models.CalendarSelection
 import com.maxkeppeler.sheets.clock.ClockDialog
 import com.maxkeppeler.sheets.clock.models.ClockConfig
 import com.maxkeppeler.sheets.clock.models.ClockSelection
+import com.yandex.mapkit.geometry.Point
 import ui.components.ProfileMap
 import ui.components.TabRowMethodSelection
 import ui.components.default_component.PetTextField
@@ -306,6 +307,14 @@ fun AddressMainComponent(
     val calendarState = rememberUseCaseState()
     val clockState = rememberUseCaseState()
     val addressFillState by actionViewModel.isAddressComponentState.collectAsState()
+    val mapCameraLocation = actionScreenData.mapCameraLocation?.let { location ->
+        Point(location.latitude, location.longitude)
+    }
+
+    LaunchedEffect(actionViewModel) {
+        actionViewModel.setCurrentLocation()
+    }
+
     CalendarDialog(
         state = calendarState,
         selection = CalendarSelection.Date { date ->
@@ -384,6 +393,7 @@ fun AddressMainComponent(
                     actionViewModel.updateLatitude(lat)
                     actionViewModel.getAddressList(lon, lat)
                 },
+                cameraLocation = mapCameraLocation
             )
 
             Spacer(Modifier.height(20.dp))
@@ -894,4 +904,3 @@ private fun PetButtonPreview() {
 
     }
 }
-

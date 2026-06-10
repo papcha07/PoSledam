@@ -55,6 +55,7 @@ fun ProfileMap(
     onMapReady: (MapView) -> Unit = {},
     pointClick: (Double, Double) -> Unit,
     myLocation: Point? = null,
+    cameraLocation: Point? = null,
 ) {
     val context = LocalContext.current
     val lifecycle = LocalLifecycleOwner.current.lifecycle
@@ -65,6 +66,7 @@ fun ProfileMap(
     var inputListenerRef by remember { mutableStateOf<InputListener?>(null) }
     var collectionRef by remember { mutableStateOf<MapObjectCollection?>(null) }
     var placemarkRef by remember { mutableStateOf<PlacemarkMapObject?>(null) }
+    var lastCameraTarget by remember { mutableStateOf<Point?>(null) }
 
     val pinProvider = rememberPinProvider(R.drawable.ic_lapa_point, sizeDp = 36f)
 
@@ -136,21 +138,10 @@ fun ProfileMap(
                 mapView
             },
             update = { view ->
-                if (!initialCameraSet) {
-                    val boundingBox = BoundingBox(
-                        Point(56.18, 92.68),
-                        Point(55.9, 93.15)
-                    )
-                    val cp = view.map.cameraPosition(Geometry.fromBoundingBox(boundingBox))
-                    view.post {
-                        view.map.move(cp)
-                        onMapReady(view)
-                    }
-                    initialCameraSet = true
-                }
+                val selectedPoint = myLocation
+                val cameraTarget = cameraLocation ?: selectedPoint
 
-                val point = myLocation
-                if (point != null) {
+                if (selectedPoint != null) {
                     val map = view.map
                     val collection = collectionRef ?: map.mapObjects.addCollection().also {
                         collectionRef = it
@@ -158,7 +149,7 @@ fun ProfileMap(
 
                     val currentPlacemark = placemarkRef
                     if (currentPlacemark == null) {
-                        placemarkRef = collection.addPlacemark(point).apply {
+                        placemarkRef = collection.addPlacemark(selectedPoint).apply {
                             setIcon(pinProvider)
                             setIconStyle(
                                 IconStyle().apply {
@@ -168,14 +159,34 @@ fun ProfileMap(
                             )
                         }
                     } else {
-                        currentPlacemark.setGeometry(point)
+                        currentPlacemark.setGeometry(selectedPoint)
                     }
+                }
 
-                    map.move(
-                        CameraPosition(point, 16f, 0f, 0f),
-                        Animation(Animation.Type.SMOOTH, 0.3f),
-                        null
-                    )
+                if (!initialCameraSet) {
+                    if (cameraTarget != null) {
+                        lastCameraTarget = cameraTarget
+                        view.post {
+                            view.map.moveToPoint(cameraTarget)
+                            onMapReady(view)
+                        }
+                    } else {
+                        val boundingBox = BoundingBox(
+                            Point(56.18, 92.68),
+                            Point(55.9, 93.15)
+                        )
+                        val cp = view.map.cameraPosition(Geometry.fromBoundingBox(boundingBox))
+                        view.post {
+                            view.map.move(cp)
+                            onMapReady(view)
+                        }
+                    }
+                    initialCameraSet = true
+                } else if (cameraTarget != null && !lastCameraTarget.hasSameCoordinates(cameraTarget)) {
+                    lastCameraTarget = cameraTarget
+                    view.post {
+                        view.map.moveToPoint(cameraTarget)
+                    }
                 }
             }
         )
@@ -349,6 +360,18 @@ private fun rememberPinProvider(
 
         ImageProvider.fromBitmap(bmp)
     }
+}
+
+private fun Map.moveToPoint(point: Point) {
+    move(
+        CameraPosition(point, 16f, 0f, 0f),
+        Animation(Animation.Type.SMOOTH, 0.3f),
+        null
+    )
+}
+
+private fun Point?.hasSameCoordinates(other: Point): Boolean {
+    return this?.latitude == other.latitude && this.longitude == other.longitude
 }
 
 
