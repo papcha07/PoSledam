@@ -77,6 +77,7 @@ fun NavGraphBuilder.profileNavGraph(navController: NavController, route: String 
             ActionScreen(
                 viewModel = actionViewModel,
                 onProfilePage = {
+                    actionViewModel.clearState()
                     navController.popBackStack()
                 },
             )

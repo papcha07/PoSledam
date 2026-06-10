@@ -7,11 +7,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import domain.notification.NotificationSettingsInteractor
 import domain.interactor.announcement.AnnouncementInteractor
 import domain.model.AnnouncementInfo
 import domain.model.AnnouncementStatus
 import domain.model.Location
+import domain.notification.NotificationSettingsInteractor
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -87,6 +87,10 @@ class ActionViewModel(
     private val _methodValueFlow = MutableStateFlow<Int>(0)
     val methodValueFlow: StateFlow<Int> = _methodValueFlow.asStateFlow()
 
+    fun clearPageState() {
+        _pageState.value = ActionPage.MAIN
+    }
+
     fun updateMethodValue(method: Int) {
         Log.d("METHOD", method.toString())
         _methodValueFlow.value = method
@@ -114,6 +118,11 @@ class ActionViewModel(
         started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5000),
         initialValue = ActionScreenData()
     )
+
+    fun clearState() {
+        _pageState.value = ActionPage.MAIN
+        _state.value = ActionScreenData()
+    }
 
     val isMainActionComponentState =
         state.map {
@@ -154,6 +163,7 @@ class ActionViewModel(
             _notificationsEnabled.value = notificationSettingsInteractor.isNotificationsEnabled()
         }
     }
+
     fun updateName(value: String) {
         _state.update {
             it.copy(name = value)
