@@ -61,9 +61,11 @@ class FilterViewModel(
         ) { filter, location ->
             val latitude = location.first
             val longitude = location.second
+            val hasSearchCenter = latitude != null && longitude != null
 
             filter.copy(
                 lastDateTime = null,
+                searchRadius = filter.searchRadius.takeIf { hasSearchCenter },
                 searchCenterLatitude = latitude,
                 searchCenterLongitude = longitude
             )
@@ -86,9 +88,11 @@ class FilterViewModel(
         ) { filter, location ->
             val latitude = location.first
             val longitude = location.second
+            val hasSearchCenter = latitude != null && longitude != null
 
             filter.copy(
                 lastDateTime = null,
+                searchRadius = filter.searchRadius.takeIf { hasSearchCenter },
                 searchCenterLatitude = latitude,
                 searchCenterLongitude = longitude
             )

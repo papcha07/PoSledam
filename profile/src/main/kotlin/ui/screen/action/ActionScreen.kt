@@ -1,4 +1,4 @@
-package ui.screen
+package ui.screen.action
 
 import android.net.Uri
 import android.os.Build
@@ -72,6 +72,7 @@ import ui.components.placeholder.SuccessSendPopup
 import ui.components.slider.PhotosPager
 import ui.model.ActionScreenState
 import ui.model.TabRowInfo
+import ui.screen.PlaceAnnouncementComponent
 import ui.theme.BrushColor
 import ui.theme.PurpleButtonColor
 import ui.theme.Ser

@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import worker.location_worker.WorkerInteractor
 
@@ -28,7 +29,7 @@ class MainScreenViewModel(
         MutableStateFlow<LocationSendUiState>(LocationSendUiState.Idle)
     val locationSendState = _locationSendState.asStateFlow()
 
-    private var foregroundLocationHandled = false
+    private var locationSendJob: Job? = null
     private var locationWorkerStarted = false
 
     val notificationState: StateFlow<List<Notification>> =
@@ -59,10 +60,10 @@ class MainScreenViewModel(
     }
 
     fun onForegroundLocationPermissionGranted() {
-        if (foregroundLocationHandled) return
-        foregroundLocationHandled = true
+        if (locationSendJob?.isActive == true) return
+        if (_locationSendState.value == LocationSendUiState.Success) return
 
-        viewModelScope.launch {
+        locationSendJob = viewModelScope.launch {
             _locationSendState.value = LocationSendUiState.PermissionGranted
             if (locationSyncRequestStore.isSendAfterLoginPending()) {
                 locationSyncRequestStore.clearSendAfterLoginPending()

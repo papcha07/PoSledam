@@ -6,14 +6,16 @@ import model.announcement.MissAllDto
 import model.announcement.MissAllRequest
 
 fun FilterDto.toMissAllRequest(): MissAllRequest {
+    val hasSearchCenter = searchCenterLatitude != null && searchCenterLongitude != null
+
     return MissAllRequest(
         lastDateTime = this.lastDateTime,
         district = this.district,
         type = this.typeOfPet,
         gender = this.gender,
-        searchRadius = this.searchRadius,
-        searchCenterLatitude = this.searchCenterLatitude,
-        searchCenterLongitude = this.searchCenterLongitude
+        searchRadius = this.searchRadius.takeIf { hasSearchCenter },
+        searchCenterLatitude = this.searchCenterLatitude.takeIf { hasSearchCenter },
+        searchCenterLongitude = this.searchCenterLongitude.takeIf { hasSearchCenter }
     )
 }
 

@@ -61,6 +61,7 @@ import ui.viewModel.ProfileSettingsViewModel
 fun ProfileSettingsScreen(
     modifier: Modifier = Modifier,
     onBackClick: () -> Unit,
+    onLegalInfoClick: () -> Unit,
     exit: () -> Unit,
     settingsViewModel: ProfileSettingsViewModel
 ) {
@@ -108,7 +109,8 @@ fun ProfileSettingsScreen(
                 addWhatsApp = settingsViewModel::addWhatsApp,
                 updateNotificationState = settingsViewModel::setNotificationsEnabled,
                 notificationState = notificationsEnabled,
-                save = settingsViewModel::updateUserInfo
+                save = settingsViewModel::updateUserInfo,
+                onLegalInfoClick = onLegalInfoClick
             )
         }
 
@@ -129,7 +131,8 @@ fun BottomSettingsMainContent(
     addTg: (String) -> Unit,
     updateNotificationState: (Boolean) -> Unit,
     addWhatsApp: (String) -> Unit,
-    save: () -> Unit
+    save: () -> Unit,
+    onLegalInfoClick: () -> Unit
 ) {
     val user = userDataUi
     Log.d("USERID", user.toString())
@@ -204,7 +207,8 @@ fun BottomSettingsMainContent(
             BottomInfoComponent(
                 notificationState = notificationState,
                 exit = exit,
-                updateNotificationState = updateNotificationState
+                updateNotificationState = updateNotificationState,
+                onLegalInfoClick = onLegalInfoClick
             )
         }
     }
@@ -215,6 +219,7 @@ fun BottomInfoComponent(
     modifier: Modifier = Modifier,
     notificationState: Boolean,
     updateNotificationState: (Boolean) -> Unit,
+    onLegalInfoClick: () -> Unit,
     exit: () -> Unit
 ) {
     val listOfButtons = listOf(
@@ -222,6 +227,11 @@ fun BottomInfoComponent(
             title = "Настройки уведомлений",
             type = SettingsButton.ButtonType.isSwitcherButton,
             image = R.drawable.ic_notification_settings
+        ),
+        SettingsButton(
+            title = "Правовая информация",
+            type = SettingsButton.ButtonType.isArrowButton,
+            image = R.drawable.ic_settings
         ),
         SettingsButton(
             title = "Выйти",
@@ -239,9 +249,7 @@ fun BottomInfoComponent(
             listOfButtons.forEach {
                 SettingsButtonComponent(
                     settingsButton = it,
-                    contactWithMe = {
-
-                    },
+                    contactWithMe = onLegalInfoClick,
                     exitAction = exit,
                     notificationState = notificationState,
                     updateNotificationState = updateNotificationState
@@ -390,4 +398,3 @@ fun VerifyComponent(
 
     }
 }
-

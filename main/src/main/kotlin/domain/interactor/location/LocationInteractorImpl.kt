@@ -22,19 +22,18 @@ class LocationInteractorImpl(
             return LocationSendResult.LocationUnavailable
         }
 
+        userInteractor.updateUserLocation(
+            latitude = location.latitude,
+            longitude = location.longitude
+        )
+
         val sendResult = locationRepository.sendCurrentLocation(
             latitude = location.latitude,
             longitude = location.longitude
         )
 
         return when (sendResult) {
-            SendResult.Success -> {
-                userInteractor.updateUserLocation(
-                    latitude = location.latitude,
-                    longitude = location.longitude
-                )
-                LocationSendResult.Success
-            }
+            SendResult.Success -> LocationSendResult.Success
 
             is SendResult.BadRequest -> LocationSendResult.NetworkError(retryable = false)
             is SendResult.Error -> LocationSendResult.NetworkError(retryable = true)
