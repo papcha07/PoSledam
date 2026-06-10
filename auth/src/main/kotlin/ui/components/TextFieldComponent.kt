@@ -9,6 +9,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import ui.model.data.TextFieldData
 import ui.theme.Ser
@@ -20,6 +22,7 @@ fun TextFieldComponent(
     modifier: Modifier = Modifier,
     value: String,
     textFieldData: TextFieldData,
+    isPassword: Boolean = false,
     onValueChange: (String) -> Unit,
 ) {
 
@@ -37,6 +40,7 @@ fun TextFieldComponent(
                 color = Ser
             )
         },
+        visualTransformation = if (isPassword) PasswordVisualTransformation() else VisualTransformation.None,
         placeholder = {
             Text(
                 text = textFieldData.hint,

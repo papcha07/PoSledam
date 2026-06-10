@@ -217,11 +217,13 @@ fun EnterBottomComponent(
             textFields.forEachIndexed { index, data ->
                 TextFieldComponent(
                     modifier = Modifier.testTag("${index}_field"),
-                    textFieldData = data,
                     value = values[index].value,
-                ) {
-                    values[index].value = it
-                }
+                    textFieldData = data,
+                    isPassword = (index == 1),
+                    onValueChange = { newValue ->
+                        values[index].value = newValue
+                    }
+                )
                 Spacer(Modifier.height(8.dp))
             }
             ButtonComponent(
