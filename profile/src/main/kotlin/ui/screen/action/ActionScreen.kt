@@ -59,6 +59,7 @@ import coil.compose.AsyncImage
 import com.example.core.R
 import com.maxkeppeker.sheets.core.models.base.rememberUseCaseState
 import com.maxkeppeler.sheets.calendar.CalendarDialog
+import com.maxkeppeler.sheets.calendar.models.CalendarConfig
 import com.maxkeppeler.sheets.calendar.models.CalendarSelection
 import com.maxkeppeler.sheets.clock.ClockDialog
 import com.maxkeppeler.sheets.clock.models.ClockSelection
@@ -80,6 +81,7 @@ import ui.theme.purpleStatusColor
 import ui.viewModel.ActionPage
 import ui.viewModel.ActionScreenData
 import ui.viewModel.ActionViewModel
+import java.time.LocalDate
 import java.time.LocalTime
 
 
@@ -307,7 +309,10 @@ fun AddressMainComponent(
         state = calendarState,
         selection = CalendarSelection.Date { date ->
             actionViewModel.updateSelectedDate(date)
-        }
+        },
+        config = CalendarConfig(
+            boundary = LocalDate.MIN..LocalDate.now()
+        )
     )
 
     ClockDialog(
