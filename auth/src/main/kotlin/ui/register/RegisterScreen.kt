@@ -207,6 +207,7 @@ fun UserInformationComponent(
             TextFieldComponent(
                 value = userState.value.password,
                 textFieldData = TextFieldData("Пароль", "Введите пароль"),
+                isPassword = true,
                 onValueChange = registerViewModel::setPassword
             )
             Spacer(Modifier.height(8.dp))
