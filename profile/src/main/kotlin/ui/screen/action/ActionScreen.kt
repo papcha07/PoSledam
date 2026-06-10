@@ -62,6 +62,7 @@ import com.maxkeppeler.sheets.calendar.CalendarDialog
 import com.maxkeppeler.sheets.calendar.models.CalendarConfig
 import com.maxkeppeler.sheets.calendar.models.CalendarSelection
 import com.maxkeppeler.sheets.clock.ClockDialog
+import com.maxkeppeler.sheets.clock.models.ClockConfig
 import com.maxkeppeler.sheets.clock.models.ClockSelection
 import ui.components.ProfileMap
 import ui.components.TabRowMethodSelection
@@ -319,7 +320,10 @@ fun AddressMainComponent(
         state = clockState,
         selection = ClockSelection.HoursMinutes { h, m ->
             actionViewModel.updateSelectedTime(LocalTime.of(h, m))
-        }
+        },
+        config = ClockConfig(
+            is24HourFormat = true
+        )
     )
 
     Box(
