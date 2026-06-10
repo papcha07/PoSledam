@@ -7,6 +7,7 @@ import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationToken
 import com.google.android.gms.tasks.OnTokenCanceledListener
+import helper.hasForegroundLocationPermission
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
 
@@ -14,9 +15,16 @@ class LocationProvider(
     context: Context
 ) {
 
+    private val context = context.applicationContext
     private val client = LocationServices.getFusedLocationProviderClient(context)
+
     @SuppressLint("MissingPermission")
     suspend fun getCurrentLocation(): Location? = suspendCancellableCoroutine { cont ->
+        if (!context.hasForegroundLocationPermission()) {
+            cont.resume(null)
+            return@suspendCancellableCoroutine
+        }
+
         val token = object : CancellationToken() {
             override fun onCanceledRequested(p0: OnTokenCanceledListener): CancellationToken = this
             override fun isCancellationRequested(): Boolean = false

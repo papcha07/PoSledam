@@ -5,6 +5,9 @@ import android.util.Log
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import domain.interactor.location.LocationInteractor
+import domain.interactor.location.LocationSendResult
+import helper.hasBackgroundLocationPermission
+import helper.hasForegroundLocationPermission
 
 class LocationWorker(
     context: Context,
@@ -13,14 +16,43 @@ class LocationWorker(
 ) : CoroutineWorker(context, workerParameters) {
 
     override suspend fun doWork(): Result {
-        Log.d("WORKER_MANAGER", "START")
+        Log.d("WORKER_MANAGER", "Location worker started")
+
+        if (!applicationContext.hasForegroundLocationPermission()) {
+            Log.d("WORKER_MANAGER", "Location worker skipped: foreground permission is missing")
+            return Result.success()
+        }
+
+        if (!applicationContext.hasBackgroundLocationPermission()) {
+            Log.d("WORKER_MANAGER", "Location worker skipped: background permission is missing")
+            return Result.success()
+        }
+
         return try {
-            locationInteractor.sendCurrentLocation()
-            Log.d("WORKER_MANAGER", "GOOD")
-            Result.success()
+            when (val result = locationInteractor.sendCurrentLocation()) {
+                LocationSendResult.Success -> {
+                    Log.d("WORKER_MANAGER", "Location worker finished successfully")
+                    Result.success()
+                }
+
+                LocationSendResult.PermissionDenied -> {
+                    Log.d("WORKER_MANAGER", "Location worker skipped: permission denied")
+                    Result.success()
+                }
+
+                LocationSendResult.LocationUnavailable -> {
+                    Log.d("WORKER_MANAGER", "Location worker skipped: location unavailable")
+                    Result.success()
+                }
+
+                is LocationSendResult.NetworkError -> {
+                    Log.d("WORKER_MANAGER", "Location worker failed while sending location")
+                    if (result.retryable) Result.retry() else Result.failure()
+                }
+            }
         } catch (e: SecurityException) {
             Log.e("WORKER_MANAGER", "Location permission denied", e)
-            Result.failure()
+            Result.success()
         } catch (e: Exception) {
             Log.e("WORKER_MANAGER", "Temporary error", e)
             Result.retry()
