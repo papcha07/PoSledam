@@ -25,6 +25,7 @@ import androidx.compose.material3.SheetValue
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -117,6 +118,7 @@ fun DetailsPetScreenProvider(
             }
         }
     }
+    val userState by viewModel.userState.collectAsState(null)
 
     BottomSheetScaffold(
         modifier = modifier.fillMaxSize(),
@@ -153,6 +155,7 @@ fun DetailsPetScreenProvider(
             isSuccess = reportUiState.isSuccess,
             toastMessage = toastMessage,
             goBackClick = goBackClick,
+            userState = userState?.id,
             onOwnerClick = onOwnerClick,
             onToastDismiss = {
                 toastMessage = null
@@ -178,6 +181,7 @@ fun DetailPetScreen(
     isMapSheetOpen: Boolean,
     isSuccess: Boolean,
     toastMessage: String?,
+    userState: String?,
     goBackClick: () -> Unit,
     onOwnerClick: (Creator) -> Unit,
     onToastDismiss: () -> Unit,
@@ -207,6 +211,7 @@ fun DetailPetScreen(
                 announcementType = announcementType,
                 isMapSheetOpen = isMapSheetOpen,
                 isSuccess = isSuccess,
+                userState = userState,
                 toastMessage = toastMessage,
                 goBackClick = goBackClick,
                 onOwnerClick = onOwnerClick,
@@ -226,6 +231,7 @@ private fun DetailPetContent(
     isMapSheetOpen: Boolean,
     isSuccess: Boolean,
     toastMessage: String?,
+    userState: String?,
     goBackClick: () -> Unit,
     onOwnerClick: (Creator) -> Unit,
     onToastDismiss: () -> Unit,
@@ -285,11 +291,13 @@ private fun DetailPetContent(
 
                 Spacer(Modifier.height(20.dp))
 
-                PetActionButtons(
-                    announcementType = announcementType,
-                    onFoundPetClick = onFoundPetClick,
-                    onSeenPetClick = onSeenPetClick
-                )
+                if (userState != petInfo.creator.id) {
+                    PetActionButtons(
+                        announcementType = announcementType,
+                        onFoundPetClick = onFoundPetClick,
+                        onSeenPetClick = onSeenPetClick
+                    )
+                }
             }
         }
 

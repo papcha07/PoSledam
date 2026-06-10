@@ -1,6 +1,7 @@
 package apiService
 
 import ApiResponse
+import SendResult
 import android.util.Log
 import apiService.models.auth_models.DeviceTokenRequest
 import apiService.models.auth_models.LocationRequestDto
@@ -150,10 +151,21 @@ class AuthService(
         }
     }
 
-    suspend fun sendCurrentLocation(locationRequest: LocationRequestDto) {
-        withContext(Dispatchers.IO) {
-            client.put("api/user/location") {
-                setBody(locationRequest)
+    suspend fun sendCurrentLocation(locationRequest: LocationRequestDto): SendResult {
+        return withContext(Dispatchers.IO) {
+            try {
+                val response = client.put("api/user/location") {
+                    contentType(ContentType.Application.Json)
+                    setBody(locationRequest)
+                }
+
+                if (response.status.isSuccess()) {
+                    SendResult.Success
+                } else {
+                    SendResult.BadRequest("Location update failed with code ${response.status.value}")
+                }
+            } catch (e: Exception) {
+                SendResult.Error(e.message ?: "Location update network error")
             }
         }
     }

@@ -26,6 +26,7 @@ import ui.components.PetParameterComponent
 import ui.components.ProfileMap
 import ui.components.announcement.EventDateComponent
 import ui.components.slider.PhotosPager
+import ui.screen.action.CreateAnnouncement
 import ui.theme.Ser
 import ui.viewModel.ActionViewModel
 
@@ -126,4 +127,3 @@ fun PlaceAnnouncementComponent(
 
     }
 }
-

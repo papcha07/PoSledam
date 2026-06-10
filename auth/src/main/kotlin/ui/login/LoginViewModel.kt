@@ -3,6 +3,7 @@ package ui.login
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import domain.model.LoginInfo
+import helper.LocationSyncRequestStore
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
@@ -14,7 +15,8 @@ data class Loading(
 )
 
 class LoginViewModel(
-    private val authInteractor: AuthInteractor
+    private val authInteractor: AuthInteractor,
+    private val locationSyncRequestStore: LocationSyncRequestStore
 ) : ViewModel() {
     private val _loginUiState = MutableSharedFlow<AuthScreenState>()
     val loginUiState = _loginUiState.asSharedFlow()
@@ -25,6 +27,7 @@ class LoginViewModel(
             val loginResult = authInteractor.login(loginInfo)
             val isSuccess = loginResult.first
             if (isSuccess) {
+                locationSyncRequestStore.markSendAfterLoginPending()
                 _loginUiState.emit(AuthScreenState.Success)
                 return@launch
             }

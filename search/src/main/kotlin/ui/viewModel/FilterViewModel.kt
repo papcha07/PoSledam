@@ -44,6 +44,8 @@ class FilterViewModel(
     private val _petInfoState = MutableStateFlow<PetDetailsScreenState>(PetDetailsScreenState.Idle)
     val petInfoState = _petInfoState.asStateFlow()
 
+    val userState = userInteractor.observeUser()
+
     private val _currentTab = MutableStateFlow(0)
     val currentTab: StateFlow<Int> = _currentTab.asStateFlow()
 
@@ -59,9 +61,11 @@ class FilterViewModel(
         ) { filter, location ->
             val latitude = location.first
             val longitude = location.second
+            val hasSearchCenter = latitude != null && longitude != null
 
             filter.copy(
                 lastDateTime = null,
+                searchRadius = filter.searchRadius.takeIf { hasSearchCenter },
                 searchCenterLatitude = latitude,
                 searchCenterLongitude = longitude
             )
@@ -84,9 +88,11 @@ class FilterViewModel(
         ) { filter, location ->
             val latitude = location.first
             val longitude = location.second
+            val hasSearchCenter = latitude != null && longitude != null
 
             filter.copy(
                 lastDateTime = null,
+                searchRadius = filter.searchRadius.takeIf { hasSearchCenter },
                 searchCenterLatitude = latitude,
                 searchCenterLongitude = longitude
             )

@@ -24,11 +24,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -80,29 +75,19 @@ fun MainScreen(
     mainScreenViewModel: MainScreenViewModel,
 ) {
 
-    var locationEnabled by remember { mutableStateOf(false) }
-
-
     RequestLocationPermission(
-        onPermissionGranted = {
-            locationEnabled = true
-        },
-        onPermissionDenied = {
-            locationEnabled = false
-        }
+        onPermissionGranted = mainScreenViewModel::onForegroundLocationPermissionGranted,
+        onPermissionDenied = mainScreenViewModel::onForegroundLocationPermissionDenied,
+        onPermissionPermanentlyDenied = mainScreenViewModel::onForegroundLocationPermissionPermanentlyDenied,
+        requestBackgroundPermission = true,
+        onBackgroundPermissionGranted = mainScreenViewModel::onBackgroundLocationPermissionGranted,
+        onBackgroundPermissionDenied = mainScreenViewModel::onBackgroundLocationPermissionDenied
     )
 
     RequestNotificationPermission(
         onPermissionGranted = {},
         onPermissionDenied = {}
     )
-
-    LaunchedEffect(locationEnabled) {
-        if (locationEnabled) {
-            mainScreenViewModel.startLocationWorker()
-            mainScreenViewModel.updateUserLocation()
-        }
-    }
 
     LazyColumn(
         modifier = Modifier
@@ -368,6 +353,5 @@ fun NearPetMainComponentPreview() {
 
     }
 }
-
 
 

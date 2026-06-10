@@ -1,6 +1,7 @@
 package domain.repository
 
-interface LocationRepository {
-    suspend fun sendCurrentLocation(latitude: Double, longitude: Double)
-}
+import SendResult
 
+interface LocationRepository {
+    suspend fun sendCurrentLocation(latitude: Double, longitude: Double): SendResult
+}

@@ -1,14 +1,13 @@
 package worker.location_worker
 
-import android.Manifest
 import android.content.Context
-import android.content.pm.PackageManager
-import androidx.core.content.ContextCompat
 import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.NetworkType
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
+import helper.hasBackgroundLocationPermission
+import helper.hasForegroundLocationPermission
 import java.util.concurrent.TimeUnit
 
 class WorkerInteractorImpl(
@@ -16,7 +15,7 @@ class WorkerInteractorImpl(
 ) : WorkerInteractor {
     private val workManager = WorkManager.getInstance(context)
     override fun startLocationWorker() {
-        if (!hasLocationPermission()) return
+        if (!hasRequiredLocationPermission()) return
         val constraints = Constraints.Builder()
             .setRequiredNetworkType(NetworkType.CONNECTED)
             .build()
@@ -39,18 +38,9 @@ class WorkerInteractorImpl(
         workManager.cancelUniqueWork(LOCATION_WORK_NAME)
     }
 
-    private fun hasLocationPermission(): Boolean {
-        val fineLocation = ContextCompat.checkSelfPermission(
-            context,
-            Manifest.permission.ACCESS_FINE_LOCATION
-        ) == PackageManager.PERMISSION_GRANTED
-
-        val coarseLocation = ContextCompat.checkSelfPermission(
-            context,
-            Manifest.permission.ACCESS_COARSE_LOCATION
-        ) == PackageManager.PERMISSION_GRANTED
-
-        return fineLocation || coarseLocation
+    private fun hasRequiredLocationPermission(): Boolean {
+        return context.hasForegroundLocationPermission() &&
+                context.hasBackgroundLocationPermission()
     }
 
     companion object {

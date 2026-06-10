@@ -34,7 +34,8 @@ fun getAuthInteractor() = module {
 fun getAuthViewModel() = module {
     viewModel {
         LoginViewModel(
-            authInteractor = get()
+            authInteractor = get(),
+            locationSyncRequestStore = get()
         )
     }
 

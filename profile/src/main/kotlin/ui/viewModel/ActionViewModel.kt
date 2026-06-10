@@ -7,11 +7,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import domain.notification.NotificationSettingsInteractor
 import domain.interactor.announcement.AnnouncementInteractor
 import domain.model.AnnouncementInfo
 import domain.model.AnnouncementStatus
 import domain.model.Location
+import domain.notification.NotificationSettingsInteractor
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -21,6 +21,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import model.geo.AddressSuggestion
+import ui.LocationProvider
 import ui.model.ActionScreenState
 import yandex_core.NetworkResource
 import yandex_core.YandexInteractor
@@ -40,6 +41,7 @@ data class ActionScreenData(
     val selectedImageUris: List<Uri> = emptyList(),
     var selectedDate: LocalDate? = null,
     var selectedTime: LocalTime? = null,
+    val mapCameraLocation: Location? = null,
     var lat: Double? = null,
     var lon: Double? = null
 ) {
@@ -79,13 +81,18 @@ enum class ActionPage { MAIN, ADDRESS, RESULT }
 class ActionViewModel(
     private val announcementInteractor: AnnouncementInteractor,
     private val yandexInteractor: YandexInteractor,
-    private val notificationSettingsInteractor: NotificationSettingsInteractor
+    private val notificationSettingsInteractor: NotificationSettingsInteractor,
+    private val locationProvider: LocationProvider
 ) : ViewModel() {
     private val _pageState = MutableStateFlow(ActionPage.MAIN)
     val pageState: StateFlow<ActionPage> = _pageState.asStateFlow()
 
     private val _methodValueFlow = MutableStateFlow<Int>(0)
     val methodValueFlow: StateFlow<Int> = _methodValueFlow.asStateFlow()
+
+    fun clearPageState() {
+        _pageState.value = ActionPage.MAIN
+    }
 
     fun updateMethodValue(method: Int) {
         Log.d("METHOD", method.toString())
@@ -95,6 +102,23 @@ class ActionViewModel(
     fun goToAddressPage() {
         _pageState.value = ActionPage.ADDRESS
     }
+
+    fun setCurrentLocation() {
+        viewModelScope.launch {
+            val location = locationProvider.getCurrentLocation()
+            if (location != null) {
+                _state.update {
+                    it.copy(
+                        mapCameraLocation = Location(
+                            latitude = location.latitude,
+                            longitude = location.longitude
+                        )
+                    )
+                }
+            }
+        }
+    }
+
 
     fun goToResultPage() {
         _pageState.value = ActionPage.RESULT
@@ -114,6 +138,11 @@ class ActionViewModel(
         started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5000),
         initialValue = ActionScreenData()
     )
+
+    fun clearState() {
+        _pageState.value = ActionPage.MAIN
+        _state.value = ActionScreenData()
+    }
 
     val isMainActionComponentState =
         state.map {
@@ -154,6 +183,7 @@ class ActionViewModel(
             _notificationsEnabled.value = notificationSettingsInteractor.isNotificationsEnabled()
         }
     }
+
     fun updateName(value: String) {
         _state.update {
             it.copy(name = value)

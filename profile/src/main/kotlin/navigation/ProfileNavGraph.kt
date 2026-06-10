@@ -10,10 +10,11 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import androidx.navigation.navigation
 import org.koin.androidx.compose.koinViewModel
-import ui.screen.ActionScreen
 import ui.screen.ProfileAnnouncementDetailsProvider
+import ui.screen.ProfileLegalInfoScreen
 import ui.screen.ProfileScreen
 import ui.screen.ProfileSettingsScreen
+import ui.screen.action.ActionScreen
 import ui.viewModel.ActionViewModel
 import ui.viewModel.ProfileAnnouncementDetailsViewModel
 import ui.viewModel.ProfileSettingsViewModel
@@ -22,6 +23,7 @@ import ui.viewModel.ProfileViewModel
 sealed class ProfileRoute(val route: String) {
     object Profile : ProfileRoute("profileMain")
     object ProfileSettings : ProfileRoute("settings")
+    object ProfileLegalInfo : ProfileRoute("legalInfo")
     object ActionScreen : ProfileRoute("actionScreen")
     object DetailScreen : ProfileRoute("detailScreen/{petId}/{announcementType}") {
         fun createRoute(
@@ -77,6 +79,7 @@ fun NavGraphBuilder.profileNavGraph(navController: NavController, route: String 
             ActionScreen(
                 viewModel = actionViewModel,
                 onProfilePage = {
+                    actionViewModel.clearState()
                     navController.popBackStack()
                 },
             )
@@ -94,6 +97,9 @@ fun NavGraphBuilder.profileNavGraph(navController: NavController, route: String 
                 onBackClick = {
                     navController.popBackStack()
                 },
+                onLegalInfoClick = {
+                    navController.navigate(ProfileRoute.ProfileLegalInfo.route)
+                },
                 settingsViewModel = profileSettingsViewModel,
                 exit = {
                     navController.navigate("auth") {
@@ -101,6 +107,14 @@ fun NavGraphBuilder.profileNavGraph(navController: NavController, route: String 
                         launchSingleTop = true
                     }
 
+                }
+            )
+        }
+
+        composable(ProfileRoute.ProfileLegalInfo.route) {
+            ProfileLegalInfoScreen(
+                onBackClick = {
+                    navController.popBackStack()
                 }
             )
         }

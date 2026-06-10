@@ -25,6 +25,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -36,6 +37,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import com.example.core.R
 import kotlinx.coroutines.launch
+import ui.components.default_component.AnimatedToast
 import java.io.File
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -58,6 +60,12 @@ fun CameraScreen(
     val uris = cameraViewModel.uris.collectAsState()
     val scope = rememberCoroutineScope()
     val scaffoldState = rememberBottomSheetScaffoldState()
+    val hasUris = remember(uris.value) {
+        uris.value.isNotEmpty()
+    }
+    val showToast = remember {
+        mutableStateOf(false)
+    }
 
     BottomSheetScaffold(
         scaffoldState = scaffoldState,
@@ -77,6 +85,7 @@ fun CameraScreen(
                 .fillMaxSize()
                 .padding(bottom = innerPadding.calculateBottomPadding())
         ) {
+
             CameraPreview(
                 controller = controller,
                 modifier = Modifier.fillMaxSize()
@@ -129,7 +138,13 @@ fun CameraScreen(
                     }
 
                     IconButton(
-                        onClick = placeAnimal
+                        onClick = {
+                            if (hasUris) {
+                                placeAnimal()
+                            } else {
+                                showToast.value = true
+                            }
+                        }
                     ) {
                         Image(
                             modifier = Modifier.size(28.dp),
@@ -138,6 +153,14 @@ fun CameraScreen(
                         )
                     }
                 }
+            }
+            if (showToast.value) {
+                AnimatedToast(
+                    "Сделайте фотографию",
+                    onDismiss = {
+                        showToast.value = false
+                    }
+                )
             }
         }
     }

@@ -1,4 +1,4 @@
-package ui.screen
+package ui.screen.action
 
 import android.net.Uri
 import android.os.Build
@@ -59,9 +59,12 @@ import coil.compose.AsyncImage
 import com.example.core.R
 import com.maxkeppeker.sheets.core.models.base.rememberUseCaseState
 import com.maxkeppeler.sheets.calendar.CalendarDialog
+import com.maxkeppeler.sheets.calendar.models.CalendarConfig
 import com.maxkeppeler.sheets.calendar.models.CalendarSelection
 import com.maxkeppeler.sheets.clock.ClockDialog
+import com.maxkeppeler.sheets.clock.models.ClockConfig
 import com.maxkeppeler.sheets.clock.models.ClockSelection
+import com.yandex.mapkit.geometry.Point
 import ui.components.ProfileMap
 import ui.components.TabRowMethodSelection
 import ui.components.default_component.PetTextField
@@ -69,6 +72,7 @@ import ui.components.placeholder.SuccessSendPopup
 import ui.components.slider.PhotosPager
 import ui.model.ActionScreenState
 import ui.model.TabRowInfo
+import ui.screen.PlaceAnnouncementComponent
 import ui.theme.BrushColor
 import ui.theme.PurpleButtonColor
 import ui.theme.Ser
@@ -80,6 +84,7 @@ import ui.theme.purpleStatusColor
 import ui.viewModel.ActionPage
 import ui.viewModel.ActionScreenData
 import ui.viewModel.ActionViewModel
+import java.time.LocalDate
 import java.time.LocalTime
 
 
@@ -303,18 +308,32 @@ fun AddressMainComponent(
     val calendarState = rememberUseCaseState()
     val clockState = rememberUseCaseState()
     val addressFillState by actionViewModel.isAddressComponentState.collectAsState()
+    val mapCameraLocation = actionScreenData.mapCameraLocation?.let { location ->
+        Point(location.latitude, location.longitude)
+    }
+
+    LaunchedEffect(actionViewModel) {
+        actionViewModel.setCurrentLocation()
+    }
+
     CalendarDialog(
         state = calendarState,
         selection = CalendarSelection.Date { date ->
             actionViewModel.updateSelectedDate(date)
-        }
+        },
+        config = CalendarConfig(
+            boundary = LocalDate.MIN..LocalDate.now()
+        )
     )
 
     ClockDialog(
         state = clockState,
         selection = ClockSelection.HoursMinutes { h, m ->
             actionViewModel.updateSelectedTime(LocalTime.of(h, m))
-        }
+        },
+        config = ClockConfig(
+            is24HourFormat = true
+        )
     )
 
     Box(
@@ -375,6 +394,7 @@ fun AddressMainComponent(
                     actionViewModel.updateLatitude(lat)
                     actionViewModel.getAddressList(lon, lat)
                 },
+                cameraLocation = mapCameraLocation
             )
 
             Spacer(Modifier.height(20.dp))
@@ -885,4 +905,3 @@ private fun PetButtonPreview() {
 
     }
 }
-
