@@ -44,6 +44,8 @@ class FilterViewModel(
     private val _petInfoState = MutableStateFlow<PetDetailsScreenState>(PetDetailsScreenState.Idle)
     val petInfoState = _petInfoState.asStateFlow()
 
+    val userState = userInteractor.observeUser()
+
     private val _currentTab = MutableStateFlow(0)
     val currentTab: StateFlow<Int> = _currentTab.asStateFlow()
 
