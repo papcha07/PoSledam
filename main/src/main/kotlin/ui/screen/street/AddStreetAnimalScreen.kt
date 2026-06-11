@@ -1,5 +1,6 @@
 package ui.screen.street
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -53,7 +54,9 @@ fun AddStreetAnimalScreen(
     LaunchedEffect(Unit) {
         cameraViewModel.loadMyLocation()
     }
-
+    BackHandler {
+        onBack()
+    }
     Box(modifier = modifier.fillMaxSize()) {
         Column(
             modifier = modifier
