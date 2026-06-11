@@ -1,6 +1,5 @@
 package ui.components.street
 
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.paging.LoadState
@@ -14,11 +13,7 @@ fun StreetPetRefreshState(
     modifier: Modifier = Modifier
 ) {
     when (refreshState) {
-        is LoadState.Loading -> {
-            CircularProgressIndicator(
-                modifier = modifier
-            )
-        }
+        is LoadState.Loading -> Unit
 
         is LoadState.Error -> {
             ErrorPlaceholder(
