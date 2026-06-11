@@ -7,20 +7,18 @@ import domain.interactor.location.LocationInteractor
 import domain.interactor.location.LocationSendResult
 import domain.notification.Notification
 import domain.notification.NotificationInteractor
-import domain.user.UserInteractor
 import helper.LocationSyncRequestStore
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import worker.location_worker.WorkerInteractor
 
 class MainScreenViewModel(
     private val notificationInteractor: NotificationInteractor,
-    private val userInteractor: UserInteractor,
     private val workerInteractor: WorkerInteractor,
     private val locationInteractor: LocationInteractor,
     private val locationSyncRequestStore: LocationSyncRequestStore
@@ -74,8 +72,16 @@ class MainScreenViewModel(
 
             when (result) {
                 LocationSendResult.Success -> Log.d("USER_LOCATION", "Current location sent")
-                LocationSendResult.PermissionDenied -> Log.d("USER_LOCATION", "Location permission denied")
-                LocationSendResult.LocationUnavailable -> Log.d("USER_LOCATION", "Current location unavailable")
+                LocationSendResult.PermissionDenied -> Log.d(
+                    "USER_LOCATION",
+                    "Location permission denied"
+                )
+
+                LocationSendResult.LocationUnavailable -> Log.d(
+                    "USER_LOCATION",
+                    "Current location unavailable"
+                )
+
                 is LocationSendResult.NetworkError -> Log.d("USER_LOCATION", "Location send failed")
             }
         }
@@ -95,12 +101,6 @@ class MainScreenViewModel(
 
     fun onBackgroundLocationPermissionDenied() {
         Log.d("WORKER_MANAGER", "Background location permission is not granted")
-    }
-
-    fun refreshUser() {
-        viewModelScope.launch {
-            userInteractor.refreshUser()
-        }
     }
 }
 
