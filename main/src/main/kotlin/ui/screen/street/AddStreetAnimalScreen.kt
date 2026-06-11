@@ -51,8 +51,8 @@ fun AddStreetAnimalScreen(
     val urisState = cameraViewModel.uris.collectAsState()
     val scrollState = rememberScrollState()
 
-    LaunchedEffect(Unit) {
-        cameraViewModel.loadMyLocation()
+    LaunchedEffect(cameraViewModel) {
+        cameraViewModel.prepareAdvertForPublishing()
     }
     BackHandler {
         onBack()
