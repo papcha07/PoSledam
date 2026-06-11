@@ -69,8 +69,8 @@ fun AddStreetAnimalScreen(
                 addDescription = cameraViewModel::addDescription,
                 advertState = advertState,
             )
+            Spacer(Modifier.height(50.dp))
         }
-
         PublishButtonRow(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
@@ -120,7 +120,7 @@ private fun PublishButtonRow(
             )
             .fillMaxWidth()
             .padding(horizontal = 16.dp)
-            .padding(top = 16.dp, bottom = 34.dp),
+            .padding(top = 16.dp, bottom = 10.dp),
         contentAlignment = Alignment.Center
     ) {
         ButtonComponent(
