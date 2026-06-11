@@ -3,6 +3,7 @@ package ui.screen.action
 import android.net.Uri
 import android.os.Build
 import android.util.Log
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.DrawableRes
@@ -99,6 +100,14 @@ fun ActionScreen(
     val uiState by viewModel.uiState.collectAsState()
     val page by viewModel.pageState.collectAsState()
     val notificationsEnabled by viewModel.notificationsEnabled.collectAsState()
+    val handleBack = {
+        if (!viewModel.goToPreviousPage()) {
+            onProfilePage()
+        }
+    }
+
+    BackHandler(onBack = handleBack)
+
     Box(
         Modifier
             .background(color = backgroundColor)
@@ -109,7 +118,7 @@ fun ActionScreen(
             ActionTopBar(
                 viewModel = viewModel,
                 page = page,
-                onProfilePage = onProfilePage,
+                onBack = handleBack,
             )
             when (page) {
                 ActionPage.MAIN -> ActionMainComponent(
@@ -221,7 +230,7 @@ fun ActionTopBar(
     modifier: Modifier = Modifier,
     viewModel: ActionViewModel,
     page: ActionPage,
-    onProfilePage: () -> Unit,
+    onBack: () -> Unit,
 ) {
     val methodFlowValue by viewModel.methodValueFlow.collectAsState()
     Box(
@@ -239,22 +248,8 @@ fun ActionTopBar(
             ) {
                 IconButton(
                     modifier = Modifier.testTag("back_button"),
-                    onClick = {
-                        when (page) {
-                            ActionPage.RESULT -> {
-                                viewModel.goToAddressPage()
-                            }
-
-                            ActionPage.MAIN -> {
-                                onProfilePage()
-                            }
-
-                            ActionPage.ADDRESS -> {
-                                viewModel.goToMainPage()
-                            }
-                        }
-
-                    }) {
+                    onClick = onBack
+                ) {
                     Icon(
                         painter = painterResource(R.drawable.left_arrow),
                         contentDescription = "Назад"

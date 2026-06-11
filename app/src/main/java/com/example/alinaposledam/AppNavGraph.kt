@@ -61,7 +61,6 @@ fun AppNavGraph(
     val currentRoute = navBackStackEntry?.destination?.route
     val showBottomBar = currentRoute in bottomBarLeafRoutes
     val showProfileBar = currentRoute in profileBarLeafRoutes
-    val coroutineScope = rememberCoroutineScope()
 
     var startDestination by remember { mutableStateOf<String?>(null) }
 

@@ -89,6 +89,11 @@ class CameraViewModel(
         }
     }
 
+    fun prepareAdvertForPublishing() {
+        updateEventDateToNow()
+        loadMyLocation()
+    }
+
 
     fun loadMyLocation() {
         viewModelScope.launch {

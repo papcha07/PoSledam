@@ -124,6 +124,22 @@ class ActionViewModel(
         _pageState.value = ActionPage.RESULT
     }
 
+    fun goToPreviousPage(): Boolean {
+        return when (_pageState.value) {
+            ActionPage.RESULT -> {
+                _pageState.value = ActionPage.ADDRESS
+                true
+            }
+
+            ActionPage.ADDRESS -> {
+                _pageState.value = ActionPage.MAIN
+                true
+            }
+
+            ActionPage.MAIN -> false
+        }
+    }
+
     fun goToMainPage() {
         _pageState.value = ActionPage.MAIN
     }
