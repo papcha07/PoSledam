@@ -22,6 +22,7 @@ class ProfileBarViewModel(
     private val _profileBarState = MutableStateFlow<ProfileBarState>(ProfileBarState.Idle)
     val profileBarState = _profileBarState.asStateFlow()
 
+
     val notificationsIsNotRead: StateFlow<Boolean> =
         notificationInteractor
             .getAllNotificationEntity()
