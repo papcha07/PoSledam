@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -27,6 +26,8 @@ import ui.components.PetButton
 import ui.components.default_component.TabRowSelection
 import ui.components.placeholder.EmptyAnimalList
 import ui.components.placeholder.ErrorPlaceholder
+import ui.components.placeholder.PetCardShimmerPlaceholder
+import ui.components.placeholder.ShimmerLoadingTransition
 import ui.model.TabRowInfo
 import ui.theme.backgroundColor
 import ui.viewModel.ProfileScreenState
@@ -142,54 +143,74 @@ fun PetLazyRow(
                 .fillMaxSize()
                 .testTag("animalType_$animalType")
     ) {
-        when (profileScreenState) {
-            ProfileScreenState.Empty -> {
-                EmptyAnimalList(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .testTag("empty_list")
-                        .align(Alignment.Center)
-                )
-            }
-
-            ProfileScreenState.Failed -> {
-                ErrorPlaceholder(modifier = Modifier.align(Alignment.Center))
-            }
-
-            ProfileScreenState.Idle -> {
-
-            }
-
-            ProfileScreenState.Loading -> {
-                CircularProgressIndicator(
-                    Modifier
-                        .align(Alignment.Center)
+        ShimmerLoadingTransition(
+            isLoading = profileScreenState is ProfileScreenState.Loading,
+            modifier = Modifier.fillMaxSize(),
+            loadingContent = {
+                ProfilePetCardShimmerList(
+                    modifier = modifier
+                        .padding(horizontal = 16.dp)
                         .testTag("progress_bar")
                 )
             }
-
-            is ProfileScreenState.Success -> {
-                LazyColumn(
-                    modifier = modifier
-                        .padding(horizontal = 16.dp)
-                        .testTag("animal_list")
-                ) {
-                    items(profileScreenState.petList) { petInfo ->
-                        AnimalCard(
-                            modifier = modifier,
-                            petInfo = petInfo,
-                            currentState = animalType,
-                            openDetails = { announcementId ->
-                                openAnnouncementDetails(announcementId, animalType)
-                            }
+        ) {
+            Box(Modifier.fillMaxSize()) {
+                when (profileScreenState) {
+                    ProfileScreenState.Empty -> {
+                        EmptyAnimalList(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .testTag("empty_list")
+                                .align(Alignment.Center)
                         )
-                        Spacer(Modifier.height(24.dp))
+                    }
+
+                    ProfileScreenState.Failed -> {
+                        ErrorPlaceholder(modifier = Modifier.align(Alignment.Center))
+                    }
+
+                    ProfileScreenState.Idle -> {
+
+                    }
+
+                    ProfileScreenState.Loading -> Unit
+
+                    is ProfileScreenState.Success -> {
+                        LazyColumn(
+                            modifier = modifier
+                                .padding(horizontal = 16.dp)
+                                .testTag("animal_list")
+                        ) {
+                            items(profileScreenState.petList) { petInfo ->
+                                AnimalCard(
+                                    modifier = modifier,
+                                    petInfo = petInfo,
+                                    currentState = animalType,
+                                    openDetails = { announcementId ->
+                                        openAnnouncementDetails(announcementId, animalType)
+                                    }
+                                )
+                                Spacer(Modifier.height(24.dp))
+                            }
+                        }
                     }
                 }
-
             }
         }
     }
 }
 
-
+@Composable
+private fun ProfilePetCardShimmerList(
+    modifier: Modifier = Modifier,
+    count: Int = 4
+) {
+    LazyColumn(
+        modifier = modifier
+    ) {
+        items(count) {
+            PetCardShimmerPlaceholder()
+            Spacer(Modifier.height(24.dp))
+        }
+    }
+}
