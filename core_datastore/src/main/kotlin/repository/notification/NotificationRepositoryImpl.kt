@@ -3,6 +3,7 @@ package repository.notification
 import db.notification.NotificationDao
 import db.notification.NotificationEntity
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import withIo
 
 class NotificationRepositoryImpl(
@@ -10,7 +11,9 @@ class NotificationRepositoryImpl(
 ) : NotificationRepository {
 
     override fun getAllNotificationEntity(): Flow<List<NotificationEntity>> =
-        notificationDao.getAllNotificationEntity()
+        notificationDao.getAllNotificationEntity().map {
+            it.reversed()
+        }
 
     override suspend fun insert(notificationEntity: NotificationEntity) =
         withIo { notificationDao.insert(notificationEntity) }
