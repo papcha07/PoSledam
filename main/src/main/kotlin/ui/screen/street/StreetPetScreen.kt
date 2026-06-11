@@ -13,13 +13,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.example.core.R
 import domain.models.StreetPetPreviewModel
 import ui.components.default_component.ToolBar
 import ui.components.default_component.ToolBarInfo
+import ui.components.placeholder.ShimmerLoadingTransition
 import ui.components.street.StreetPetGrid
+import ui.components.street.StreetPetGridShimmerPlaceholder
 import ui.components.street.StreetPetRefreshState
 import ui.theme.backgroundColor
 
@@ -85,16 +88,28 @@ fun StreetPetSection(
             .clip(RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp))
             .background(Color.White)
     ) {
-        StreetPetGrid(
-            animals = animals,
-            modifier = Modifier.fillMaxSize(),
-            openStreetDetails = openStreetDetails
-        )
+        val refreshState = animals.loadState.refresh
 
-        StreetPetRefreshState(
-            refreshState = animals.loadState.refresh,
-            isEmpty = animals.itemCount == 0,
-            modifier = Modifier.align(Alignment.Center)
-        )
+        ShimmerLoadingTransition(
+            isLoading = refreshState is LoadState.Loading,
+            modifier = Modifier.fillMaxSize(),
+            loadingContent = {
+                StreetPetGridShimmerPlaceholder(modifier = Modifier.fillMaxSize())
+            }
+        ) {
+            Box(Modifier.fillMaxSize()) {
+                StreetPetGrid(
+                    animals = animals,
+                    modifier = Modifier.fillMaxSize(),
+                    openStreetDetails = openStreetDetails
+                )
+
+                StreetPetRefreshState(
+                    refreshState = refreshState,
+                    isEmpty = animals.itemCount == 0,
+                    modifier = Modifier.align(Alignment.Center)
+                )
+            }
+        }
     }
 }

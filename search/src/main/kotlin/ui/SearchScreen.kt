@@ -21,7 +21,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -46,6 +45,8 @@ import ui.components.default_component.TabRowSelection
 import ui.components.default_component.ToolBar
 import ui.components.default_component.ToolBarInfo
 import ui.components.placeholder.ErrorPlaceholder
+import ui.components.placeholder.PetCardShimmerPlaceholder
+import ui.components.placeholder.ShimmerLoadingTransition
 import ui.model.TabRowInfo
 import ui.theme.addressSearchColor
 import ui.theme.backgroundColor
@@ -337,31 +338,38 @@ fun FoundPetsScreen(
             .background(color = Color.White),
     ) {
         val pets = viewModel.findPets.collectAsLazyPagingItems()
-        when (pets.loadState.refresh) {
+        val refreshState = pets.loadState.refresh
 
-            is LoadState.Error -> {
-                ErrorPlaceholder(
-                    modifier = Modifier.align(Alignment.Center)
-                )
+        ShimmerLoadingTransition(
+            isLoading = refreshState is LoadState.Loading,
+            modifier = Modifier.fillMaxSize(),
+            loadingContent = {
+                SearchPetCardShimmerList(modifier = Modifier.fillMaxSize())
             }
+        ) {
+            Box(Modifier.fillMaxSize()) {
+                when (refreshState) {
+                    is LoadState.Error -> {
+                        ErrorPlaceholder(
+                            modifier = Modifier.align(Alignment.Center)
+                        )
+                    }
 
-            LoadState.Loading -> {
-                Box(Modifier.align(Alignment.Center)) {
-                    CircularProgressIndicator()
-                }
-            }
+                    LoadState.Loading -> Unit
 
-            is LoadState.NotLoading -> {
-                if (pets.itemCount > 0) {
-                    PetsList(
-                        pets = pets,
-                        viewModel = viewModel,
-                        goToDetailsPetScreen = goToDetailsPetScreen,
-                        isFoundTab = true
-                    )
-                } else {
-                    Box(Modifier.align(Alignment.Center)) {
-                        Text("Нет найденных питомцев")
+                    is LoadState.NotLoading -> {
+                        if (pets.itemCount > 0) {
+                            PetsList(
+                                pets = pets,
+                                viewModel = viewModel,
+                                goToDetailsPetScreen = goToDetailsPetScreen,
+                                isFoundTab = true
+                            )
+                        } else {
+                            Box(Modifier.align(Alignment.Center)) {
+                                Text("Нет найденных питомцев")
+                            }
+                        }
                     }
                 }
             }
@@ -383,30 +391,38 @@ fun MissingPetsScreen(
             .fillMaxSize()
             .background(color = Color.White),
     ) {
-        when (pets.loadState.refresh) {
-            is LoadState.Loading -> {
-                Box(Modifier.align(Alignment.Center)) {
-                    CircularProgressIndicator()
-                }
-            }
+        val refreshState = pets.loadState.refresh
 
-            is LoadState.Error -> {
-                ErrorPlaceholder(
-                    modifier = Modifier.align(Alignment.Center)
-                )
+        ShimmerLoadingTransition(
+            isLoading = refreshState is LoadState.Loading,
+            modifier = Modifier.fillMaxSize(),
+            loadingContent = {
+                SearchPetCardShimmerList(modifier = Modifier.fillMaxSize())
             }
+        ) {
+            Box(Modifier.fillMaxSize()) {
+                when (refreshState) {
+                    is LoadState.Loading -> Unit
 
-            is LoadState.NotLoading -> {
-                if (pets.itemCount > 0) {
-                    PetsList(
-                        pets = pets,
-                        viewModel = viewModel,
-                        goToDetailsPetScreen = goToDetailsPetScreen,
-                        isFoundTab = false
-                    )
-                } else {
-                    Box(Modifier.align(Alignment.Center)) {
-                        Text("Нет найденных питомцев")
+                    is LoadState.Error -> {
+                        ErrorPlaceholder(
+                            modifier = Modifier.align(Alignment.Center)
+                        )
+                    }
+
+                    is LoadState.NotLoading -> {
+                        if (pets.itemCount > 0) {
+                            PetsList(
+                                pets = pets,
+                                viewModel = viewModel,
+                                goToDetailsPetScreen = goToDetailsPetScreen,
+                                isFoundTab = false
+                            )
+                        } else {
+                            Box(Modifier.align(Alignment.Center)) {
+                                Text("Нет найденных питомцев")
+                            }
+                        }
                     }
                 }
             }
@@ -454,32 +470,47 @@ fun PetsList(
         }
 
         item {
-            when (pets.loadState.append) {
-                is LoadState.Loading -> {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 16.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressIndicator()
-                    }
+            val appendState = pets.loadState.append
+            ShimmerLoadingTransition(
+                isLoading = appendState is LoadState.Loading,
+                modifier = Modifier.fillMaxWidth(),
+                loadingContent = {
+                    PetCardShimmerPlaceholder()
+                    Spacer(Modifier.height(8.dp))
                 }
+            ) {
+                when (appendState) {
+                    is LoadState.Loading -> Unit
 
-                is LoadState.Error -> {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 16.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text("Ошибка загрузки")
+                    is LoadState.Error -> {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 16.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text("Ошибка загрузки")
+                        }
                     }
-                }
 
-                is LoadState.NotLoading -> Unit
+                    is LoadState.NotLoading -> Unit
+                }
             }
         }
     }
 }
 
+@Composable
+private fun SearchPetCardShimmerList(
+    modifier: Modifier = Modifier,
+    count: Int = 4
+) {
+    LazyColumn(
+        modifier = modifier.padding(horizontal = 16.dp)
+    ) {
+        items(count) {
+            PetCardShimmerPlaceholder()
+            Spacer(Modifier.height(8.dp))
+        }
+    }
+}
