@@ -46,7 +46,7 @@ class ReportViewModel(
 
     fun reportFoundAnimal(id: String) {
         viewModelScope.launch {
-            val response = searchInteractor.reportFoundAnimal(id)
+            val response = searchInteractor.reportFoundAnimal(id, _findUriState.value)
             when (response) {
                 Response.SUCCESS -> {
                     _uiState.update { it.copy(isSuccess = true) }
