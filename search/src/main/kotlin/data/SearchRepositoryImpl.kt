@@ -3,10 +3,10 @@ package data
 import AnnouncementType
 import ApiResponse
 import SendResult
+import android.net.Uri
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
-import androidx.paging.LOG_TAG
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
@@ -112,8 +112,11 @@ class SearchRepositoryImpl(
             }
         }
 
-    override suspend fun reportFoundAnimal(id: String): Response {
-        val request = announcementService.reportFoundAnimal(id)
+    override suspend fun reportFoundAnimal(id: String, uris: List<Uri>): Response {
+        val convertedFiles = uris.map {
+            converter.convertToFile(it.toString())
+        }
+        val request = announcementService.reportFoundAnimal(id, files = convertedFiles)
         return when (request) {
             is SendResult.BadRequest -> Response.SERVER_ERROR
             is SendResult.Error -> Response.INTERNET_ERROR
