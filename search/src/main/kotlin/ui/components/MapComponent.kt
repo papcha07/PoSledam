@@ -1,8 +1,10 @@
 package ui.components
 
+import android.annotation.SuppressLint
 import android.graphics.Canvas
 import android.graphics.PointF
 import android.util.Log
+import android.view.MotionEvent
 import androidx.annotation.DrawableRes
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.compose.foundation.Image
@@ -20,6 +22,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -47,16 +50,19 @@ import com.yandex.mapkit.map.PlacemarkMapObject
 import com.yandex.mapkit.mapview.MapView
 import com.yandex.runtime.image.ImageProvider
 
+@SuppressLint("ClickableViewAccessibility")
 @Composable
 fun MapComponent(
     modifier: Modifier = Modifier,
     longitude: Double,
     latitude: Double,
+    onTouchStateChanged: (Boolean) -> Unit = {},
     onMapReady: (MapView) -> Unit = {}
 ) {
     val context = LocalContext.current
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     val mapView = remember { MapView(context) }
+    val currentOnTouchStateChanged = rememberUpdatedState(onTouchStateChanged)
     var initialCameraSet by remember { mutableStateOf(false) }
 
     // будем хранить ссылку на коллекцию и на маркер,
@@ -94,6 +100,15 @@ fun MapComponent(
 
         AndroidView(
             factory = {
+                mapView.setOnTouchListener { _, event ->
+                    when (event.actionMasked) {
+                        MotionEvent.ACTION_DOWN -> currentOnTouchStateChanged.value(true)
+                        MotionEvent.ACTION_UP,
+                        MotionEvent.ACTION_CANCEL -> currentOnTouchStateChanged.value(false)
+                    }
+                    false
+                }
+
                 val map = mapView.map
 
                 // создаём коллекцию для плейсмарков и кладём её в state

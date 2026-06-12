@@ -13,37 +13,31 @@ import ui.components.profile.UnEditableContactComponent
 fun ContactListComponent(
     modifier: Modifier = Modifier,
     vkUri: String? = null,
-    tgUri: String? = null
+    tgUri: String? = null,
+    whUri: String? = null
 ) {
-    when {
-        vkUri != null && tgUri != null -> {
-            Column(
-                modifier = modifier.fillMaxWidth()
-            ) {
-                UnEditableContactComponent(
-                    uri = vkUri,
-                    icon = com.example.core.R.drawable.ic_vk
-                )
+    val contacts = listOfNotNull(
+        vkUri?.let { ContactItem(uri = it, icon = com.example.core.R.drawable.ic_vk) },
+        whUri?.let { ContactItem(uri = it, icon = com.example.core.R.drawable.ic_whatsapp) },
+        tgUri?.let { ContactItem(uri = it, icon = com.example.core.R.drawable.ic_tg) }
+    )
+
+    Column(
+        modifier = modifier.fillMaxWidth()
+    ) {
+        contacts.forEachIndexed { index, contact ->
+            UnEditableContactComponent(
+                uri = contact.uri,
+                icon = contact.icon
+            )
+            if (index < contacts.lastIndex) {
                 Spacer(Modifier.height(8.dp))
-                UnEditableContactComponent(
-                    uri = tgUri,
-                    icon = com.example.core.R.drawable.ic_tg
-                )
             }
-        }
-
-        tgUri != null -> {
-            UnEditableContactComponent(
-                uri = tgUri,
-                icon = com.example.core.R.drawable.ic_tg
-            )
-        }
-
-        vkUri != null -> {
-            UnEditableContactComponent(
-                uri = vkUri,
-                icon = com.example.core.R.drawable.ic_vk
-            )
         }
     }
 }
+
+private data class ContactItem(
+    val uri: String,
+    val icon: Int
+)

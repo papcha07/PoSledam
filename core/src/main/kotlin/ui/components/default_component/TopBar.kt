@@ -5,7 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -41,8 +41,11 @@ fun ToolBar(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .background(Color.White)
-            .padding(horizontal = 16.dp)
+            .background(
+                color = Color.White,
+                shape = RoundedCornerShape(bottomEnd = 20.dp, bottomStart = 20.dp)
+            )
+            .padding(horizontal = 16.dp, vertical = 16.dp)
     ) {
 
         if (toolBarInfo.backArrow) {

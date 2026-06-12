@@ -261,15 +261,37 @@ class AnnouncementService(private val client: HttpClient) {
     }
 
 
-    suspend fun reportFoundAnimal(id: String): SendResult {
+    suspend fun reportFoundAnimal(id: String, files: List<File>): SendResult {
         return withContext(Dispatchers.IO) {
             try {
-                val response = client.post("api/$MISS/$id/report-found")
+                val response = client.post("api/$MISS/$id/report-found") {
+                    setBody(
+                        MultiPartFormDataContent(
+                            formData {
+                                files.forEach { file ->
+                                    append(
+                                        key = "Images",
+                                        value = file.readBytes(),
+                                        headers = Headers.build {
+                                            append(HttpHeaders.ContentType, "image/jpeg")
+                                            append(
+                                                HttpHeaders.ContentDisposition,
+                                                "form-data; name=\"Images\"; filename=\"${file.name}\""
+                                            )
+                                        }
+                                    )
+                                }
+                            }
+                        )
+                    )
+                }
                 if (response.status.isSuccess()) {
                     SendResult.Success
-                } else SendResult.BadRequest()
+                } else {
+                    SendResult.BadRequest()
+                }
             } catch (e: Exception) {
-                SendResult.Error("Проблемы с соединением")
+                SendResult.Error(e.message ?: "Unknown error")
             }
         }
     }

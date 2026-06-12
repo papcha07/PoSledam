@@ -1,5 +1,6 @@
 package domain.interactor
 
+import android.net.Uri
 import androidx.paging.PagingData
 import domain.models.FilterDto
 import domain.models.FoundPetInfo
@@ -28,8 +29,8 @@ class SearchInteractorImpl(
         return repository.getInfoAboutPet(id, announcementType)
     }
 
-    override suspend fun reportFoundAnimal(id: String): Response {
-        return repository.reportFoundAnimal(id)
+    override suspend fun reportFoundAnimal(id: String, uriList: List<Uri>): Response {
+        return repository.reportFoundAnimal(id, uriList)
     }
 
     override suspend fun reportSpottedAnimal(

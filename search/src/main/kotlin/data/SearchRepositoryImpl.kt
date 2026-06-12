@@ -3,10 +3,10 @@ package data
 import AnnouncementType
 import ApiResponse
 import SendResult
+import android.net.Uri
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
-import androidx.paging.LOG_TAG
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
@@ -112,8 +112,11 @@ class SearchRepositoryImpl(
             }
         }
 
-    override suspend fun reportFoundAnimal(id: String): Response {
-        val request = announcementService.reportFoundAnimal(id)
+    override suspend fun reportFoundAnimal(id: String, uris: List<Uri>): Response {
+        val convertedFiles = uris.map {
+            converter.convertToFile(it.toString())
+        }
+        val request = announcementService.reportFoundAnimal(id, files = convertedFiles)
         return when (request) {
             is SendResult.BadRequest -> Response.SERVER_ERROR
             is SendResult.Error -> Response.INTERNET_ERROR
@@ -147,11 +150,15 @@ class SearchRepositoryImpl(
             street = petResponse.street,
             house = petResponse.house,
             district = petResponse.district,
-            imagePath = petResponse.imagesPaths?.get(0),
+            imagePath = petResponse.imagesPaths?.firstOrNull(),
             creator = Creator(
                 id = petResponse.creator.id,
                 firstName = petResponse.creator.firstName,
-                avatarPath = petResponse.creator.avatarPath
+                avatarPath = petResponse.creator.avatarPath,
+                description = petResponse.creator.description,
+                vk = petResponse.creator.contacts.findContactUrl(VK_CONTACT_TYPE),
+                tg = petResponse.creator.contacts.findContactUrl(TG_CONTACT_TYPE),
+                wh = petResponse.creator.contacts.findContactUrl(WHATSAPP_CONTACT_TYPE)
             ),
             petInfo = PetInfo(
                 petType = petResponse.petType,
@@ -167,6 +174,13 @@ class SearchRepositoryImpl(
                 date = formatEventDate(petResponse.eventDate)
             )
         )
+    }
+
+    private fun List<FoundPetResponse.Contacts>?.findContactUrl(contactType: Int): String? {
+        return this
+            ?.firstOrNull { it.contactType == contactType }
+            ?.url
+            ?.takeIf { it.isNotBlank() }
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -190,4 +204,9 @@ class SearchRepositoryImpl(
     }
 
 
+    private companion object {
+        const val VK_CONTACT_TYPE = 0
+        const val TG_CONTACT_TYPE = 1
+        const val WHATSAPP_CONTACT_TYPE = 2
+    }
 }

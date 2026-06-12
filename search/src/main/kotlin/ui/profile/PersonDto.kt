@@ -5,5 +5,6 @@ data class PersonDto(
     val uri: String? = null,
     val description: String? = null,
     val vkUri: String? = null,
-    val tgUri: String? = null
+    val tgUri: String? = null,
+    val whUri: String? = null
 )

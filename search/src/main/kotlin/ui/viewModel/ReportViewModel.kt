@@ -40,9 +40,16 @@ class ReportViewModel(
     private val _spottedUiState = MutableStateFlow<SpottedAnimalData>(SpottedAnimalData())
     val spottedAnimalData = _spottedUiState.asStateFlow()
 
+
+    private val _findUriState = MutableStateFlow<List<Uri>>(listOf())
+    val findUriState = _findUriState.asStateFlow()
+
     fun reportFoundAnimal(id: String) {
         viewModelScope.launch {
-            val response = searchInteractor.reportFoundAnimal(id)
+            _uiState.update {
+                it.copy(isLoading = true)
+            }
+            val response = searchInteractor.reportFoundAnimal(id, _findUriState.value)
             when (response) {
                 Response.SUCCESS -> {
                     _uiState.update { it.copy(isSuccess = true) }
@@ -56,9 +63,11 @@ class ReportViewModel(
                     _effect.emit(ReportFoundAnimalEffect.ServerError)
                 }
             }
+            _uiState.update {
+                it.copy(isLoading = false)
+            }
         }
     }
-
 
     fun reportSpottedAnimal(id: String) {
         viewModelScope.launch {
@@ -106,5 +115,9 @@ class ReportViewModel(
         }
     }
 
-
+    fun addFindImage(uri: Uri) {
+        _findUriState.update { state ->
+            state + uri
+        }
+    }
 }
