@@ -191,7 +191,10 @@ fun NavGraphBuilder.searchNavGraph(navController: NavController, route: String =
                 whUri = wh.blankToNull()
             )
             SearchProfileScreen(
-                personDto = personDto
+                personDto = personDto,
+                returnFromProfile = {
+                    navController.popBackStack()
+                }
             )
 
         }

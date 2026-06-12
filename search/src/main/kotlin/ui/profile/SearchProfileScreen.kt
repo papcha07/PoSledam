@@ -15,7 +15,8 @@ import ui.theme.backgroundColor
 @Composable
 fun SearchProfileScreen(
     modifier: Modifier = Modifier,
-    personDto: PersonDto
+    personDto: PersonDto,
+    returnFromProfile: () -> Unit
 ) {
     Column(
         modifier = modifier
@@ -25,7 +26,9 @@ fun SearchProfileScreen(
         ToolBar(
             toolBarInfo = ToolBarInfo(
                 title = "Профиль",
-            )
+                backArrow = true
+            ),
+            onBackClick = returnFromProfile
         )
         Spacer(Modifier.height(8.dp))
         PersonCardComponent(
