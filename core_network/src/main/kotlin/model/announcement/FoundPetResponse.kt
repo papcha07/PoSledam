@@ -23,13 +23,20 @@ data class FoundPetResponse(
     data class CreatorDto(
         val id: String,
         val firstName: String,
-        val avatarPath: String? = null
+        val avatarPath: String? = null,
+        val contacts: List<Contacts>? = null
     )
 
     @Serializable
     data class Location(
         val longitude: Double,
         val latitude: Double
+    )
+
+    @Serializable
+    data class Contacts(
+        val contactType: Int? = null,
+        val url: String? = null
     )
 }
 

@@ -110,7 +110,7 @@ fun UserInfoComponent(
                     .clip(CircleShape)
                     .size(42.dp),
                 contentScale = ContentScale.Crop,
-                model = "$BASE_URL/api/image/${creatorInfo.avatarPath}",
+                model = "${creatorInfo.avatarPath}",
                 placeholder = painterResource(R.drawable.ic_lapa),
                 error = painterResource(R.drawable.ic_lapa),
                 contentDescription = null,
@@ -127,7 +127,6 @@ fun UserInfoComponent(
                     text = creatorInfo.firstName,
                     fontSize = 16.sp
                 )
-
                 Text(
                     text = "Красноярск",
                     color = textHint
@@ -197,7 +196,7 @@ fun WhereFindComponent(
             modifier = Modifier
         ) {
             Text(
-                text = if(announcementType == 0) "Где нашли" else "Где потерялся",
+                text = if (announcementType == 0) "Где нашли" else "Где потерялся",
                 fontSize = 18.sp
             )
             Spacer(Modifier.height(8.dp))

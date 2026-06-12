@@ -300,10 +300,7 @@ fun PetCardComponent(
                         Text(
                             text = if (it.length > 110) {
                                 "${
-                                    petInfo.description.substring(
-                                        0,
-                                        petInfo.description.length - 30
-                                    )
+                                    petInfo.description.dropLast(30)
                                 }..."
                             } else {
                                 it
