@@ -185,6 +185,7 @@ fun WhereFindComponent(
     foundPetInfo: FoundPetInfo,
     announcementType: Int,
     isMapSheetOpen: Boolean,
+    onMapTouchStateChanged: (Boolean) -> Unit = {}
 ) {
 
     Box(
@@ -207,6 +208,7 @@ fun WhereFindComponent(
                         .height(200.dp),
                     longitude = foundPetInfo.lon,
                     latitude = foundPetInfo.lat,
+                    onTouchStateChanged = onMapTouchStateChanged
                 )
                 Spacer(Modifier.height(8.dp))
             }

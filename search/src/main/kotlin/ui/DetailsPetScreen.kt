@@ -283,13 +283,25 @@ private fun DetailPetContent(
     onFoundPetClick: () -> Unit,
     onSeenPetClick: () -> Unit
 ) {
+    val scrollState = rememberScrollState()
+    var isMapTouched by remember { mutableStateOf(false) }
+
+    LaunchedEffect(isMapSheetOpen) {
+        if (isMapSheetOpen) {
+            isMapTouched = false
+        }
+    }
+
     Box(
         modifier = modifier
             .background(color = backgroundColor)
             .fillMaxSize()
     ) {
         Column(
-            modifier = Modifier.verticalScroll(rememberScrollState())
+            modifier = Modifier.verticalScroll(
+                state = scrollState,
+                enabled = !isMapTouched
+            )
         ) {
             PetImageComponent(
                 goBackClick = goBackClick,
@@ -323,6 +335,7 @@ private fun DetailPetContent(
                     foundPetInfo = petInfo,
                     announcementType = announcementType,
                     isMapSheetOpen = isMapSheetOpen,
+                    onMapTouchStateChanged = { isMapTouched = it }
                 )
 
                 Spacer(Modifier.height(32.dp))
