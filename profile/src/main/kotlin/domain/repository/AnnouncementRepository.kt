@@ -3,6 +3,7 @@ package domain.repository
 import domain.model.AnnouncementInfo
 import domain.model.AnnouncementStatus
 import domain.model.CancelReason
+import domain.model.FoundReport
 import domain.model.ProfileAnnouncementDetails
 import domain.model.SpottedLocation
 import model.InternetStatus
@@ -30,5 +31,9 @@ interface AnnouncementRepository {
     suspend fun getSpottedLocations(
         announcementId: String
     ): Pair<List<SpottedLocation>?, InternetStatus?>
+
+    suspend fun getFoundReports(
+        announcementId: String
+    ): Pair<List<FoundReport>?, InternetStatus?>
 
 }

@@ -6,11 +6,15 @@ import SendResult
 import android.os.Build
 import androidx.annotation.RequiresApi
 import apiService.AnnouncementService
+import apiService.models.announcement_models.FoundReportResponse
 import apiService.models.announcement_models.SpottedLocationResponse
 import apiService.models.announcement_models.UserPetInfoResponse
 import domain.model.AnnouncementInfo
 import domain.model.AnnouncementStatus
 import domain.model.CancelReason
+import domain.model.FoundReport
+import domain.model.FoundReportContact
+import domain.model.FoundReportUser
 import domain.model.ProfileAnnouncementDetails
 import domain.model.SpottedLocation
 import domain.model.toAnnouncementRequest
@@ -121,6 +125,18 @@ class AnnouncementRepositoryImpl(
             }
         }
 
+    override suspend fun getFoundReports(
+        announcementId: String
+    ): Pair<List<FoundReport>?, InternetStatus?> =
+        withContext(Dispatchers.IO) {
+            when (val response = apiService.getFoundReports(announcementId)) {
+                is ApiResponse.Error -> Pair(null, response.errorCode.toInternetStatus())
+                is ApiResponse.Success<List<FoundReportResponse>> -> {
+                    Pair(response.data.map { it.mapToFoundReport() }, null)
+                }
+            }
+        }
+
 
     private fun mapToPetUiPreview(userPetResponse: UserPetInfoResponse): PetUiPreview {
         return PetUiPreview(
@@ -170,6 +186,40 @@ class AnnouncementRepositoryImpl(
             createdTime = dateTime.second,
             latitude = location.latitude,
             longitude = location.longitude,
+            imagesPath = imagesPath
+        )
+    }
+
+    private fun FoundReportResponse.mapToFoundReport(): FoundReport {
+        val dateTime = formatDateTime(createdAt)
+        val userName = listOf(
+            spottedUser.firstName,
+            spottedUser.secondName
+        )
+            .filter { !it.isNullOrBlank() }
+            .joinToString(separator = " ")
+            .ifBlank { "Пользователь" }
+
+        return FoundReport(
+            id = id,
+            user = FoundReportUser(
+                id = spottedUser.id,
+                name = userName,
+                contacts = spottedUser.contacts
+                    .orEmpty()
+                    .mapNotNull { contact ->
+                        contact.url
+                            ?.takeIf { it.isNotBlank() }
+                            ?.let { url ->
+                                FoundReportContact(
+                                    type = contact.contactType,
+                                    url = url
+                                )
+                            }
+                    }
+            ),
+            createdDate = dateTime.first,
+            createdTime = dateTime.second,
             imagesPath = imagesPath
         )
     }

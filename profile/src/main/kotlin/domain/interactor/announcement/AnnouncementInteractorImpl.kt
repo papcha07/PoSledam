@@ -3,6 +3,7 @@ package domain.interactor.announcement
 import domain.model.AnnouncementInfo
 import domain.model.AnnouncementStatus
 import domain.model.CancelReason
+import domain.model.FoundReport
 import domain.model.ProfileAnnouncementDetails
 import domain.model.SpottedLocation
 import domain.repository.AnnouncementRepository
@@ -38,6 +39,12 @@ class AnnouncementInteractorImpl(
         announcementId: String
     ): Pair<List<SpottedLocation>?, InternetStatus?> {
         return announcementRepository.getSpottedLocations(announcementId)
+    }
+
+    override suspend fun getFoundReports(
+        announcementId: String
+    ): Pair<List<FoundReport>?, InternetStatus?> {
+        return announcementRepository.getFoundReports(announcementId)
     }
 
 }
