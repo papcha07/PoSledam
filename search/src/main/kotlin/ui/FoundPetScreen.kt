@@ -28,6 +28,7 @@ import com.example.core.R
 import domain.models.Creator
 import domain.models.FoundPetInfo
 import ui.components.MapComponent
+import ui.components.placeholder.ShimmerAsyncImage
 import ui.theme.textHint
 
 @Composable
@@ -144,7 +145,7 @@ fun PetImageComponent(
     foundPetInfo: FoundPetInfo
 ) {
     Box {
-        AsyncImage(
+        ShimmerAsyncImage(
             modifier = Modifier
                 .clip(
                     RoundedCornerShape(
@@ -156,8 +157,6 @@ fun PetImageComponent(
                 .height(360.dp),
             contentScale = ContentScale.Crop,
             model = "${foundPetInfo.imagePath}",
-            placeholder = painterResource(R.drawable.ic_dog),
-            error = painterResource(R.drawable.ic_dog),
             contentDescription = null,
             onError = {
                 println("Image loading failed: ${it.result.throwable?.message}")

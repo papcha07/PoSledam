@@ -20,6 +20,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.unit.dp
 
@@ -27,7 +28,8 @@ import androidx.compose.ui.unit.dp
 fun ShimmerImagePlaceholder(
     modifier: Modifier = Modifier
         .size(42.dp)
-        .clip(RoundedCornerShape(10.dp))
+        .clip(RoundedCornerShape(10.dp)),
+    shape: Shape = RoundedCornerShape(10.dp)
 ) {
     var widthPx by remember { mutableStateOf(0f) }
 
@@ -58,6 +60,6 @@ fun ShimmerImagePlaceholder(
     Box(
         modifier = modifier
             .onGloballyPositioned { widthPx = it.size.width.toFloat() }
-            .background(brush, shape = RoundedCornerShape(10.dp))
+            .background(brush, shape = shape)
     )
 }

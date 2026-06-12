@@ -46,7 +46,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import coil.compose.AsyncImage
 import com.example.core.R
 import domain.model.FoundReport
 import domain.model.FoundReportContact
@@ -59,6 +58,10 @@ import ui.components.SpottedMapPoint
 import ui.components.announcement.CancelAnnouncementReasonContent
 import ui.components.default_component.AnimatedToast
 import ui.components.placeholder.ErrorPlaceholder
+import ui.components.placeholder.ShimmerAsyncImage
+import ui.components.placeholder.ShimmerImagePlaceholder
+import ui.components.placeholder.ShimmerLoadingTransition
+import ui.components.placeholder.ShimmerTextPlaceholder
 import ui.components.profile.UnEditableContactComponent
 import ui.model.AnnouncementCancelReason
 import ui.theme.backgroundColor
@@ -206,50 +209,194 @@ fun ProfileAnnouncementDetailsScreen(
 ) {
 
     val state = profileAnnouncementDetailsState
-    Box(
-        modifier = modifier
-            .fillMaxSize()
-            .background(backgroundColor)
+    ShimmerLoadingTransition(
+        modifier = modifier.fillMaxSize(),
+        isLoading = state is ProfileAnnouncementDetailsState.Loading,
+        loadingContent = {
+            ProfileAnnouncementDetailsShimmerPlaceholder(
+                modifier = Modifier.fillMaxSize(),
+                announcementType = announcementType
+            )
+        }
     ) {
-        when (state) {
-            ProfileAnnouncementDetailsState.Idle,
-            ProfileAnnouncementDetailsState.Loading -> {
-                CircularProgressIndicator(
-                    modifier = Modifier.align(Alignment.Center),
-                    color = buttonPrimary
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(backgroundColor)
+        ) {
+            when (state) {
+                ProfileAnnouncementDetailsState.Idle,
+                ProfileAnnouncementDetailsState.Loading -> Unit
+
+                is ProfileAnnouncementDetailsState.Failed -> {
+                    Column(
+                        modifier = Modifier
+                            .align(Alignment.Center)
+                            .padding(horizontal = 16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        ErrorPlaceholder()
+                        Spacer(Modifier.height(8.dp))
+                        Text(
+                            text = state.message,
+                            color = textHint,
+                            fontSize = 14.sp
+                        )
+                    }
+                }
+
+                is ProfileAnnouncementDetailsState.Success -> {
+                    ProfileAnnouncementDetailsContent(
+                        announcement = state.announcement,
+                        announcementType = announcementType,
+                        spottedLocations = state.spottedLocations,
+                        spottedLocationsError = state.spottedLocationsError,
+                        foundReports = state.foundReports,
+                        foundReportsError = state.foundReportsError,
+                        onBackClick = onBackClick,
+                        openBottom = openBottom,
+                        onFoundReportClick = onFoundReportClick
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ProfileAnnouncementDetailsShimmerPlaceholder(
+    modifier: Modifier = Modifier,
+    announcementType: Int
+) {
+    Column(
+        modifier = modifier
+            .background(backgroundColor)
+            .verticalScroll(rememberScrollState())
+    ) {
+        ShimmerImagePlaceholder(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(340.dp)
+                .clip(RoundedCornerShape(bottomStart = 20.dp, bottomEnd = 20.dp))
+        )
+
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(
+                    color = Color.White,
+                    shape = RoundedCornerShape(16.dp)
                 )
+                .padding(horizontal = 16.dp, vertical = 18.dp)
+        ) {
+            ShimmerTextPlaceholder(
+                modifier = Modifier
+                    .height(24.dp)
+                    .fillMaxWidth(0.44f)
+            )
+            Spacer(Modifier.height(10.dp))
+            ShimmerTextPlaceholder(
+                modifier = Modifier
+                    .height(14.dp)
+                    .fillMaxWidth(0.92f)
+            )
+            Spacer(Modifier.height(8.dp))
+            ShimmerTextPlaceholder(
+                modifier = Modifier
+                    .height(14.dp)
+                    .fillMaxWidth(0.68f)
+            )
+
+            Spacer(Modifier.height(18.dp))
+
+            repeat(3) {
+                ShimmerTextPlaceholder(
+                    modifier = Modifier
+                        .height(16.dp)
+                        .fillMaxWidth(0.56f)
+                )
+                Spacer(Modifier.height(8.dp))
             }
 
-            is ProfileAnnouncementDetailsState.Failed -> {
-                Column(
+            Spacer(Modifier.height(18.dp))
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(62.dp)
+                    .background(eventDateComponentColor, RoundedCornerShape(10.dp))
+                    .padding(horizontal = 12.dp, vertical = 12.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                ShimmerImagePlaceholder(
                     modifier = Modifier
-                        .align(Alignment.Center)
-                        .padding(horizontal = 16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    ErrorPlaceholder()
-                    Spacer(Modifier.height(8.dp))
-                    Text(
-                        text = state.message,
-                        color = textHint,
-                        fontSize = 14.sp
+                        .size(38.dp)
+                        .clip(RoundedCornerShape(10.dp))
+                )
+                Spacer(Modifier.width(10.dp))
+                Column(modifier = Modifier.weight(1f)) {
+                    ShimmerTextPlaceholder(
+                        modifier = Modifier
+                            .height(12.dp)
+                            .fillMaxWidth(0.36f)
+                    )
+                    Spacer(Modifier.height(6.dp))
+                    ShimmerTextPlaceholder(
+                        modifier = Modifier
+                            .height(16.dp)
+                            .fillMaxWidth(0.58f)
                     )
                 }
             }
 
-            is ProfileAnnouncementDetailsState.Success -> {
-                ProfileAnnouncementDetailsContent(
-                    announcement = state.announcement,
-                    announcementType = announcementType,
-                    spottedLocations = state.spottedLocations,
-                    spottedLocationsError = state.spottedLocationsError,
-                    foundReports = state.foundReports,
-                    foundReportsError = state.foundReportsError,
-                    onBackClick = onBackClick,
-                    openBottom = openBottom,
-                    onFoundReportClick = onFoundReportClick
+            Spacer(Modifier.height(24.dp))
+
+            ShimmerTextPlaceholder(
+                modifier = Modifier
+                    .height(20.dp)
+                    .fillMaxWidth(0.22f)
+            )
+            Spacer(Modifier.height(8.dp))
+            ShimmerTextPlaceholder(
+                modifier = Modifier
+                    .height(14.dp)
+                    .fillMaxWidth(0.74f)
+            )
+
+            if (announcementType == MISSING_ANNOUNCEMENT_TYPE) {
+                Spacer(Modifier.height(24.dp))
+                ShimmerTextPlaceholder(
+                    modifier = Modifier
+                        .height(20.dp)
+                        .fillMaxWidth(0.38f)
                 )
+                Spacer(Modifier.height(12.dp))
+                ShimmerImagePlaceholder(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(280.dp)
+                        .clip(RoundedCornerShape(15.dp))
+                )
+                Spacer(Modifier.height(24.dp))
+                ShimmerTextPlaceholder(
+                    modifier = Modifier
+                        .height(20.dp)
+                        .fillMaxWidth(0.54f)
+                )
+                Spacer(Modifier.height(12.dp))
+                LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    items(2) {
+                        ShimmerImagePlaceholder(
+                            modifier = Modifier
+                                .width(260.dp)
+                                .height(210.dp)
+                                .clip(RoundedCornerShape(16.dp))
+                        )
+                    }
+                }
             }
+
+            Spacer(Modifier.height(100.dp))
         }
     }
 }
@@ -337,7 +484,7 @@ private fun DetailsHeaderImage(
     onBackClick: () -> Unit
 ) {
     Box {
-        AsyncImage(
+        ShimmerAsyncImage(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(340.dp)
@@ -348,8 +495,6 @@ private fun DetailsHeaderImage(
                     )
                 ),
             model = imagePath?.toImageModel(),
-            placeholder = painterResource(R.drawable.ic_dog),
-            error = painterResource(R.drawable.ic_dog),
             contentScale = ContentScale.Crop,
             contentDescription = null
         )
@@ -556,14 +701,12 @@ private fun FoundReportCard(
         Column(
             modifier = Modifier.padding(10.dp)
         ) {
-            AsyncImage(
+            ShimmerAsyncImage(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(132.dp)
                     .clip(RoundedCornerShape(12.dp)),
                 model = report.imagesPath.firstOrNull()?.toImageModel(),
-                placeholder = painterResource(R.drawable.ic_dog),
-                error = painterResource(R.drawable.ic_dog),
                 contentScale = ContentScale.Crop,
                 contentDescription = null
             )
@@ -635,14 +778,12 @@ private fun FoundReportDetailsBottomSheet(
                     items = report.imagesPath,
                     key = { index, imagePath -> "$index-$imagePath" }
                 ) { _, imagePath ->
-                    AsyncImage(
+                    ShimmerAsyncImage(
                         modifier = Modifier
                             .width(220.dp)
                             .height(180.dp)
                             .clip(RoundedCornerShape(14.dp)),
                         model = imagePath.toImageModel(),
-                        placeholder = painterResource(R.drawable.ic_dog),
-                        error = painterResource(R.drawable.ic_dog),
                         contentScale = ContentScale.Crop,
                         contentDescription = null
                     )
