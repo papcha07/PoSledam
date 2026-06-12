@@ -1,5 +1,6 @@
 package navigation
 
+import android.net.Uri
 import androidx.compose.runtime.remember
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
@@ -14,7 +15,6 @@ import ui.components.FiltersScreen
 import ui.profile.PersonDto
 import ui.profile.SearchProfileScreen
 import ui.viewModel.FilterViewModel
-import java.net.URLEncoder
 
 sealed class SearchRoute(val route: String) {
     object SearchScreen : SearchRoute("searchMain")
@@ -29,7 +29,37 @@ sealed class SearchRoute(val route: String) {
             return "foundPetScreen/$petId/$announcementType"
         }
     }
-    object ProfileScreen : SearchRoute("searchProfile")
+
+    object ProfileScreen : SearchRoute("searchProfile") {
+        fun createRoute(
+            name: String,
+            avatar: String?,
+            description: String?,
+            tg: String?,
+            vk: String?,
+            wh: String?
+        ): String {
+            val baseRoute = "$route/${Uri.encode(name.ifBlank { "Пользователь" })}"
+            val queryParams = listOfNotNull(
+                avatar.toQueryParam("avatar"),
+                description.toQueryParam("desc"),
+                tg.toQueryParam("tg"),
+                vk.toQueryParam("vk"),
+                wh.toQueryParam("wh")
+            )
+
+            return if (queryParams.isNotEmpty()) {
+                "$baseRoute?${queryParams.joinToString("&")}"
+            } else {
+                baseRoute
+            }
+        }
+
+        private fun String?.toQueryParam(name: String): String? {
+            val value = this?.takeIf { it.isNotBlank() } ?: return null
+            return "$name=${Uri.encode(value)}"
+        }
+    }
 }
 
 
@@ -98,16 +128,22 @@ fun NavGraphBuilder.searchNavGraph(navController: NavController, route: String =
                 goBackClick = { navController.popBackStack() },
 
                 onOwnerClick = { creator ->
-                    val name = URLEncoder.encode(creator.firstName, "UTF-8")
-                    val avatarPath = (creator.avatarPath ?: "").trimStart('/')
-                    val avatar = URLEncoder.encode(avatarPath, "UTF-8")
-                    navController.navigate("searchProfile?name=$name&avatar=$avatar")
+                    navController.navigate(
+                        SearchRoute.ProfileScreen.createRoute(
+                            name = creator.firstName,
+                            avatar = creator.avatarPath,
+                            description = creator.description,
+                            tg = creator.tg,
+                            vk = creator.vk,
+                            wh = creator.wh
+                        )
+                    )
                 }
             )
         }
 
         composable(
-            route = "${SearchRoute.ProfileScreen.route}?name={name}&avatar={avatar}&desc={}",
+            route = "${SearchRoute.ProfileScreen.route}/{name}?avatar={avatar}&desc={description}&tg={tg}&vk={vk}&wh={wh}",
             arguments = listOf(
                 navArgument("name") { type = NavType.StringType },
                 navArgument("avatar") {
@@ -118,21 +154,41 @@ fun NavGraphBuilder.searchNavGraph(navController: NavController, route: String =
                 navArgument("description") {
                     type = NavType.StringType
                     defaultValue = ""
-                    nullable = false
-                }
+                    nullable = true
+                },
+                navArgument("tg") {
+                    type = NavType.StringType
+                    defaultValue = null
+                    nullable = true
+                },
 
+                navArgument("vk") {
+                    type = NavType.StringType
+                    defaultValue = null
+                    nullable = true
+                },
+
+                navArgument("wh") {
+                    type = NavType.StringType
+                    defaultValue = null
+                    nullable = true
+                }
             )
         ) { backStackEntry ->
             val name = backStackEntry.arguments?.getString("name") ?: ""
             val avatar = backStackEntry.arguments?.getString("avatar")
             val description = backStackEntry.arguments?.getString("description")
+            val tg = backStackEntry.arguments?.getString("tg")
+            val vk = backStackEntry.arguments?.getString("vk")
+            val wh = backStackEntry.arguments?.getString("wh")
 
             val personDto = PersonDto(
                 name = name,
-                uri = "TODO()",
-                description = description,
-                vkUri = "vk.com",
-                tgUri = "tg.com"
+                uri = avatar.blankToNull(),
+                description = description.blankToNull(),
+                vkUri = vk.blankToNull(),
+                tgUri = tg.blankToNull(),
+                whUri = wh.blankToNull()
             )
             SearchProfileScreen(
                 personDto = personDto
@@ -140,4 +196,8 @@ fun NavGraphBuilder.searchNavGraph(navController: NavController, route: String =
 
         }
     }
+}
+
+private fun String?.blankToNull(): String? {
+    return this?.takeIf { it.isNotBlank() }
 }

@@ -24,6 +24,7 @@ data class FoundPetResponse(
         val id: String,
         val firstName: String,
         val avatarPath: String? = null,
+        val description: String? = null,
         val contacts: List<Contacts>? = null
     )
 
@@ -39,4 +40,3 @@ data class FoundPetResponse(
         val url: String? = null
     )
 }
-

@@ -88,7 +88,8 @@ fun PersonCardComponent(
             Spacer(Modifier.height(16.dp))
             ContactListComponent(
                 vkUri = personDto.vkUri,
-                tgUri = personDto.tgUri
+                tgUri = personDto.tgUri,
+                whUri = personDto.whUri
             )
             Spacer(Modifier.height(16.dp))
         }
@@ -105,6 +106,7 @@ private fun PersonCardComponentPreview() {
             uri = null,
             vkUri = "vk.com",
             tgUri = "tg.com",
+            whUri = "wa.me/79000000000",
             description = "Люблю животных, готов помогать найти их и приютить на время"
         )
     )

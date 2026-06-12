@@ -20,7 +20,11 @@ data class DateInfo(
 data class Creator(
     val id: String,
     val firstName: String,
-    val avatarPath: String? = null
+    val avatarPath: String? = null,
+    val description: String? = null,
+    val tg: String? = null,
+    val wh: String? = null,
+    val vk: String? = null
 )
 
 data class PetInfo(
