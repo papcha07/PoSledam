@@ -17,7 +17,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.BottomSheetScaffold
@@ -35,6 +38,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -46,6 +50,9 @@ import ui.components.EventDateComponent
 import ui.components.bottom_report.SeenPetBottomSheetContent
 import ui.components.bottom_spotted.SpottedPetConfirmationBottomSheetContent
 import ui.components.default_component.AnimatedToast
+import ui.components.placeholder.ShimmerImagePlaceholder
+import ui.components.placeholder.ShimmerLoadingTransition
+import ui.components.placeholder.ShimmerTextPlaceholder
 import ui.components.placeholder.SuccessSendPopup
 import ui.theme.backgroundColor
 import ui.theme.buttonPrimary
@@ -266,38 +273,169 @@ fun DetailPetScreen(
     onFoundPetClick: () -> Unit,
     onSeenPetClick: () -> Unit
 ) {
-    when (foundPetState) {
-        is PetDetailsScreenState.Failed -> {
-            CircularProgressIndicator()
+    ShimmerLoadingTransition(
+        modifier = modifier.fillMaxSize(),
+        isLoading = foundPetState is PetDetailsScreenState.Loading,
+        loadingContent = {
+            DetailPetShimmerPlaceholder(modifier = Modifier.fillMaxSize())
         }
+    ) {
+        when (foundPetState) {
+            is PetDetailsScreenState.Failed -> {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                }
+            }
 
-        PetDetailsScreenState.Idle -> Unit
+            PetDetailsScreenState.Idle,
+            PetDetailsScreenState.Loading -> Unit
 
-        PetDetailsScreenState.Loading -> {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator()
+            is PetDetailsScreenState.Success -> {
+                DetailPetContent(
+                    modifier = Modifier.fillMaxSize(),
+                    petInfo = foundPetState.petInfo,
+                    announcementType = announcementType,
+                    isMapSheetOpen = isMapSheetOpen,
+                    isSuccess = isSuccess,
+                    isReportLoading = isReportLoading,
+                    userState = userState,
+                    toastMessage = toastMessage,
+                    goBackClick = goBackClick,
+                    onOwnerClick = onOwnerClick,
+                    onToastDismiss = onToastDismiss,
+                    onFoundPetClick = onFoundPetClick,
+                    onSeenPetClick = onSeenPetClick
+                )
             }
         }
+    }
+}
 
-        is PetDetailsScreenState.Success -> {
-            DetailPetContent(
-                modifier = modifier,
-                petInfo = foundPetState.petInfo,
-                announcementType = announcementType,
-                isMapSheetOpen = isMapSheetOpen,
-                isSuccess = isSuccess,
-                isReportLoading = isReportLoading,
-                userState = userState,
-                toastMessage = toastMessage,
-                goBackClick = goBackClick,
-                onOwnerClick = onOwnerClick,
-                onToastDismiss = onToastDismiss,
-                onFoundPetClick = onFoundPetClick,
-                onSeenPetClick = onSeenPetClick
+@Composable
+private fun DetailPetShimmerPlaceholder(
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier
+            .background(backgroundColor)
+            .verticalScroll(rememberScrollState())
+    ) {
+        ShimmerImagePlaceholder(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(360.dp)
+                .clip(RoundedCornerShape(bottomStart = 20.dp, bottomEnd = 20.dp))
+        )
+
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(
+                    color = Color.White,
+                    shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)
+                )
+                .padding(horizontal = 16.dp, vertical = 16.dp)
+        ) {
+            ShimmerTextPlaceholder(
+                modifier = Modifier
+                    .height(24.dp)
+                    .fillMaxWidth(0.45f)
             )
+            Spacer(Modifier.height(12.dp))
+            ShimmerTextPlaceholder(
+                modifier = Modifier
+                    .height(16.dp)
+                    .fillMaxWidth(0.92f)
+            )
+            Spacer(Modifier.height(8.dp))
+            ShimmerTextPlaceholder(
+                modifier = Modifier
+                    .height(16.dp)
+                    .fillMaxWidth(0.74f)
+            )
+
+            Spacer(Modifier.height(32.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                repeat(2) {
+                    ShimmerTextPlaceholder(
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(44.dp)
+                            .clip(RoundedCornerShape(10.dp))
+                    )
+                }
+            }
+
+            Spacer(Modifier.height(32.dp))
+
+            ShimmerTextPlaceholder(
+                modifier = Modifier
+                    .height(20.dp)
+                    .fillMaxWidth(0.34f)
+            )
+            Spacer(Modifier.height(8.dp))
+            ShimmerImagePlaceholder(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(200.dp)
+                    .clip(RoundedCornerShape(15.dp))
+            )
+            Spacer(Modifier.height(8.dp))
+            ShimmerTextPlaceholder(
+                modifier = Modifier
+                    .height(16.dp)
+                    .fillMaxWidth(0.68f)
+            )
+
+            Spacer(Modifier.height(32.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                ShimmerImagePlaceholder(
+                    modifier = Modifier
+                        .size(48.dp)
+                        .clip(CircleShape)
+                )
+                Spacer(Modifier.width(12.dp))
+                Column(modifier = Modifier.weight(1f)) {
+                    ShimmerTextPlaceholder(
+                        modifier = Modifier
+                            .height(18.dp)
+                            .fillMaxWidth(0.42f)
+                    )
+                    Spacer(Modifier.height(8.dp))
+                    ShimmerTextPlaceholder(
+                        modifier = Modifier
+                            .height(14.dp)
+                            .fillMaxWidth(0.6f)
+                    )
+                }
+            }
+
+            Spacer(Modifier.height(20.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                repeat(2) {
+                    ShimmerTextPlaceholder(
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(40.dp)
+                            .clip(RoundedCornerShape(40.dp))
+                    )
+                }
+            }
         }
     }
 }
