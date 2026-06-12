@@ -14,7 +14,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -197,6 +196,17 @@ private fun handleNotificationIntent(
                 SearchRoute.FoundPetScreen.createRoute(
                     petId = entityId,
                     announcementType = MISS
+                )
+            ) {
+                launchSingleTop = true
+            }
+        }
+
+        "ReportFound" -> {
+            navController.navigate(
+                ProfileRoute.DetailScreen.createRoute(
+                    petId = entityId,
+                    announcementType = FIND
                 )
             ) {
                 launchSingleTop = true
