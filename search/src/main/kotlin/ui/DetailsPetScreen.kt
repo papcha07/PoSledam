@@ -42,6 +42,7 @@ import kotlinx.coroutines.launch
 import ui.components.ButtonComponent
 import ui.components.EventDateComponent
 import ui.components.bottom_report.SeenPetBottomSheetContent
+import ui.components.bottom_spotted.SpottedPetConfirmationBottomSheetContent
 import ui.components.default_component.AnimatedToast
 import ui.components.placeholder.SuccessSendPopup
 import ui.theme.backgroundColor
@@ -52,6 +53,10 @@ import ui.viewModel.PetDetailsScreenState
 import ui.viewModel.ReportFoundAnimalEffect
 import ui.viewModel.ReportViewModel
 
+private enum class DetailsPetBottomSheetType {
+    FoundPetConfirmation,
+    SeenPetLocation
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -67,8 +72,8 @@ fun DetailsPetScreenProvider(
     val scaffoldState = rememberBottomSheetScaffoldState()
     val scope = rememberCoroutineScope()
 
-    var isMapSheetOpen by remember {
-        mutableStateOf(false)
+    var activeBottomSheet by remember {
+        mutableStateOf<DetailsPetBottomSheetType?>(null)
     }
 
     var toastMessage by remember {
@@ -78,16 +83,23 @@ fun DetailsPetScreenProvider(
     val spottedData by reportViewModel.spottedAnimalData.collectAsStateWithLifecycle()
     val reportUiState by reportViewModel.uiState.collectAsStateWithLifecycle()
     val foundPetState by viewModel.petInfoState.collectAsStateWithLifecycle()
+    val findUriState by reportViewModel.findUriState.collectAsStateWithLifecycle()
 
     val isSendButtonEnabled =
         spottedData.uri.isNotEmpty() &&
                 spottedData.lon != null &&
                 spottedData.lat != null
 
-    val pickImageLauncher = rememberLauncherForActivityResult(
+    val pickSpottedImageLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
         uri?.let(reportViewModel::addImage)
+    }
+
+    val pickFoundImageLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        uri?.let(reportViewModel::addFindImage)
     }
 
     LaunchedEffect(petId, announcementType) {
@@ -99,14 +111,14 @@ fun DetailsPetScreenProvider(
 
     LaunchedEffect(scaffoldState.bottomSheetState.currentValue) {
         if (scaffoldState.bottomSheetState.currentValue != SheetValue.Expanded) {
-            isMapSheetOpen = false
+            activeBottomSheet = null
         }
     }
 
     LaunchedEffect(reportUiState.isSuccess) {
         if (reportUiState.isSuccess) {
             scaffoldState.bottomSheetState.partialExpand()
-            isMapSheetOpen = false
+            activeBottomSheet = null
         }
     }
 
@@ -120,6 +132,13 @@ fun DetailsPetScreenProvider(
     }
     val userState by viewModel.userState.collectAsState(null)
 
+    fun closeBottomSheet() {
+        scope.launch {
+            scaffoldState.bottomSheetState.partialExpand()
+            activeBottomSheet = null
+        }
+    }
+
     BottomSheetScaffold(
         modifier = modifier.fillMaxSize(),
         scaffoldState = scaffoldState,
@@ -127,31 +146,54 @@ fun DetailsPetScreenProvider(
         sheetShape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
         sheetContainerColor = Color(0xFFFAFAFA),
         sheetContentColor = Color(0xFF222222),
-        sheetSwipeEnabled = true,
+        sheetSwipeEnabled = activeBottomSheet != null,
         sheetContent = {
-            SeenPetBottomSheetContent(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(min = 400.dp, max = 760.dp),
-                photos = spottedData.uri,
-                buttonState = isSendButtonEnabled,
-                loadingState = reportUiState.isLoading,
-                updateLongitude = reportViewModel::updateLongitude,
-                updateLatitude = reportViewModel::updateLatitude,
-                onSendClick = {
-                    reportViewModel.reportSpottedAnimal(id = petId)
-                },
-                onAddPhotoClick = {
-                    pickImageLauncher.launch("image/*")
+            when (activeBottomSheet) {
+                DetailsPetBottomSheetType.FoundPetConfirmation -> {
+                    SpottedPetConfirmationBottomSheetContent(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(min = 400.dp, max = 760.dp),
+                        photos = findUriState,
+                        onAddPhotoClick = {
+                            pickFoundImageLauncher.launch("image/*")
+                        },
+                        onSendClick = {
+                            reportViewModel.reportFoundAnimal(petId)
+                        }
+                    )
                 }
-            )
+
+                DetailsPetBottomSheetType.SeenPetLocation -> {
+                    SeenPetBottomSheetContent(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(min = 400.dp, max = 760.dp),
+                        photos = spottedData.uri,
+                        buttonState = isSendButtonEnabled,
+                        loadingState = reportUiState.isLoading,
+                        updateLongitude = reportViewModel::updateLongitude,
+                        updateLatitude = reportViewModel::updateLatitude,
+                        onSendClick = {
+                            reportViewModel.reportSpottedAnimal(id = petId)
+                        },
+                        onAddPhotoClick = {
+                            pickSpottedImageLauncher.launch("image/*")
+                        }
+                    )
+                }
+
+                null -> {
+                    Spacer(Modifier.height(1.dp))
+                }
+            }
         }
     ) { padding ->
         DetailPetScreen(
             modifier = Modifier.padding(padding),
             foundPetState = foundPetState,
             announcementType = announcementType,
-            isMapSheetOpen = isMapSheetOpen,
+            isMapSheetOpen = activeBottomSheet == DetailsPetBottomSheetType.SeenPetLocation,
             isSuccess = reportUiState.isSuccess,
             toastMessage = toastMessage,
             goBackClick = goBackClick,
@@ -161,11 +203,14 @@ fun DetailsPetScreenProvider(
                 toastMessage = null
             },
             onFoundPetClick = {
-                reportViewModel.reportFoundAnimal(petId)
+                activeBottomSheet = DetailsPetBottomSheetType.FoundPetConfirmation
+                scope.launch {
+                    scaffoldState.bottomSheetState.expand()
+                }
             },
             onSeenPetClick = {
+                activeBottomSheet = DetailsPetBottomSheetType.SeenPetLocation
                 scope.launch {
-                    isMapSheetOpen = true
                     scaffoldState.bottomSheetState.expand()
                 }
             }

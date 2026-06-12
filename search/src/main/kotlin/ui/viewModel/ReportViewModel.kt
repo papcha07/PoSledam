@@ -40,6 +40,10 @@ class ReportViewModel(
     private val _spottedUiState = MutableStateFlow<SpottedAnimalData>(SpottedAnimalData())
     val spottedAnimalData = _spottedUiState.asStateFlow()
 
+
+    private val _findUriState = MutableStateFlow<List<Uri>>(listOf())
+    val findUriState = _findUriState.asStateFlow()
+
     fun reportFoundAnimal(id: String) {
         viewModelScope.launch {
             val response = searchInteractor.reportFoundAnimal(id)
@@ -58,7 +62,6 @@ class ReportViewModel(
             }
         }
     }
-
 
     fun reportSpottedAnimal(id: String) {
         viewModelScope.launch {
@@ -106,5 +109,9 @@ class ReportViewModel(
         }
     }
 
-
+    fun addFindImage(uri: Uri) {
+        _findUriState.update { state ->
+            state + uri
+        }
+    }
 }
