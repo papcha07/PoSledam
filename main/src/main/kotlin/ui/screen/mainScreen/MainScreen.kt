@@ -1,5 +1,6 @@
 package ui.screen.mainScreen
 
+import NewsType
 import android.Manifest
 import android.app.Activity
 import android.content.Context
@@ -8,6 +9,7 @@ import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -48,22 +50,16 @@ import ui.theme.backgroundColor
 
 val articleInfoList = listOf(
     ArticleInfo(
-        image = R.drawable.f_article
+        image = R.drawable.f_article,
+        newsType = NewsType.HowToUseAppNews
     ),
     ArticleInfo(
-        image = R.drawable.s_article
+        image = R.drawable.s_article,
+        newsType = NewsType.SelfWaklingNews
     ),
     ArticleInfo(
-        image = R.drawable.t_article
-    ),
-    ArticleInfo(
-        image = R.drawable.f_article
-    ),
-    ArticleInfo(
-        image = R.drawable.s_article
-    ),
-    ArticleInfo(
-        image = R.drawable.t_article
+        image = R.drawable.t_article,
+        newsType = NewsType.RobberyNews
     )
 )
 
@@ -71,7 +67,7 @@ val articleInfoList = listOf(
 fun MainScreen(
     navigateToStreetPetScreen: () -> Unit,
     navigateToCameraScreen: () -> Unit,
-    navigateToNewsScreen: () -> Unit,
+    navigateToNewsScreen: (NewsType) -> Unit,
     mainScreenViewModel: MainScreenViewModel,
 ) {
 
@@ -92,7 +88,7 @@ fun MainScreen(
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .background(color = backgroundColor)
+            .background(color = backgroundColor),
     ) {
         item {
             ArticleSectionComponent(
@@ -185,7 +181,7 @@ fun GetPhotoComponent(
 fun ArticleSectionComponent(
     modifier: Modifier = Modifier,
     articleInfoList: List<ArticleInfo>,
-    navigateToNewsScreen: () -> Unit
+    navigateToNewsScreen: (NewsType) -> Unit
 ) {
     Box(
         modifier = modifier
@@ -194,18 +190,22 @@ fun ArticleSectionComponent(
                 color = Color.White,
                 shape = RoundedCornerShape(20.dp)
             )
-
     ) {
 
         LazyRow(
-            Modifier.padding(top = 16.dp, start = 16.dp, bottom = 16.dp)
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 16.dp),
+            horizontalArrangement = Arrangement.spacedBy(
+                space = 30.dp,
+                alignment = Alignment.CenterHorizontally
+            ),
         ) {
             items(articleInfoList) { articleInfo ->
                 ArticleComponent(
                     articleInfo = articleInfo,
-                    onClick = navigateToNewsScreen
+                    onClick = { navigateToNewsScreen(articleInfo.newsType) }
                 )
-                Spacer(Modifier.width(8.dp))
             }
         }
     }
@@ -317,7 +317,8 @@ private fun getPhoto(context: Context) {
 fun ArticleComponentPreview() {
     ArticleComponent(
         articleInfo = ArticleInfo(
-            image = R.drawable.f_article
+            image = R.drawable.f_article,
+            newsType = NewsType.HowToUseAppNews
         ),
         onClick = {
 
@@ -353,5 +354,4 @@ fun NearPetMainComponentPreview() {
 
     }
 }
-
 

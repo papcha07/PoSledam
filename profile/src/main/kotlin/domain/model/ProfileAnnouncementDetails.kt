@@ -26,3 +26,22 @@ data class SpottedLocation(
     val longitude: Double,
     val imagesPath: List<String>
 )
+
+data class FoundReport(
+    val id: String,
+    val user: FoundReportUser,
+    val createdDate: String,
+    val createdTime: String,
+    val imagesPath: List<String>
+)
+
+data class FoundReportUser(
+    val id: String,
+    val name: String,
+    val contacts: List<FoundReportContact>
+)
+
+data class FoundReportContact(
+    val type: Int?,
+    val url: String
+)

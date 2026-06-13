@@ -23,7 +23,6 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.example.core.R
 import domain.models.StreetPetPreviewModel
-import ui.BASE_URL
 
 @Composable
 fun NearPetCardComponent(
@@ -55,7 +54,7 @@ fun NearPetCardComponent(
                     .height(332.dp)
                     .fillMaxWidth(),
                 contentScale = ContentScale.Crop,
-                model = "$BASE_URL/api/image/${streetPetPreviewModel.image}",
+                model = "${streetPetPreviewModel.image}",
                 placeholder = painterResource(R.drawable.i),
                 error = painterResource(R.drawable.i),
                 contentDescription = null,

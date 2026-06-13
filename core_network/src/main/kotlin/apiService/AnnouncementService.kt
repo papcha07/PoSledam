@@ -5,6 +5,7 @@ import ApiResponse
 import SendResult
 import android.util.Log
 import apiService.models.announcement_models.CancelAnnouncementRequest
+import apiService.models.announcement_models.FoundReportResponse
 import apiService.models.announcement_models.SpottedLocationResponse
 import apiService.models.announcement_models.UserPetInfoResponse
 import io.ktor.client.HttpClient
@@ -149,6 +150,23 @@ class AnnouncementService(private val client: HttpClient) {
             when {
                 response.status.isSuccess() -> {
                     ApiResponse.Success(response.body<List<SpottedLocationResponse>>())
+                }
+
+                else -> ApiResponse.Error(response.status.value)
+            }
+        } catch (e: Exception) {
+            ApiResponse.Error(-1)
+        }
+    }
+
+    suspend fun getFoundReports(
+        announcementId: String
+    ): ApiResponse<List<FoundReportResponse>> {
+        return try {
+            val response = client.get("api/$MISS/$announcementId/found-reports")
+            when {
+                response.status.isSuccess() -> {
+                    ApiResponse.Success(response.body<List<FoundReportResponse>>())
                 }
 
                 else -> ApiResponse.Error(response.status.value)

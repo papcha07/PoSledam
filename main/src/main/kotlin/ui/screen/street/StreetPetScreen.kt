@@ -31,14 +31,12 @@ import ui.theme.backgroundColor
 fun StreetPetRoute(
     streetPetViewModel: StreetPetViewModel,
     returnToMainScreen: () -> Unit,
-    openFilterSettings: () -> Unit,
     openStreetDetails: (String) -> Unit
 ) {
     val animals = streetPetViewModel.streetAnimals.collectAsLazyPagingItems()
     StreetPetScreen(
         streetPetScreenState = animals,
         returnToMainScreen = returnToMainScreen,
-        openFilterSettings = openFilterSettings,
         openStreetDetails = openStreetDetails
     )
 }
@@ -48,7 +46,6 @@ fun StreetPetScreen(
     modifier: Modifier = Modifier,
     streetPetScreenState: LazyPagingItems<StreetPetPreviewModel>,
     returnToMainScreen: () -> Unit,
-    openFilterSettings: () -> Unit,
     openStreetDetails: (String) -> Unit
 ) {
 
@@ -63,10 +60,8 @@ fun StreetPetScreen(
                 title = "Замеченные питомцы",
                 backArrow = true,
                 backArrowIcon = R.drawable.left_arrow,
-                actionIcon = R.drawable.ic_settings,
             ),
             onBackClick = returnToMainScreen,
-            onActionClick = openFilterSettings
         )
         Spacer(Modifier.height(10.dp))
         StreetPetSection(

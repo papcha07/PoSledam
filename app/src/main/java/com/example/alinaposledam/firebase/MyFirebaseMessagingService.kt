@@ -102,7 +102,25 @@ class MyFirebaseMessagingService : FirebaseMessagingService(), KoinComponent {
             }
 
             REPORT_FOUND -> {
-
+                showNotification(
+                    title = title,
+                    body = body,
+                    entityId = entityId,
+                    notificationType = notificationType
+                )
+                serviceScope.launch {
+                    notificationInteractor.insert(
+                        Notification(
+                            id = 0,
+                            title = title,
+                            body = body,
+                            isRead = false,
+                            type = 2,
+                            time = System.currentTimeMillis(),
+                            announcementId = entityId
+                        )
+                    )
+                }
             }
         }
     }

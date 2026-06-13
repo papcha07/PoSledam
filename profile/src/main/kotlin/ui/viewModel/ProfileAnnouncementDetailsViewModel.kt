@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import domain.interactor.announcement.AnnouncementInteractor
 import domain.model.CancelReason
+import domain.model.FoundReport
 import domain.model.ProfileAnnouncementDetails
 import domain.model.SpottedLocation
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,7 +19,9 @@ sealed class ProfileAnnouncementDetailsState {
     data class Success(
         val announcement: ProfileAnnouncementDetails,
         val spottedLocations: List<SpottedLocation>,
-        val spottedLocationsError: String? = null
+        val spottedLocationsError: String? = null,
+        val foundReports: List<FoundReport> = emptyList(),
+        val foundReportsError: String? = null
     ) : ProfileAnnouncementDetailsState()
 
     data class Failed(val message: String) : ProfileAnnouncementDetailsState()
@@ -67,18 +70,22 @@ class ProfileAnnouncementDetailsViewModel(
                 _detailsState.update {
                     ProfileAnnouncementDetailsState.Success(
                         announcement = announcement,
-                        spottedLocations = emptyList()
+                        spottedLocations = emptyList(),
+                        foundReports = emptyList()
                     )
                 }
                 return@launch
             }
 
             val spottedLocationsResult = announcementInteractor.getSpottedLocations(announcementId)
+            val foundReportsResult = announcementInteractor.getFoundReports(announcementId)
             _detailsState.update {
                 ProfileAnnouncementDetailsState.Success(
                     announcement = announcement,
                     spottedLocations = spottedLocationsResult.first.orEmpty(),
-                    spottedLocationsError = spottedLocationsResult.second?.toMessage()
+                    spottedLocationsError = spottedLocationsResult.second?.toMessage(),
+                    foundReports = foundReportsResult.first.orEmpty(),
+                    foundReportsError = foundReportsResult.second?.toMessage()
                 )
             }
         }

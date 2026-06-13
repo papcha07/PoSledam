@@ -3,6 +3,8 @@ package com.example.alinaposledam.profileTest
 import domain.interactor.announcement.AnnouncementInteractor
 import domain.model.AnnouncementInfo
 import domain.model.AnnouncementStatus
+import domain.model.CancelReason
+import domain.model.FoundReport
 import domain.model.ProfileAnnouncementDetails
 import domain.model.SpottedLocation
 import kotlinx.coroutines.CompletableDeferred
@@ -24,6 +26,12 @@ class FakeAnnouncementInteractor : AnnouncementInteractor {
 
     fun returnsEmpty() {
         getUserAnnouncementsResult = Pair(listOf(), null)
+    }
+
+    override suspend fun cancelAnnouncement(
+        cancelReason: CancelReason
+    ): Pair<Boolean, InternetStatus?> {
+        return true to null
     }
 
     override suspend fun sendAnnouncement(
@@ -49,6 +57,12 @@ class FakeAnnouncementInteractor : AnnouncementInteractor {
     override suspend fun getSpottedLocations(
         announcementId: String
     ): Pair<List<SpottedLocation>?, InternetStatus?> {
+        return Pair(emptyList(), null)
+    }
+
+    override suspend fun getFoundReports(
+        announcementId: String
+    ): Pair<List<FoundReport>?, InternetStatus?> {
         return Pair(emptyList(), null)
     }
 }
