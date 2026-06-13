@@ -167,7 +167,8 @@ fun NavGraphBuilder.mainNavGraph(navController: NavController, route: String = "
             NewsScreen(
                 goBackClick = {
                     navController.popBackStack()
-                }
+                },
+                newsType = NewsType.HowToFindNews,
             )
         }
 

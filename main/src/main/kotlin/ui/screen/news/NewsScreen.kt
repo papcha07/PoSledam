@@ -1,4 +1,6 @@
 import androidx.activity.compose.BackHandler
+import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -19,9 +21,48 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.core.R
 
+enum class NewsType {
+    HowToFindNews,
+    SelfWaklingNews,
+    HowToUseAppNews
+}
+
+data class NewsData(
+    @StringRes val firstHeader: Int,
+    @StringRes val firstText: Int,
+    @StringRes val secondHeader: Int,
+    @StringRes val secondText: Int,
+    @StringRes val thirdHeader: Int,
+    @StringRes val thirdText: Int,
+    @DrawableRes val image: Int
+)
+
+private val newsMap = mapOf(
+    NewsType.HowToFindNews to NewsData(
+        firstHeader = R.string.news_title,
+        firstText = R.string.news_description,
+        secondHeader = R.string.news_step1_title,
+        secondText = R.string.news_step1_description,
+        thirdHeader = R.string.news_step2_title,
+        thirdText = R.string.news_step2_description,
+        image = R.drawable.news
+    ),
+
+    NewsType.SelfWaklingNews to NewsData(
+        firstHeader = R.string.self_walking_title,
+        firstText = R.string.self_walking_description,
+        secondHeader = R.string.self_walking_step1_title,
+        secondText = R.string.self_walking_step1_description,
+        thirdHeader = R.string.self_walking_step2_title,
+        thirdText = R.string.self_walking_step2_description,
+        image = R.drawable.news2
+    )
+)
+
 @Composable
 fun NewsScreen(
     modifier: Modifier = Modifier,
+    newsType: NewsType,
     goBackClick: () -> Unit
 ) {
     BackHandler {
