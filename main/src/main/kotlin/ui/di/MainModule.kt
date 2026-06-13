@@ -40,7 +40,9 @@ fun getMainModule() = module {
             notificationInteractor = get(),
             workerInteractor = get(),
             locationInteractor = get(),
-            locationSyncRequestStore = get()
+            locationSyncRequestStore = get(),
+            streetPetInteractor = get(),
+            userInteractor = get()
         )
     }
 
@@ -63,4 +65,3 @@ fun getMainModule() = module {
         LocationProvider(androidApplication())
     }
 }
-

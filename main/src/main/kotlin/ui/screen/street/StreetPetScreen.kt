@@ -48,7 +48,6 @@ fun StreetPetScreen(
     returnToMainScreen: () -> Unit,
     openStreetDetails: (String) -> Unit
 ) {
-
     Column(
         modifier = modifier
             .fillMaxSize()

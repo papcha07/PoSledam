@@ -16,6 +16,12 @@ class StreetPetInteractorImpl(
         return streetRepository.getStreetAnimals(streetParams = streetAnimalParams)
     }
 
+    override suspend fun getLatestStreetAnimal(
+        streetAnimalParams: StreetAnimalParams
+    ): Pair<StreetPetPreviewModel?, Int?> {
+        return streetRepository.getLatestStreetAnimal(streetAnimalParams)
+    }
+
     override suspend fun createStreetAdvert(advertInfo: AdvertInfo): Int {
         return streetRepository.createStreetAdvert(advertInfo)
     }

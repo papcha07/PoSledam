@@ -49,6 +49,19 @@ class StreetService(private val client: HttpClient) {
         }
     }
 
+    suspend fun getLatestStreetAnimal(
+        streetRequest: StreetListRequest
+    ): ApiResponse<StreetAnimalResponse?> {
+        return withContext(Dispatchers.IO) {
+            when (val response = getStreetAnimals(streetRequest)) {
+                is ApiResponse.Error -> response
+                is ApiResponse.Success<List<StreetAnimalResponse>> -> {
+                    ApiResponse.Success(response.data.firstOrNull())
+                }
+            }
+        }
+    }
+
     suspend fun getDetailsAboutStreetAnimal(id: String): ApiResponse<StreetAnimalDetailsResponse> {
         return withContext(Dispatchers.IO) {
             try {

@@ -8,6 +8,7 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.map
 import apiService.StreetService
+import apiService.models.StreetListRequest
 import apiService.models.street_models.StreetAnimalDetailsResponse
 import apiService.models.street_models.StreetAnimalRequest
 import apiService.models.street_models.StreetAnimalResponse
@@ -48,6 +49,21 @@ class StreetRepositoryImpl(
         ).flow.map { pagingData ->
             pagingData.map { response ->
                 convertToStreetPreviewModel(response)
+            }
+        }
+    }
+
+    override suspend fun getLatestStreetAnimal(
+        streetParams: StreetAnimalParams
+    ): Pair<StreetPetPreviewModel?, Int?> {
+        val response = streetService.getLatestStreetAnimal(
+            streetRequest = streetParams.toStreetListRequest()
+        )
+
+        return when (response) {
+            is ApiResponse.Error -> Pair(null, response.errorCode)
+            is ApiResponse.Success<StreetAnimalResponse?> -> {
+                Pair(response.data?.let(::convertToStreetPreviewModel), null)
             }
         }
     }
@@ -97,6 +113,17 @@ class StreetRepositoryImpl(
             date = primeTime.first,
             image = streetResponse.mainImagePath,
             minutesAgo = minutesAgoSafe(timeFromServer = streetResponse.eventDate)
+        )
+    }
+
+    private fun StreetAnimalParams.toStreetListRequest(): StreetListRequest {
+        return StreetListRequest(
+            lastDateTime = null,
+            from = from,
+            type = type,
+            centerRadius = centerRadius,
+            searchCenterLatitude = searchCenterLatitude,
+            searchCenterLongitude = searchCenterLongitude
         )
     }
 
