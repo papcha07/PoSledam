@@ -28,6 +28,8 @@ import model.auth.request.RegisterRequest
 import model.auth.response.LoginResponse
 import model.errorResponse.ErrorResponse
 import storage.TokenRepository
+import toApiErrorCode
+import toSendResultError
 import java.io.File
 
 class AuthService(
@@ -68,7 +70,7 @@ class AuthService(
 
         } catch (e: Exception) {
             Log.d("RegisterViewModel", e.message.toString())
-            ApiResponse.Error(-1)
+            ApiResponse.Error(e.toApiErrorCode())
         }
     }
 
@@ -87,7 +89,7 @@ class AuthService(
                 ApiResponse.Error(400)
             }
         } catch (e: Exception) {
-            ApiResponse.Error(-1)
+            ApiResponse.Error(e.toApiErrorCode())
         }
     }
 
@@ -100,7 +102,7 @@ class AuthService(
                 ApiResponse.Error(response.status.value)
             }
         } catch (e: Exception) {
-            ApiResponse.Error(-1)
+            ApiResponse.Error(e.toApiErrorCode())
         }
     }
 
@@ -165,7 +167,9 @@ class AuthService(
                     SendResult.BadRequest("Location update failed with code ${response.status.value}")
                 }
             } catch (e: Exception) {
-                SendResult.Error(e.message ?: "Location update network error")
+                e.toSendResultError(
+                    networkMessage = e.message ?: "Location update network error"
+                )
             }
         }
     }

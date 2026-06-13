@@ -28,6 +28,8 @@ import model.announcement.FoundPetResponse
 import model.announcement.Location
 import model.announcement.MissAllDto
 import model.announcement.MissAllRequest
+import toApiErrorCode
+import toSendResultError
 import java.io.File
 
 
@@ -52,10 +54,12 @@ class AnnouncementService(private val client: HttpClient) {
                     SendResult.BadRequest(message = text ?: "Bad request")
                 }
 
-                else -> SendResult.Error("HTTP ${response.status.value}")
+                else -> SendResult.BadRequest("HTTP ${response.status.value}")
             }
         } catch (e: Exception) {
-            SendResult.Error(e.message ?: "Unknown error")
+            e.toSendResultError(
+                networkMessage = e.message ?: "Unknown error"
+            )
         }
     }
 
@@ -96,7 +100,9 @@ class AnnouncementService(private val client: HttpClient) {
                 }
 
             } catch (e: Exception) {
-                return@withContext SendResult.Error("Проблемы с соединением")
+                return@withContext e.toSendResultError(
+                    networkMessage = "Проблемы с соединением"
+                )
             }
         }
     }
@@ -116,7 +122,7 @@ class AnnouncementService(private val client: HttpClient) {
                 else -> return ApiResponse.Error(400)
             }
         } catch (e: Exception) {
-            return ApiResponse.Error(-1)
+            return ApiResponse.Error(e.toApiErrorCode())
         }
     }
 
@@ -138,7 +144,7 @@ class AnnouncementService(private val client: HttpClient) {
                 else -> ApiResponse.Error(400)
             }
         } catch (e: Exception) {
-            ApiResponse.Error(-1)
+            ApiResponse.Error(e.toApiErrorCode())
         }
     }
 
@@ -155,7 +161,7 @@ class AnnouncementService(private val client: HttpClient) {
                 else -> ApiResponse.Error(response.status.value)
             }
         } catch (e: Exception) {
-            ApiResponse.Error(-1)
+            ApiResponse.Error(e.toApiErrorCode())
         }
     }
 
@@ -172,77 +178,84 @@ class AnnouncementService(private val client: HttpClient) {
                 else -> ApiResponse.Error(response.status.value)
             }
         } catch (e: Exception) {
-            ApiResponse.Error(-1)
+            ApiResponse.Error(e.toApiErrorCode())
         }
     }
 
     suspend fun findMissingAnnouncement(missAllInfo: MissAllRequest): ApiResponse<List<MissAllDto>> {
-        Log.d("MissAllRequest", missAllInfo.toString())
-        val response = client.get("api/missing-announcement/feed") {
-            url {
-                missAllInfo.lastDateTime?.let {
-                    parameters.append("lastDateTime", it.toString())
+        return try {
+            Log.d("MissAllRequest", missAllInfo.toString())
+            val response = client.get("api/missing-announcement/feed") {
+                url {
+                    missAllInfo.lastDateTime?.let {
+                        parameters.append("lastDateTime", it.toString())
+                    }
+                    missAllInfo.district?.let {
+                        parameters.append("district", it)
+                    }
+                    missAllInfo.type?.let {
+                        parameters.append("type", it.toString())
+                    }
+                    missAllInfo.gender?.let {
+                        parameters.append("gender", it.toString())
+                    }
+                    missAllInfo.searchRadius?.let {
+                        parameters.append("SearchRadius", it.toString())
+                    }
+                    missAllInfo.searchCenterLatitude?.let {
+                        parameters.append("SearchCenter.Latitude", it.toString())
+                    }
+                    missAllInfo.searchCenterLongitude?.let {
+                        parameters.append("SearchCenter.Longitude", it.toString())
+                    }
                 }
-                missAllInfo.district?.let {
-                    parameters.append("district", it)
-                }
-                missAllInfo.type?.let {
-                    parameters.append("type", it.toString())
-                }
-                missAllInfo.gender?.let {
-                    parameters.append("gender", it.toString())
-                }
-                missAllInfo.searchRadius?.let {
-                    parameters.append("SearchRadius", it.toString())
-                }
-                missAllInfo.searchCenterLatitude?.let {
-                    parameters.append("SearchCenter.Latitude", it.toString())
-                }
-                missAllInfo.searchCenterLongitude?.let {
-                    parameters.append("SearchCenter.Longitude", it.toString())
-                }
-
             }
-        }
-        if (response.status.isSuccess()) {
-            return ApiResponse.Success(response.body<List<MissAllDto>>())
-        } else {
-            return ApiResponse.Error(response.status.value)
+            if (response.status.isSuccess()) {
+                ApiResponse.Success(response.body<List<MissAllDto>>())
+            } else {
+                ApiResponse.Error(response.status.value)
+            }
+        } catch (e: Exception) {
+            ApiResponse.Error(e.toApiErrorCode())
         }
     }
 
     suspend fun findFoundAnnouncement(missAllInfo: MissAllRequest): ApiResponse<List<MissAllDto>> {
-        Log.d("MissAllRequest", missAllInfo.toString())
+        return try {
+            Log.d("MissAllRequest", missAllInfo.toString())
 
-        val response = client.get("api/find-announcement/feed") {
-            url {
-                missAllInfo.lastDateTime?.let {
-                    parameters.append("lastDateTime", it.toString())
-                }
-                missAllInfo.district?.let {
-                    parameters.append("district", it)
-                }
-                missAllInfo.type?.let {
-                    parameters.append("type", it.toString())
-                }
-                missAllInfo.gender?.let {
-                    parameters.append("gender", it.toString())
-                }
-                missAllInfo.searchRadius?.let {
-                    parameters.append("SearchRadius", it.toString())
-                }
-                missAllInfo.searchCenterLatitude?.let {
-                    parameters.append("SearchCenter.Latitude", it.toString())
-                }
-                missAllInfo.searchCenterLongitude?.let {
-                    parameters.append("SearchCenter.Longitude", it.toString())
+            val response = client.get("api/find-announcement/feed") {
+                url {
+                    missAllInfo.lastDateTime?.let {
+                        parameters.append("lastDateTime", it.toString())
+                    }
+                    missAllInfo.district?.let {
+                        parameters.append("district", it)
+                    }
+                    missAllInfo.type?.let {
+                        parameters.append("type", it.toString())
+                    }
+                    missAllInfo.gender?.let {
+                        parameters.append("gender", it.toString())
+                    }
+                    missAllInfo.searchRadius?.let {
+                        parameters.append("SearchRadius", it.toString())
+                    }
+                    missAllInfo.searchCenterLatitude?.let {
+                        parameters.append("SearchCenter.Latitude", it.toString())
+                    }
+                    missAllInfo.searchCenterLongitude?.let {
+                        parameters.append("SearchCenter.Longitude", it.toString())
+                    }
                 }
             }
-        }
-        if (response.status.isSuccess()) {
-            return ApiResponse.Success(response.body<List<MissAllDto>>())
-        } else {
-            return ApiResponse.Error(response.status.value)
+            if (response.status.isSuccess()) {
+                ApiResponse.Success(response.body<List<MissAllDto>>())
+            } else {
+                ApiResponse.Error(response.status.value)
+            }
+        } catch (e: Exception) {
+            ApiResponse.Error(e.toApiErrorCode())
         }
     }
 
@@ -272,7 +285,9 @@ class AnnouncementService(private val client: HttpClient) {
                     SendResult.BadRequest()
                 }
             } catch (e: Exception) {
-                SendResult.Error("Проблемы с соединением")
+                e.toSendResultError(
+                    networkMessage = "Проблемы с соединением"
+                )
             }
 
         }
@@ -309,7 +324,9 @@ class AnnouncementService(private val client: HttpClient) {
                     SendResult.BadRequest()
                 }
             } catch (e: Exception) {
-                SendResult.Error(e.message ?: "Unknown error")
+                e.toSendResultError(
+                    networkMessage = e.message ?: "Unknown error"
+                )
             }
         }
     }

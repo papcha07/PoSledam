@@ -17,6 +17,7 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.isSuccess
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import toApiErrorCode
 import java.io.File
 
 class StreetService(private val client: HttpClient) {
@@ -43,7 +44,7 @@ class StreetService(private val client: HttpClient) {
                     ApiResponse.Success(body)
                 } else ApiResponse.Error(400)
             } catch (e: Exception) {
-                ApiResponse.Error(-1)
+                ApiResponse.Error(e.toApiErrorCode())
             }
         }
     }
@@ -59,7 +60,7 @@ class StreetService(private val client: HttpClient) {
                     ApiResponse.Error(400)
                 }
             } catch (e: Exception) {
-                ApiResponse.Error(-1)
+                ApiResponse.Error(e.toApiErrorCode())
             }
         }
     }
@@ -97,7 +98,7 @@ class StreetService(private val client: HttpClient) {
                 if (response.status.isSuccess()) 200 else 400
             } catch (e: Exception) {
                 Log.d("createStreetAnimal", e.toString())
-                -1
+                e.toApiErrorCode()
             }
         }
 
