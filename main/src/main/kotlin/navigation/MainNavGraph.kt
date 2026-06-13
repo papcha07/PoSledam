@@ -93,7 +93,11 @@ fun NavGraphBuilder.mainNavGraph(navController: NavController, route: String = "
                         }
 
                         REPORT_ANNOUNCEMENT -> {
-                            navController.navigate("detailScreen/$id/0")
+                            navController.navigate(profileDetailRoute(id, MISSING_PROFILE_ANNOUNCEMENT))
+                        }
+
+                        REPORT_FOUND_ANNOUNCEMENT -> {
+                            navController.navigate(profileDetailRoute(id, MISSING_PROFILE_ANNOUNCEMENT))
                         }
                     }
                 },
@@ -194,3 +198,12 @@ fun NavGraphBuilder.mainNavGraph(navController: NavController, route: String = "
 
 private const val MISS_ANNOUNCEMENT = 1
 private const val REPORT_ANNOUNCEMENT = 0
+private const val REPORT_FOUND_ANNOUNCEMENT = 2
+private const val MISSING_PROFILE_ANNOUNCEMENT = 0
+
+private fun profileDetailRoute(
+    id: String,
+    announcementType: Int
+): String {
+    return "detailScreen/$id/$announcementType"
+}

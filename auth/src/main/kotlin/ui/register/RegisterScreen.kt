@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -29,6 +28,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.core.R
+import ui.OverlayBlackout
 import ui.components.AuthButton
 import ui.components.TextFieldComponent
 import ui.components.default_component.AnimatedToast
@@ -67,14 +67,14 @@ fun RegisterScreen(
 
         when (registerUiState) {
             AuthScreenState.Idle -> {}
-            AuthScreenState.Loading -> CircularProgressIndicator(
-                modifier = Modifier.align(Alignment.Center)
-            )
-
             AuthScreenState.Success -> goToLoginScreen()
             is AuthScreenState.Error -> {
                 AnimatedToast((registerUiState as AuthScreenState.Error).message)
             }
+        }
+
+        if (registerUiState is AuthScreenState.Loading) {
+            OverlayBlackout(modifier = Modifier.fillMaxSize())
         }
     }
 }

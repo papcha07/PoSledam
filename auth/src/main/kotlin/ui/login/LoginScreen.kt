@@ -17,7 +17,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -41,6 +40,7 @@ import androidx.compose.ui.unit.sp
 import com.example.core.R
 import domain.model.LoginInfo
 import org.koin.androidx.compose.koinViewModel
+import ui.OverlayBlackout
 import ui.components.ButtonComponent
 import ui.components.TextFieldComponent
 import ui.components.default_component.AnimatedToast
@@ -77,14 +77,6 @@ fun LoginScreen(
         when (state) {
             AuthScreenState.Idle -> Unit
 
-            AuthScreenState.Loading -> {
-                CircularProgressIndicator(
-                    modifier = Modifier
-                        .align(Alignment.Center)
-                        .testTag("login_loading")
-                )
-            }
-
             AuthScreenState.Success -> Unit
 
             is AuthScreenState.Error -> {
@@ -92,6 +84,14 @@ fun LoginScreen(
                     message = state.message
                 )
             }
+
+            else -> {
+
+            }
+        }
+
+        if (state is AuthScreenState.Loading) {
+            OverlayBlackout(modifier = Modifier.fillMaxSize())
         }
     }
 }

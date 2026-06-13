@@ -53,6 +53,7 @@ import domain.model.ProfileAnnouncementDetails
 import domain.model.SpottedLocation
 import kotlinx.coroutines.launch
 import ui.BASE_URL
+import ui.OverlayBlackout
 import ui.components.SpottedLocationsMap
 import ui.components.SpottedMapPoint
 import ui.components.announcement.CancelAnnouncementReasonContent
@@ -182,10 +183,7 @@ fun ProfileAnnouncementDetailsProvider(
         }
 
         if (cancelState.isLoading) {
-            CircularProgressIndicator(
-                modifier = Modifier.align(Alignment.Center),
-                color = buttonPrimary
-            )
+            OverlayBlackout(modifier = Modifier.fillMaxSize())
         }
 
         cancelState.errorMessage?.let { message ->
