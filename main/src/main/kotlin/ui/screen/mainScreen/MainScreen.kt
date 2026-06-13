@@ -1,5 +1,6 @@
 package ui.screen.mainScreen
 
+import NewsType
 import android.Manifest
 import android.app.Activity
 import android.content.Context
@@ -48,22 +49,16 @@ import ui.theme.backgroundColor
 
 val articleInfoList = listOf(
     ArticleInfo(
-        image = R.drawable.f_article
+        image = R.drawable.f_article,
+        newsType = NewsType.HowToUseAppNews
     ),
     ArticleInfo(
-        image = R.drawable.s_article
+        image = R.drawable.s_article,
+        newsType = NewsType.SelfWaklingNews
     ),
     ArticleInfo(
-        image = R.drawable.t_article
-    ),
-    ArticleInfo(
-        image = R.drawable.f_article
-    ),
-    ArticleInfo(
-        image = R.drawable.s_article
-    ),
-    ArticleInfo(
-        image = R.drawable.t_article
+        image = R.drawable.t_article,
+        newsType = NewsType.RobberyNews
     )
 )
 
@@ -71,7 +66,7 @@ val articleInfoList = listOf(
 fun MainScreen(
     navigateToStreetPetScreen: () -> Unit,
     navigateToCameraScreen: () -> Unit,
-    navigateToNewsScreen: () -> Unit,
+    navigateToNewsScreen: (NewsType) -> Unit,
     mainScreenViewModel: MainScreenViewModel,
 ) {
 
@@ -185,7 +180,7 @@ fun GetPhotoComponent(
 fun ArticleSectionComponent(
     modifier: Modifier = Modifier,
     articleInfoList: List<ArticleInfo>,
-    navigateToNewsScreen: () -> Unit
+    navigateToNewsScreen: (NewsType) -> Unit
 ) {
     Box(
         modifier = modifier
@@ -203,7 +198,7 @@ fun ArticleSectionComponent(
             items(articleInfoList) { articleInfo ->
                 ArticleComponent(
                     articleInfo = articleInfo,
-                    onClick = navigateToNewsScreen
+                    onClick = { navigateToNewsScreen(articleInfo.newsType) }
                 )
                 Spacer(Modifier.width(8.dp))
             }
@@ -317,7 +312,8 @@ private fun getPhoto(context: Context) {
 fun ArticleComponentPreview() {
     ArticleComponent(
         articleInfo = ArticleInfo(
-            image = R.drawable.f_article
+            image = R.drawable.f_article,
+            newsType = NewsType.HowToUseAppNews
         ),
         onClick = {
 

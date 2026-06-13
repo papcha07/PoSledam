@@ -1,6 +1,7 @@
 package navigation
 
 import NewsScreen
+import NewsType
 import androidx.compose.runtime.remember
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
@@ -31,7 +32,11 @@ sealed class MainRoute(val route: String) {
         }
     }
 
-    object NewsScreen : MainRoute("newsScreen")
+    object NewsScreen : MainRoute("newsScreen/{newsType}") {
+        fun createRoute(newsType: NewsType): String {
+            return "newsScreen/${newsType.name}"
+        }
+    }
 }
 
 
@@ -59,8 +64,8 @@ fun NavGraphBuilder.mainNavGraph(navController: NavController, route: String = "
                         launchSingleTop = true
                     }
                 },
-                navigateToNewsScreen = {
-                    navController.navigate(MainRoute.NewsScreen.route) {
+                navigateToNewsScreen = { newsType ->
+                    navController.navigate(MainRoute.NewsScreen.createRoute(newsType)) {
                         launchSingleTop = true
                     }
                 },
@@ -162,13 +167,25 @@ fun NavGraphBuilder.mainNavGraph(navController: NavController, route: String = "
         }
 
         composable(
-            route = MainRoute.NewsScreen.route
-        ) {
+            route = MainRoute.NewsScreen.route,
+            arguments = listOf(
+                navArgument("newsType") {
+                    type = NavType.StringType
+                }
+            )
+        ) { backStackEntry ->
+            val newsType = backStackEntry.arguments
+                ?.getString("newsType")
+                ?.let { newsTypeName ->
+                    enumValues<NewsType>().firstOrNull { it.name == newsTypeName }
+                }
+                ?: NewsType.RobberyNews
+
             NewsScreen(
                 goBackClick = {
                     navController.popBackStack()
                 },
-                newsType = NewsType.HowToFindNews,
+                newsType = newsType,
             )
         }
 
@@ -177,4 +194,3 @@ fun NavGraphBuilder.mainNavGraph(navController: NavController, route: String = "
 
 private const val MISS_ANNOUNCEMENT = 1
 private const val REPORT_ANNOUNCEMENT = 0
-

@@ -23,7 +23,7 @@ import androidx.compose.ui.unit.sp
 import com.example.core.R
 
 enum class NewsType {
-    HowToFindNews,
+    RobberyNews,
     SelfWaklingNews,
     HowToUseAppNews
 }
@@ -39,7 +39,7 @@ data class NewsData(
 )
 
 private val newsMap = mapOf(
-    NewsType.HowToFindNews to NewsData(
+    NewsType.RobberyNews to NewsData(
         firstHeader = R.string.news_title,
         firstText = R.string.news_description,
         secondHeader = R.string.news_step1_title,
