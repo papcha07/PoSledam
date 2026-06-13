@@ -103,7 +103,6 @@ fun NavGraphBuilder.mainNavGraph(navController: NavController, route: String = "
                 koinViewModel(viewModelStoreOwner = parentEntry)
             StreetPetRoute(
                 streetPetViewModel = streetViewModel,
-                openFilterSettings = {},
                 returnToMainScreen = { navController.popBackStack() },
                 openStreetDetails = {
                     navController.navigate(
