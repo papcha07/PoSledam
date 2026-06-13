@@ -45,9 +45,9 @@ class KtorClient(
             }
 
             install(HttpTimeout) {
-                socketTimeoutMillis = 10_000
-                connectTimeoutMillis = 10_000
-                requestTimeoutMillis = 10_000
+                socketTimeoutMillis = 15_000
+                connectTimeoutMillis = 15_000
+                requestTimeoutMillis = 15_000
             }
 
             install(Logging) {
