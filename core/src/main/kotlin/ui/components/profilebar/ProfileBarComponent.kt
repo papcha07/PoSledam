@@ -41,6 +41,7 @@ fun ProfileBarComponent(
             .height(110.dp)
             .background(
                 color = backgroundColor,
+                shape = RoundedCornerShape(bottomStart = 20.dp, bottomEnd = 20.dp)
             )
             .padding(top = 20.dp)
             .padding(horizontal = 16.dp)
