@@ -53,7 +53,8 @@ fun getProfileSettingsViewModel() = module {
         ProfileSettingsViewModel(
             notificationSettingsInteractor = get<NotificationSettingsInteractor>(),
             userInteractor = get(),
-            imageLoaderInteractor = get()
+            imageLoaderInteractor = get(),
+            notificationInteractor = get()
         )
     }
 }

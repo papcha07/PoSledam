@@ -90,7 +90,6 @@ class MainScreenViewModel(
             notificationInteractor.allMark()
         }
     }
-
     fun deleteById(id: Long) {
         viewModelScope.launch {
             notificationInteractor.deleteById(id)

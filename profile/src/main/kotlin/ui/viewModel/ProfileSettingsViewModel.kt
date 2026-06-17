@@ -3,6 +3,7 @@ package ui.viewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import domain.interactor.loader.ImageLoaderInteractor
+import domain.notification.NotificationInteractor
 import domain.notification.NotificationSettingsInteractor
 import domain.user.UserInteractor
 import domain.user.model.User
@@ -17,7 +18,8 @@ import ui.components.profilebar.ProfileBarState
 class ProfileSettingsViewModel(
     private val userInteractor: UserInteractor,
     private val notificationSettingsInteractor: NotificationSettingsInteractor,
-    private val imageLoaderInteractor: ImageLoaderInteractor
+    private val imageLoaderInteractor: ImageLoaderInteractor,
+    private val notificationInteractor: NotificationInteractor,
 ) : ViewModel() {
 
 
@@ -102,6 +104,7 @@ class ProfileSettingsViewModel(
     fun logout() {
         viewModelScope.launch {
             userInteractor.clearUser()
+            notificationInteractor.deleteAll()
         }
     }
 
