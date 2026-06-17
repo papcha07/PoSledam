@@ -51,8 +51,6 @@ object YandexKtorClient {
                 }
                 level = LogLevel.ALL
             }
-
-
         }
     }
 }

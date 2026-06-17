@@ -31,6 +31,7 @@ import ui.theme.backgroundColor
 fun ProfileBarComponent(
     modifier: Modifier = Modifier,
     profileBarState: ProfileBarState,
+    cityState: ProfileBarCityState,
     notificationsIsNotRead: Boolean,
     onNotifyClick: () -> Unit,
     onSettingsClick: () -> Unit
@@ -65,11 +66,33 @@ fun ProfileBarComponent(
             Spacer(modifier = Modifier.width(10.dp))
 
             Column {
-                Text(
-                    text = "Красноярск",
-                    fontSize = 14.sp,
-                    color = Color.LightGray
-                )
+                when (cityState) {
+                    is ProfileBarCityState.Success -> {
+                        Text(
+                            text = cityState.city,
+                            fontSize = 14.sp,
+                            color = Color.LightGray
+                        )
+                    }
+
+                    is ProfileBarCityState.Failed -> {
+                        Text(
+                            text = cityState.message,
+                            fontSize = 12.sp,
+                            color = Color.LightGray
+                        )
+                    }
+
+                    ProfileBarCityState.Idle,
+                    ProfileBarCityState.Loading -> {
+                        ShimmerTextPlaceholder(
+                            modifier = Modifier
+                                .width(96.dp)
+                                .height(16.dp)
+                        )
+                    }
+                }
+
                 when (profileBarState) {
                     is ProfileBarState.Success -> {
                         Text(

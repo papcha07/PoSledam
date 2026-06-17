@@ -107,6 +107,7 @@ fun AppNavGraph(
             if (showProfileBar) {
                 val profileBarViewModel: ProfileBarViewModel = koinViewModel()
                 val profileBarState by profileBarViewModel.profileBarState.collectAsState()
+                val cityState by profileBarViewModel.cityState.collectAsState()
                 val notificationsIsNotRead by profileBarViewModel.notificationsIsNotRead.collectAsState()
 
                 LaunchedEffect(currentRoute) {
@@ -117,6 +118,7 @@ fun AppNavGraph(
 
                 ProfileBarComponent(
                     profileBarState = profileBarState,
+                    cityState = cityState,
                     onSettingsClick = {
                         navController.navigate(ProfileRoute.ProfileSettings.route) {
                             launchSingleTop = true
@@ -217,4 +219,3 @@ private fun handleNotificationIntent(
 
 private const val MISS = 1
 private const val FIND = 0
-
