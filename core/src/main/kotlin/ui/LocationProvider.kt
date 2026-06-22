@@ -27,7 +27,8 @@ class LocationProvider(
             return null
         }
 
-        return requestCurrentLocation()
+        return getLastLocation()?.takeIf { it.isFreshEnough() }
+            ?: requestCurrentLocation()
             ?: getLastLocation()
             ?: requestSingleLocationUpdate()
     }
@@ -37,7 +38,7 @@ class LocationProvider(
         val cancellationTokenSource = CancellationTokenSource()
         cont.invokeOnCancellation { cancellationTokenSource.cancel() }
         client.getCurrentLocation(
-            Priority.PRIORITY_HIGH_ACCURACY,
+            Priority.PRIORITY_BALANCED_POWER_ACCURACY,
             cancellationTokenSource.token
         ).addOnSuccessListener { location ->
             cont.resumeIfActive(location)
@@ -58,7 +59,7 @@ class LocationProvider(
         withTimeoutOrNull(LOCATION_UPDATE_TIMEOUT_MS) {
             suspendCancellableCoroutine { cont ->
                 val request = LocationRequest.Builder(
-                    Priority.PRIORITY_HIGH_ACCURACY,
+                    Priority.PRIORITY_BALANCED_POWER_ACCURACY,
                     LOCATION_UPDATE_INTERVAL_MS
                 )
                     .setMaxUpdates(1)
@@ -93,8 +94,13 @@ class LocationProvider(
         }
     }
 
+    private fun Location.isFreshEnough(): Boolean {
+        return System.currentTimeMillis() - time <= LOCATION_MAX_AGE_MS
+    }
+
     private companion object {
-        const val LOCATION_UPDATE_INTERVAL_MS = 1_000L
+        const val LOCATION_UPDATE_INTERVAL_MS = 5_000L
         const val LOCATION_UPDATE_TIMEOUT_MS = 10_000L
+        const val LOCATION_MAX_AGE_MS = 5 * 60 * 1_000L
     }
 }

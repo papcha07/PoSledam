@@ -1,5 +1,6 @@
 package ui.components
 
+import android.content.Context
 import android.graphics.Canvas
 import android.graphics.PointF
 import android.util.Log
@@ -49,6 +50,25 @@ import com.yandex.mapkit.map.PlacemarkMapObject
 import com.yandex.mapkit.mapview.MapView
 import com.yandex.runtime.image.ImageProvider
 
+private const val YANDEX_MAPKIT_API_KEY = "2c2d848e-690c-467f-80df-df3ad423160d"
+
+private val mapKitInitLock = Any()
+
+@Volatile
+private var mapKitInitialized = false
+
+fun ensureYandexMapKitInitialized(context: Context) {
+    if (mapKitInitialized) return
+
+    synchronized(mapKitInitLock) {
+        if (!mapKitInitialized) {
+            MapKitFactory.setApiKey(YANDEX_MAPKIT_API_KEY)
+            MapKitFactory.initialize(context.applicationContext)
+            mapKitInitialized = true
+        }
+    }
+}
+
 @Composable
 fun ProfileMap(
     modifier: Modifier = Modifier,
@@ -58,6 +78,7 @@ fun ProfileMap(
     cameraLocation: Point? = null,
 ) {
     val context = LocalContext.current
+    ensureYandexMapKitInitialized(context)
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     val mapView = remember { MapView(context) }
 
@@ -233,6 +254,7 @@ fun CurrentLocationMap(
     onLocationResolved: (Double, Double) -> Unit
 ) {
     val context = LocalContext.current
+    ensureYandexMapKitInitialized(context)
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     val mapView = remember { MapView(context) }
 

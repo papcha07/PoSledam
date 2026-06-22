@@ -23,8 +23,10 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.alinaposledam.firebase.FirebaseTokenProvider
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.launch
 import navigation.MainRoute
 import navigation.ProfileRoute
 import navigation.SearchRoute
@@ -78,8 +80,10 @@ fun AppNavGraph(
         if (token.isNullOrBlank()) {
             startDestination = "auth"
         } else {
-            firebaseTokenProvider.sendCurrentTokenToServer()
             startDestination = "main"
+            launch(Dispatchers.IO) {
+                firebaseTokenProvider.sendCurrentTokenToServer()
+            }
         }
     }
 

@@ -12,8 +12,6 @@ import io.ktor.client.request.forms.formData
 import io.ktor.client.request.forms.submitFormWithBinaryData
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
-import io.ktor.http.Headers
-import io.ktor.http.HttpHeaders
 import io.ktor.http.isSuccess
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -94,17 +92,7 @@ class StreetService(private val client: HttpClient) {
                         append("eventDate", streetAnimalRequest.eventDate)
                         append("placeDescription", streetAnimalRequest.placeDescription)
                         fileList.forEach { file ->
-                            append(
-                                key = "Images",
-                                value = file.readBytes(),
-                                headers = Headers.build {
-                                    append(HttpHeaders.ContentType, "image/jpeg")
-                                    append(
-                                        HttpHeaders.ContentDisposition,
-                                        "filename=\"${file.name}\""
-                                    )
-                                }
-                            )
+                            appendFilePart(key = "Images", file = file)
                         }
                     }
                 )

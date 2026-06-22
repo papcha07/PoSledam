@@ -60,6 +60,7 @@ fun MapComponent(
     onMapReady: (MapView) -> Unit = {}
 ) {
     val context = LocalContext.current
+    ensureYandexMapKitInitialized(context)
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     val mapView = remember { MapView(context) }
     val currentOnTouchStateChanged = rememberUpdatedState(onTouchStateChanged)

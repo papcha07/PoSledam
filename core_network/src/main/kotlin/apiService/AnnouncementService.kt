@@ -10,15 +10,18 @@ import apiService.models.announcement_models.SpottedLocationResponse
 import apiService.models.announcement_models.UserPetInfoResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
+import io.ktor.client.request.forms.FormBuilder
 import io.ktor.client.request.forms.MultiPartFormDataContent
 import io.ktor.client.request.forms.formData
 import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsText
+import io.ktor.http.ContentType
 import io.ktor.http.Headers
 import io.ktor.http.HttpHeaders
 import io.ktor.http.isSuccess
+import io.ktor.utils.io.streams.asInput
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
@@ -78,17 +81,7 @@ class AnnouncementService(private val client: HttpClient) {
                                 append("Coordinates.Latitude", reportRequest.latitude)
                                 append("Coordinates.Longitude", reportRequest.longitude)
                                 files.forEach { file ->
-                                    append(
-                                        key = "Images",
-                                        value = file.readBytes(),
-                                        headers = Headers.build {
-                                            append(HttpHeaders.ContentType, "image/jpeg")
-                                            append(
-                                                HttpHeaders.ContentDisposition,
-                                                "form-data; name=\"Images\"; filename=\"${file.name}\""
-                                            )
-                                        }
-                                    )
+                                    appendFilePart(key = "Images", file = file)
                                 }
                             }
                         )
@@ -302,17 +295,7 @@ class AnnouncementService(private val client: HttpClient) {
                         MultiPartFormDataContent(
                             formData {
                                 files.forEach { file ->
-                                    append(
-                                        key = "Images",
-                                        value = file.readBytes(),
-                                        headers = Headers.build {
-                                            append(HttpHeaders.ContentType, "image/jpeg")
-                                            append(
-                                                HttpHeaders.ContentDisposition,
-                                                "form-data; name=\"Images\"; filename=\"${file.name}\""
-                                            )
-                                        }
-                                    )
+                                    appendFilePart(key = "Images", file = file)
                                 }
                             }
                         )
@@ -354,17 +337,7 @@ class AnnouncementService(private val client: HttpClient) {
                 }
 
                 files.forEach { file ->
-                    append(
-                        key = "Images",
-                        value = file.readBytes(),
-                        headers = Headers.build {
-                            append(HttpHeaders.ContentType, "image/jpeg")
-                            append(
-                                HttpHeaders.ContentDisposition,
-                                "form-data; name=\"Images\"; filename=\"${file.name}\""
-                            )
-                        }
-                    )
+                    appendFilePart(key = "Images", file = file)
                 }
             }
         )
@@ -385,3 +358,20 @@ private data class CancelMissingAnnouncementBody(
 private data class CancelFindAnnouncementBody(
     val cancelReason: Int
 )
+
+internal fun FormBuilder.appendFilePart(
+    key: String,
+    file: File,
+    contentType: ContentType = ContentType.Image.JPEG
+) {
+    appendInput(
+        key = key,
+        headers = Headers.build {
+            append(HttpHeaders.ContentType, contentType.toString())
+            append(HttpHeaders.ContentDisposition, "filename=\"${file.name}\"")
+        },
+        size = file.length()
+    ) {
+        file.inputStream().asInput()
+    }
+}

@@ -16,8 +16,6 @@ import io.ktor.client.request.post
 import io.ktor.client.request.put
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
-import io.ktor.http.Headers
-import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpMethod
 import io.ktor.http.contentType
 import io.ktor.http.isSuccess
@@ -122,20 +120,7 @@ class AuthService(
             val response = client.submitFormWithBinaryData(
                 url = "api/user/$id/avatar",
                 formData = formData {
-                    append(
-                        "AvatarImage",
-                        file.readBytes(),
-                        Headers.build {
-                            append(
-                                HttpHeaders.ContentDisposition,
-                                "form-data; name=\"AvatarImage\"; filename=\"${file.name}\""
-                            )
-                            append(
-                                HttpHeaders.ContentType,
-                                ContentType.Image.JPEG.toString()
-                            )
-                        }
-                    )
+                    appendFilePart(key = "AvatarImage", file = file)
                 }
             ) {
                 method = HttpMethod.Put
