@@ -42,6 +42,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.yandex.mapkit.geometry.Point
 import domain.models.Creator
 import domain.models.FoundPetInfo
 import kotlinx.coroutines.launch
@@ -93,6 +94,10 @@ fun DetailsPetScreenProvider(
     val reportUiState by reportViewModel.uiState.collectAsStateWithLifecycle()
     val foundPetState by viewModel.petInfoState.collectAsStateWithLifecycle()
     val findUriState by reportViewModel.findUriState.collectAsStateWithLifecycle()
+    val mapCameraLocation by reportViewModel.mapCameraLocation.collectAsStateWithLifecycle()
+    val mapCameraPoint = mapCameraLocation?.let { location ->
+        Point(location.latitude, location.longitude)
+    }
 
     val isSendButtonEnabled =
         spottedData.uri.isNotEmpty() &&
@@ -184,6 +189,7 @@ fun DetailsPetScreenProvider(
                             photos = spottedData.uri,
                             buttonState = isSendButtonEnabled && !isReportLoading,
                             loadingState = false,
+                            cameraLocation = mapCameraPoint,
                             updateLongitude = reportViewModel::updateLongitude,
                             updateLatitude = reportViewModel::updateLatitude,
                             onSendClick = {

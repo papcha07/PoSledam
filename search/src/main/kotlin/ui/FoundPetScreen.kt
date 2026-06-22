@@ -64,7 +64,7 @@ fun PetInfoComponent(
         Spacer(Modifier.height(8.dp))
         ParameterText(
             descr = "Окрас",
-            value = foundPetInfo.petInfo.breed
+            value = foundPetInfo.petInfo.color
         )
     }
 }

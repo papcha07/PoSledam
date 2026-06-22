@@ -12,10 +12,13 @@ import domain.model.AnnouncementInfo
 import domain.model.AnnouncementStatus
 import domain.model.Location
 import domain.notification.NotificationSettingsInteractor
+import domain.user.UserInteractor
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -82,6 +85,7 @@ class ActionViewModel(
     private val announcementInteractor: AnnouncementInteractor,
     private val yandexInteractor: YandexInteractor,
     private val notificationSettingsInteractor: NotificationSettingsInteractor,
+    private val userInteractor: UserInteractor,
     private val locationProvider: LocationProvider
 ) : ViewModel() {
     private val _pageState = MutableStateFlow(ActionPage.MAIN)
@@ -157,7 +161,8 @@ class ActionViewModel(
 
     fun clearState() {
         _pageState.value = ActionPage.MAIN
-        _state.value = ActionScreenData()
+        _state.value = ActionScreenData(mapCameraLocation = savedCameraLocation)
+        clearAddressRow()
     }
 
     val isMainActionComponentState =
@@ -194,9 +199,38 @@ class ActionViewModel(
 
     var addressText by mutableStateOf("")
 
+    private var savedCameraLocation: Location? = null
+
     init {
         viewModelScope.launch {
             _notificationsEnabled.value = notificationSettingsInteractor.isNotificationsEnabled()
+        }
+        observeSavedLocation()
+    }
+
+    private fun observeSavedLocation() {
+        viewModelScope.launch {
+            userInteractor
+                .observeLocation()
+                .distinctUntilChanged()
+                .collectLatest { location ->
+                    val cameraLocation = location?.let {
+                        Location(
+                            latitude = it.latitude,
+                            longitude = it.longitude
+                        )
+                    } ?: return@collectLatest
+
+                    savedCameraLocation = cameraLocation
+
+                    _state.update { state ->
+                        if (state.mapCameraLocation == null) {
+                            state.copy(mapCameraLocation = cameraLocation)
+                        } else {
+                            state
+                        }
+                    }
+                }
         }
     }
 

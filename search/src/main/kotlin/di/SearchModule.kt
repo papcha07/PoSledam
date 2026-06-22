@@ -37,7 +37,8 @@ fun getFilterViewModel() = module {
 
     viewModel {
         ReportViewModel(
-            searchInteractor = get()
+            searchInteractor = get(),
+            userInteractor = get()
         )
     }
 }

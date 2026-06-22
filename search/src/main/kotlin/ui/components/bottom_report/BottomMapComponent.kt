@@ -9,11 +9,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
+import com.yandex.mapkit.geometry.Point
 import ui.components.ProfileMap
 
 @Composable
 fun BottomMapComponent(
     modifier: Modifier = Modifier,
+    cameraLocation: Point? = null,
     updateLongitude: (Double) -> Unit,
     updateLatitude: (Double) -> Unit
 ) {
@@ -32,7 +34,8 @@ fun BottomMapComponent(
             pointClick = { lon, lat ->
                 updateLongitude(lon)
                 updateLatitude(lat)
-            }
+            },
+            cameraLocation = cameraLocation
         )
     }
 }

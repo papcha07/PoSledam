@@ -167,9 +167,17 @@ fun AppNavGraph(
 }
 
 private const val ACTION_OPEN_FROM_NOTIFICATION = "OPEN_FROM_NOTIFICATION"
+private const val EXTRA_NOTIFICATION_TYPE = "notification_type"
+private const val EXTRA_ENTITY_ID = "entity_id"
 
 private fun Intent?.isNotificationIntent(): Boolean {
-    return this?.action == ACTION_OPEN_FROM_NOTIFICATION
+    if (this == null) return false
+
+    val hasNotificationPayload =
+        getStringExtra(EXTRA_NOTIFICATION_TYPE) != null &&
+                getStringExtra(EXTRA_ENTITY_ID) != null
+
+    return action == ACTION_OPEN_FROM_NOTIFICATION || hasNotificationPayload
 }
 
 private fun handleNotificationIntent(
@@ -178,8 +186,8 @@ private fun handleNotificationIntent(
 ) {
     if (!intent.isNotificationIntent()) return
 
-    val notificationType = intent?.getStringExtra("notification_type")
-    val entityId = intent?.getStringExtra("entity_id") ?: return
+    val notificationType = intent?.getStringExtra(EXTRA_NOTIFICATION_TYPE)
+    val entityId = intent?.getStringExtra(EXTRA_ENTITY_ID) ?: return
 
     when (notificationType) {
         "ReportSpotted" -> {

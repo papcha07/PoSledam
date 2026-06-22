@@ -4,10 +4,16 @@ import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import domain.interactor.SearchInteractor
+import domain.user.UserInteractor
+import domain.user.model.LocationDto
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import ui.model.Response
@@ -29,10 +35,21 @@ data class SpottedAnimalData(
 )
 
 class ReportViewModel(
-    private val searchInteractor: SearchInteractor
+    private val searchInteractor: SearchInteractor,
+    userInteractor: UserInteractor
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(ReportFoundAnimalUiState())
     val uiState = _uiState.asStateFlow()
+
+    val mapCameraLocation: StateFlow<LocationDto?> =
+        userInteractor
+            .observeLocation()
+            .distinctUntilChanged()
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5_000),
+                initialValue = null
+            )
 
     private val _effect = MutableSharedFlow<ReportFoundAnimalEffect>()
     val effect = _effect.asSharedFlow()
