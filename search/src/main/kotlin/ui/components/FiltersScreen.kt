@@ -128,6 +128,14 @@ fun FiltersScreen(
                         goToSearchScreen()
                     }
                 )
+                Spacer(Modifier.height(12.dp))
+                DefaultButton(
+                    text = "Очистить фильтры",
+                    containerColor = Color(0xFFE73E3E),
+                    onClick = {
+                        filtersViewModel.clearFilters()
+                    }
+                )
             }
         }
     }
