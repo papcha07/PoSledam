@@ -48,7 +48,8 @@ import ui.theme.buttonPrimary
 fun AddStreetAnimalScreen(
     modifier: Modifier = Modifier,
     cameraViewModel: CameraViewModel,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onPublished: () -> Unit = onBack
 ) {
     val advertState by cameraViewModel.advertState.collectAsState()
     val urisState = cameraViewModel.uris.collectAsState()
@@ -88,7 +89,7 @@ fun AddStreetAnimalScreen(
             visible = advertState.isPlaced,
             title = "Объявление отправлено",
             description = "Спасибо что отметили животное!\nЭто поможет найти ему дом.",
-            onDismiss = onBack,
+            onDismiss = onPublished,
         )
 
         if (advertState.internetError) {

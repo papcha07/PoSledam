@@ -11,8 +11,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -68,8 +70,19 @@ fun PhotosPager(
                         Box(
                             modifier = Modifier
                                 .align(Alignment.TopEnd)
+                                .padding(8.dp)
+                                .size(24.dp)
+                                .clip(CircleShape)
+                                .background(Color.White)
                                 .clickable { onRemovePhotoClick(uri) }
+                                .testTag("remove_photo_button_$page"),
+                            contentAlignment = Alignment.Center
                         ) {
+                            Image(
+                                modifier = Modifier.size(20.dp),
+                                painter = painterResource(R.drawable.ic_cancel_button),
+                                contentDescription = "Удалить фото"
+                            )
                         }
                     }
                 }

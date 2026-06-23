@@ -13,9 +13,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
 import ui.model.ScreenState
@@ -33,14 +31,13 @@ class StreetPetViewModel(
     val streetAnimals: Flow<PagingData<StreetPetPreviewModel>> =
         userInteractor
             .observeLocation()
-            .filterNotNull()
             .distinctUntilChanged()
             .flatMapLatest { location ->
                 streetPetInteractor.getStreetAnimals(
                     StreetAnimalParams(
-                        centerRadius = DEFAULT_RADIUS,
-                        searchCenterLatitude = location.latitude,
-                        searchCenterLongitude = location.longitude
+                        centerRadius = location?.let { DEFAULT_RADIUS },
+                        searchCenterLatitude = location?.latitude,
+                        searchCenterLongitude = location?.longitude
                     )
                 )
             }

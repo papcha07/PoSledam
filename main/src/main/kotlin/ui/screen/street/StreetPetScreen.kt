@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -31,9 +32,17 @@ import ui.theme.backgroundColor
 fun StreetPetRoute(
     streetPetViewModel: StreetPetViewModel,
     returnToMainScreen: () -> Unit,
-    openStreetDetails: (String) -> Unit
+    openStreetDetails: (String) -> Unit,
+    refreshKey: Long = 0L,
+    onRefreshHandled: () -> Unit = {}
 ) {
     val animals = streetPetViewModel.streetAnimals.collectAsLazyPagingItems()
+    LaunchedEffect(refreshKey) {
+        if (refreshKey != 0L) {
+            animals.refresh()
+            onRefreshHandled()
+        }
+    }
     StreetPetScreen(
         streetPetScreenState = animals,
         returnToMainScreen = returnToMainScreen,
