@@ -247,15 +247,6 @@ fun EnterBottomComponent(
                 }
             )
             Spacer(Modifier.height(32.dp))
-            LineComponent()
-            Spacer(Modifier.height(32.dp))
-            GoogleButtonComponent(
-                modifier = Modifier.align(Alignment.CenterHorizontally),
-                onClick = {
-                    googleEnter()
-                }
-            )
-            Spacer(Modifier.height(30.dp))
             PoliticTextComponent()
         }
     }
