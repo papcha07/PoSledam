@@ -3,12 +3,9 @@ package com.example.alinaposledam.actionTest
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.core.net.toUri
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.koin.java.KoinJavaComponent.getKoin
-import ui.screen.ActionScreen
 import ui.viewModel.ActionViewModel
 import java.time.LocalDate
 import java.time.LocalTime
@@ -21,20 +18,6 @@ class ActionScenarioUiTest {
 
     private lateinit var vm: ActionViewModel
     private lateinit var page: ActionPage
-
-    @Before
-    fun setUp() {
-        vm = getKoin().get()
-
-        rule.setContent {
-            ActionScreen(
-                viewModel = vm,
-                onProfilePage = {}
-            )
-        }
-
-        page = ActionPage(rule)
-    }
 
     @Test
     fun selectLostPetButton() {
