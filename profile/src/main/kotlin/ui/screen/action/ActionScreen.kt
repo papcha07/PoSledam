@@ -128,7 +128,8 @@ fun ActionScreen(
 
                 ActionPage.ADDRESS -> AddressMainComponent(
                     actionViewModel = viewModel,
-                    actionScreenData = announcementInfo
+                    actionScreenData = announcementInfo,
+                    enableScroll = false
                 )
 
                 ActionPage.RESULT -> PlaceAnnouncementComponent(actionViewModel = viewModel)
@@ -298,7 +299,8 @@ fun ActionTopBar(
 fun AddressMainComponent(
     modifier: Modifier = Modifier,
     actionScreenData: ActionScreenData,
-    actionViewModel: ActionViewModel
+    actionViewModel: ActionViewModel,
+    enableScroll: Boolean = true
 ) {
     val calendarState = rememberUseCaseState()
     val clockState = rememberUseCaseState()
@@ -306,6 +308,7 @@ fun AddressMainComponent(
     val mapCameraLocation = actionScreenData.mapCameraLocation?.let { location ->
         Point(location.latitude, location.longitude)
     }
+    val scrollState = rememberScrollState()
 
     LaunchedEffect(actionViewModel) {
         actionViewModel.setCurrentLocation()
@@ -344,7 +347,13 @@ fun AddressMainComponent(
             modifier = Modifier
                 .padding(horizontal = 16.dp)
                 .padding(top = 16.dp)
-                .verticalScroll(rememberScrollState())
+                .then(
+                    if (enableScroll) {
+                        Modifier.verticalScroll(scrollState)
+                    } else {
+                        Modifier
+                    }
+                )
                 .padding(bottom = 90.dp)
         ) {
             TextInfo(name = "Время и дата пропажи")
