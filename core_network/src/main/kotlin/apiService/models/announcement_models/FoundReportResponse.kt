@@ -7,13 +7,13 @@ data class FoundReportResponse(
     val id: String,
     val spottedUser: FoundReportUserResponse,
     val createdAt: String,
-    val imagesPath: List<String> = emptyList()
+    val imagesPath: List<String>? = null
 )
 
 @Serializable
 data class FoundReportUserResponse(
     val id: String,
-    val firstName: String,
+    val firstName: String? = null,
     val secondName: String? = null,
     val contacts: List<FoundReportContactResponse>? = null
 )

@@ -15,7 +15,7 @@ class FirebaseTokenProvider(
             authService.sendDeviceToken(
                 DeviceTokenRequest(deviceToken = token)
             )
-            Log.d("FCM", "Device token sent: $token")
+            Log.d("FCM", "Device token sent")
         } catch (e: Exception) {
             Log.e("FCM", "Failed to send device token", e)
         }

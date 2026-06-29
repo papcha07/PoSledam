@@ -26,6 +26,7 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
+        isCoreLibraryDesugaringEnabled = true
     }
 
     kotlinOptions {
@@ -45,6 +46,7 @@ dependencies {
     implementation(project(":core_datastore"))
     implementation(project(":search"))
 
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.5")
     implementation(libs.koin.core)
     implementation(libs.koin.android)
     implementation ("io.insert-koin:koin-androidx-compose:3.4.3")

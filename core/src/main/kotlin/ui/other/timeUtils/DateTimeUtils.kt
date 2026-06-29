@@ -9,10 +9,9 @@ import java.time.format.DateTimeFormatter
 import java.util.Date
 import java.util.Locale
 
-@RequiresApi(Build.VERSION_CODES.O)
-
 object DateTimeUtils {
 
+    @RequiresApi(Build.VERSION_CODES.O)
     fun getUtcFromDevice(): String {
         return Instant.now().toString()
     }
@@ -25,6 +24,7 @@ object DateTimeUtils {
         return formatter.format(Date())
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     fun formatUtcToDeviceTime(date: String): String {
         val instant = Instant.parse(date)
         val formatter = DateTimeFormatter

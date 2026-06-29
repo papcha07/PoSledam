@@ -5,11 +5,13 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresPermission
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.ContextCompat
 import apiService.AuthService
 import apiService.models.auth_models.DeviceTokenRequest
 import com.example.alinaposledam.MainActivity
@@ -52,9 +54,13 @@ class MyFirebaseMessagingService : FirebaseMessagingService(), KoinComponent {
             ?: message.data["body"]
             ?: "У вас новое сообщение"
 
+        val notificationType = message.data["notification_type"]
+        val entityId = message.data["entity_id"]
 
-        val notificationType = message.data["notification_type"]!!
-        val entityId = message.data["entity_id"]!!
+        if (notificationType == null || entityId.isNullOrBlank()) {
+            Log.w("FIREBASE_MESSAGE", "Notification payload skipped: missing type or entity id")
+            return
+        }
 
 
         when (notificationType) {
@@ -123,6 +129,10 @@ class MyFirebaseMessagingService : FirebaseMessagingService(), KoinComponent {
                     )
                 }
             }
+
+            else -> {
+                Log.w("FIREBASE_MESSAGE", "Unknown notification type: $notificationType")
+            }
         }
     }
 
@@ -143,6 +153,11 @@ class MyFirebaseMessagingService : FirebaseMessagingService(), KoinComponent {
         entityId: String,
         notificationType: String
     ) {
+        if (!canPostNotifications()) {
+            Log.w("FCM", "Notification skipped: POST_NOTIFICATIONS permission is not granted")
+            return
+        }
+
         val channelId = "spotted_channel"
         val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
 
@@ -191,6 +206,14 @@ class MyFirebaseMessagingService : FirebaseMessagingService(), KoinComponent {
     override fun onDestroy() {
         super.onDestroy()
         serviceJob.cancel()
+    }
+
+    private fun canPostNotifications(): Boolean {
+        return Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
+                ContextCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.POST_NOTIFICATIONS
+                ) == PackageManager.PERMISSION_GRANTED
     }
 
 

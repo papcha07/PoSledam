@@ -111,7 +111,7 @@ class StreetRepositoryImpl(
             district = streetResponse.district,
             time = primeTime.second,
             date = primeTime.first,
-            image = streetResponse.mainImagePath,
+            image = streetResponse.mainImagePath.orEmpty(),
             minutesAgo = minutesAgoSafe(timeFromServer = streetResponse.eventDate)
         )
     }

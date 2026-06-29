@@ -153,7 +153,7 @@ class SearchRepositoryImpl(
             imagePath = petResponse.imagesPaths?.firstOrNull(),
             creator = Creator(
                 id = petResponse.creator.id,
-                firstName = petResponse.creator.firstName,
+                firstName = petResponse.creator.firstName.orEmpty().ifBlank { "Пользователь" },
                 avatarPath = petResponse.creator.avatarPath,
                 description = petResponse.creator.description,
                 vk = petResponse.creator.contacts.findContactUrl(VK_CONTACT_TYPE),
@@ -163,9 +163,9 @@ class SearchRepositoryImpl(
             petInfo = PetInfo(
                 petType = petResponse.petType,
                 gender = petResponse.gender,
-                color = petResponse.color,
-                breed = petResponse.breed,
-                description = petResponse.description
+                color = petResponse.color.orEmpty(),
+                breed = petResponse.breed.orEmpty(),
+                description = petResponse.description.orEmpty()
             ),
             lon = petResponse.location.longitude,
             lat = petResponse.location.latitude,

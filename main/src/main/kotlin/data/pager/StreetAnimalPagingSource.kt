@@ -32,7 +32,7 @@ class StreetAnimalPagingSource(
                     LoadResult.Page(
                         data = animals,
                         prevKey = null,
-                        nextKey = if (animals.isEmpty()) null else nextKey
+                        nextKey = nextKey
                     )
                 }
             }

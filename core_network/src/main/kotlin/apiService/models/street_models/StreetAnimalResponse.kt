@@ -10,10 +10,10 @@ data class StreetAnimalResponse(
     val street: String?,
     val house: String?,
     val district: String?,
-    val mainImagePath: String,
+    val mainImagePath: String? = null,
     val petType: Int,
     val location: Location,
     val eventDate: String,
-    val createdAt: String,
+    val createdAt: String? = null,
     val placeDescription: String?
 )

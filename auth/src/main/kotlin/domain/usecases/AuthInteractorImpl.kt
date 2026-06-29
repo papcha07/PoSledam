@@ -12,4 +12,7 @@ class AuthInteractorImpl(
         authRepository.register(registerInfo)
 
     override suspend fun login(loginInfo: LoginInfo): Pair<Boolean, Int?> = authRepository.login(loginInfo)
+
+    override suspend fun resendEmailConfirmation(email: String) =
+        authRepository.resendEmailConfirmation(email)
 }
