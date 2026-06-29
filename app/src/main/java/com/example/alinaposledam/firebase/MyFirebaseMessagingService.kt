@@ -12,8 +12,6 @@ import androidx.annotation.RequiresPermission
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
-import apiService.AuthService
-import apiService.models.auth_models.DeviceTokenRequest
 import com.example.alinaposledam.MainActivity
 import com.example.core.R
 import com.google.firebase.messaging.FirebaseMessagingService
@@ -29,7 +27,7 @@ import org.koin.core.component.inject
 
 class MyFirebaseMessagingService : FirebaseMessagingService(), KoinComponent {
 
-    private val authService: AuthService by inject()
+    private val firebaseTokenProvider: FirebaseTokenProvider by inject()
     private val notificationInteractor: NotificationInteractor by inject()
     private val serviceJob = SupervisorJob()
     private val serviceScope = CoroutineScope(Dispatchers.IO + serviceJob)
@@ -138,9 +136,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService(), KoinComponent {
 
     private suspend fun sendTokenToServer(token: String) {
         try {
-            authService.sendDeviceToken(
-                DeviceTokenRequest(deviceToken = token)
-            )
+            firebaseTokenProvider.saveTokenAndSendIfAuthorized(token)
         } catch (e: Exception) {
             Log.e("FCM", "Failed to send device token", e)
         }

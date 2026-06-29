@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.location.Location
 import android.os.Looper
+import android.util.Log
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
@@ -24,34 +25,64 @@ class LocationProvider(
 
     suspend fun getCurrentLocation(): Location? {
         if (!context.hasForegroundLocationPermission()) {
+            Log.d("USER_LOCATION", "LocationProvider: foreground permission is missing")
             return null
         }
 
-        return getLastLocation()?.takeIf { it.isFreshEnough() }
-            ?: requestCurrentLocation()
-            ?: getLastLocation()
-            ?: requestSingleLocationUpdate()
+        getLastLocation()?.takeIf { it.isFreshEnough() }?.let { location ->
+            Log.d("USER_LOCATION", "LocationProvider: fresh last location returned")
+            return location
+        }
+
+        requestCurrentLocation()?.let { location ->
+            Log.d("USER_LOCATION", "LocationProvider: current location returned")
+            return location
+        }
+
+        requestSingleLocationUpdate()?.let { location ->
+            Log.d("USER_LOCATION", "LocationProvider: single location update returned")
+            return location
+        }
+
+        getLastLocation()?.let { location ->
+            Log.d("USER_LOCATION", "LocationProvider: stale last location returned")
+            return location
+        }
+
+        Log.d("USER_LOCATION", "LocationProvider: no location available")
+        return null
     }
 
     @SuppressLint("MissingPermission")
-    private suspend fun requestCurrentLocation(): Location? = suspendCancellableCoroutine { cont ->
-        val cancellationTokenSource = CancellationTokenSource()
-        cont.invokeOnCancellation { cancellationTokenSource.cancel() }
-        client.getCurrentLocation(
-            Priority.PRIORITY_BALANCED_POWER_ACCURACY,
-            cancellationTokenSource.token
-        ).addOnSuccessListener { location ->
-            cont.resumeIfActive(location)
-        }.addOnFailureListener {
-            cont.resumeIfActive(null)
+    private suspend fun requestCurrentLocation(): Location? =
+        withTimeoutOrNull(CURRENT_LOCATION_TIMEOUT_MS) {
+            suspendCancellableCoroutine { cont ->
+                val cancellationTokenSource = CancellationTokenSource()
+                cont.invokeOnCancellation { cancellationTokenSource.cancel() }
+                client.getCurrentLocation(
+                    Priority.PRIORITY_HIGH_ACCURACY,
+                    cancellationTokenSource.token
+                ).addOnSuccessListener { location ->
+                    cont.resumeIfActive(location)
+                }.addOnFailureListener { error ->
+                    Log.e("USER_LOCATION", "LocationProvider: getCurrentLocation failed", error)
+                    cont.resumeIfActive(null)
+                }
+            }
+        }.also { location ->
+            if (location == null) {
+                Log.d("USER_LOCATION", "LocationProvider: current location timeout or null")
+            }
         }
-    }
 
     @SuppressLint("MissingPermission")
     private suspend fun getLastLocation(): Location? = suspendCancellableCoroutine { cont ->
         client.lastLocation
             .addOnSuccessListener { location -> cont.resumeIfActive(location) }
-            .addOnFailureListener { cont.resumeIfActive(null) }
+            .addOnFailureListener { error ->
+                Log.e("USER_LOCATION", "LocationProvider: lastLocation failed", error)
+                cont.resumeIfActive(null)
+            }
     }
 
     @SuppressLint("MissingPermission")
@@ -59,7 +90,7 @@ class LocationProvider(
         withTimeoutOrNull(LOCATION_UPDATE_TIMEOUT_MS) {
             suspendCancellableCoroutine { cont ->
                 val request = LocationRequest.Builder(
-                    Priority.PRIORITY_BALANCED_POWER_ACCURACY,
+                    Priority.PRIORITY_HIGH_ACCURACY,
                     LOCATION_UPDATE_INTERVAL_MS
                 )
                     .setMaxUpdates(1)
@@ -81,10 +112,15 @@ class LocationProvider(
                     request,
                     callback,
                     Looper.getMainLooper()
-                ).addOnFailureListener {
+                ).addOnFailureListener { error ->
+                    Log.e("USER_LOCATION", "LocationProvider: requestLocationUpdates failed", error)
                     client.removeLocationUpdates(callback)
                     cont.resumeIfActive(null)
                 }
+            }
+        }.also { location ->
+            if (location == null) {
+                Log.d("USER_LOCATION", "LocationProvider: single update timeout or null")
             }
         }
 
@@ -99,6 +135,7 @@ class LocationProvider(
     }
 
     private companion object {
+        const val CURRENT_LOCATION_TIMEOUT_MS = 5_000L
         const val LOCATION_UPDATE_INTERVAL_MS = 5_000L
         const val LOCATION_UPDATE_TIMEOUT_MS = 10_000L
         const val LOCATION_MAX_AGE_MS = 5 * 60 * 1_000L

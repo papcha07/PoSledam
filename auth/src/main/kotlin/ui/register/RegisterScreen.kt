@@ -77,6 +77,7 @@ fun RegisterScreen(
             AuthScreenState.Idle -> {}
             AuthScreenState.Loading -> {}
             AuthScreenState.Success -> {}
+            is AuthScreenState.EmailNotConfirmed -> {}
             is AuthScreenState.Error -> {
                 AnimatedToast((registerUiState as AuthScreenState.Error).message)
             }

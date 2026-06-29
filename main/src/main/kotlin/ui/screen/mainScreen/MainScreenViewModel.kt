@@ -41,6 +41,7 @@ class MainScreenViewModel(
 
     private var locationSendJob: Job? = null
     private var locationWorkerStarted = false
+    private var permissionFlowStarted = false
 
     val notificationState: StateFlow<List<Notification>> =
         notificationInteractor
@@ -102,9 +103,14 @@ class MainScreenViewModel(
         workerInteractor.startLocationWorker()
     }
 
+    fun consumePermissionFlowLaunch(): Boolean {
+        if (permissionFlowStarted) return false
+        permissionFlowStarted = true
+        return true
+    }
+
     fun onForegroundLocationPermissionGranted() {
         if (locationSendJob?.isActive == true) return
-        if (_locationSendState.value == LocationSendUiState.Success) return
 
         locationSendJob = viewModelScope.launch {
             _locationSendState.value = LocationSendUiState.PermissionGranted
@@ -133,14 +139,17 @@ class MainScreenViewModel(
     }
 
     fun onForegroundLocationPermissionDenied() {
+        Log.d("USER_LOCATION", "Foreground location permission denied")
         _locationSendState.value = LocationSendUiState.PermissionDenied
     }
 
     fun onForegroundLocationPermissionPermanentlyDenied() {
+        Log.d("USER_LOCATION", "Foreground location permission permanently denied")
         _locationSendState.value = LocationSendUiState.PermissionPermanentlyDenied
     }
 
     fun onBackgroundLocationPermissionGranted() {
+        Log.d("WORKER_MANAGER", "Background location permission granted")
         startLocationWorker()
     }
 

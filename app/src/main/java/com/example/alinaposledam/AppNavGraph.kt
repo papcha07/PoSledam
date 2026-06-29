@@ -87,6 +87,15 @@ fun AppNavGraph(
         }
     }
 
+    LaunchedEffect(currentRoute) {
+        if (currentRoute == MainRoute.MainScreen.route) {
+            val firebaseTokenProvider: FirebaseTokenProvider = koin.get()
+            launch(Dispatchers.IO) {
+                firebaseTokenProvider.sendCurrentTokenToServer()
+            }
+        }
+    }
+
     LaunchedEffect(Unit) {
         notificationIntents.collect { intent ->
             if (intent.isNotificationIntent()) {

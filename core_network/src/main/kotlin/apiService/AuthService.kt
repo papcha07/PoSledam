@@ -158,26 +158,47 @@ class AuthService(
     }
 
 
-    suspend fun sendDeviceToken(deviceToken: DeviceTokenRequest) {
-        client.post("api/user/device") {
-            setBody(deviceToken)
+    suspend fun sendDeviceToken(deviceToken: DeviceTokenRequest): Boolean {
+        return try {
+            val response = client.post("api/user/device") {
+                contentType(ContentType.Application.Json)
+                setBody(deviceToken)
+            }
+
+            if (response.status.isSuccess()) {
+                Log.d("FCM", "Device token response: ${response.status.value}")
+                true
+            } else {
+                Log.w("FCM", "Device token failed with code ${response.status.value}")
+                false
+            }
+        } catch (e: Exception) {
+            Log.e("FCM", "Device token request failed", e)
+            false
         }
     }
 
     suspend fun sendCurrentLocation(locationRequest: LocationRequestDto): SendResult {
         return withContext(Dispatchers.IO) {
             try {
+                Log.d(
+                    "USER_LOCATION",
+                    "Sending location to server: lat=${locationRequest.latitude}, lon=${locationRequest.longitude}"
+                )
                 val response = client.put("api/user/location") {
                     contentType(ContentType.Application.Json)
                     setBody(locationRequest)
                 }
 
                 if (response.status.isSuccess()) {
+                    Log.d("USER_LOCATION", "Location update response: ${response.status.value}")
                     SendResult.Success
                 } else {
+                    Log.d("USER_LOCATION", "Location update failed with code ${response.status.value}")
                     SendResult.BadRequest("Location update failed with code ${response.status.value}")
                 }
             } catch (e: Exception) {
+                Log.e("USER_LOCATION", "Location update request failed", e)
                 e.toSendResultError(
                     networkMessage = e.message ?: "Location update network error"
                 )

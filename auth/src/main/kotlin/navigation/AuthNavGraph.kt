@@ -69,6 +69,11 @@ fun NavGraphBuilder.authNavGraph(navController: NavController, route: String = "
                         launchSingleTop = true
                     }
                 },
+                goToEmailConfirmationScreen = { email ->
+                    navController.navigate(AuthRoute.EmailConfirmation.createRoute(email)) {
+                        launchSingleTop = true
+                    }
+                },
                 goToPrivacyPolicy = {
                     navController.navigate(AuthRoute.PrivacyPolicy.route) {
                         launchSingleTop = true

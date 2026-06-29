@@ -2,10 +2,8 @@ package helper
 
 import android.Manifest
 import android.content.Context
-import android.content.Intent
-import android.net.Uri
 import android.os.Build
-import android.provider.Settings
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.material3.AlertDialog
@@ -39,17 +37,21 @@ fun RequestLocationPermission(
     var showBackgroundRationaleDialog by remember { mutableStateOf(false) }
 
     fun handleForegroundGranted() {
+        Log.d("USER_LOCATION", "Foreground location permission granted")
         onPermissionGranted()
         if (!requestBackgroundPermission) return
 
         if (context.hasBackgroundLocationPermission()) {
+            Log.d("WORKER_MANAGER", "Background location permission already granted")
             onBackgroundPermissionGranted()
             return
         }
 
         if (!context.wasBackgroundLocationPermissionRequested()) {
+            Log.d("WORKER_MANAGER", "Background location permission rationale requested")
             showBackgroundRationaleDialog = true
         } else {
+            Log.d("WORKER_MANAGER", "Background location permission is not granted")
             onBackgroundPermissionDenied()
         }
     }
@@ -61,11 +63,14 @@ fun RequestLocationPermission(
         val coarseGranted = permissions[Manifest.permission.ACCESS_COARSE_LOCATION] == true
 
         if (fineGranted || coarseGranted) {
+            Log.d("USER_LOCATION", "Foreground location permission request result: granted")
             handleForegroundGranted()
         } else if (context.isForegroundLocationPermanentlyDenied()) {
+            Log.d("USER_LOCATION", "Foreground location permission request result: permanently denied")
             showForegroundSettingsDialog = true
             onPermissionPermanentlyDenied()
         } else {
+            Log.d("USER_LOCATION", "Foreground location permission request result: denied")
             showForegroundDeniedDialog = true
             onPermissionDenied()
         }
@@ -76,13 +81,16 @@ fun RequestLocationPermission(
     ) { isGranted ->
         context.markBackgroundLocationPermissionRequested()
         if (isGranted) {
+            Log.d("WORKER_MANAGER", "Background location permission request result: granted")
             onBackgroundPermissionGranted()
         } else {
+            Log.d("WORKER_MANAGER", "Background location permission request result: denied")
             onBackgroundPermissionDenied()
         }
     }
 
     fun requestForegroundPermission() {
+        Log.d("USER_LOCATION", "Requesting foreground location permission")
         context.markForegroundLocationPermissionRequested()
         launcher.launch(
             arrayOf(
@@ -93,14 +101,20 @@ fun RequestLocationPermission(
     }
 
     LaunchedEffect(Unit) {
+        Log.d(
+            "USER_LOCATION",
+            "Checking foreground location permission: has=${context.hasForegroundLocationPermission()}, requested=${context.wasForegroundLocationPermissionRequested()}, permanent=${context.isForegroundLocationPermanentlyDenied()}"
+        )
         if (context.hasForegroundLocationPermission()) {
             handleForegroundGranted()
         } else if (!context.wasForegroundLocationPermissionRequested()) {
             requestForegroundPermission()
         } else if (context.isForegroundLocationPermanentlyDenied()) {
+            Log.d("USER_LOCATION", "Foreground location permission is permanently denied")
             showForegroundSettingsDialog = true
             onPermissionPermanentlyDenied()
         } else {
+            Log.d("USER_LOCATION", "Foreground location permission is denied, showing retry dialog")
             showForegroundDeniedDialog = true
             onPermissionDenied()
         }
@@ -109,6 +123,7 @@ fun RequestLocationPermission(
     DisposableEffect(lifecycleOwner, context) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME && context.hasForegroundLocationPermission()) {
+                Log.d("USER_LOCATION", "ON_RESUME with foreground location permission granted")
                 handleForegroundGranted()
             }
         }
@@ -311,12 +326,4 @@ fun RequestNotificationPermission(
             }
         )
     }
-}
-
-private fun Context.openAppSettings() {
-    val intent = Intent(
-        Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
-        Uri.fromParts("package", packageName, null)
-    ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-    startActivity(intent)
 }

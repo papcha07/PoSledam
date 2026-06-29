@@ -25,6 +25,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import kotlinx.coroutines.delay
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -85,6 +86,12 @@ fun LoginScreen(
 
             AuthScreenState.Success -> Unit
 
+            is AuthScreenState.EmailNotConfirmed -> {
+                AnimatedToast(
+                    message = "Почта не подтверждена"
+                )
+            }
+
             is AuthScreenState.Error -> {
                 AnimatedToast(
                     message = state.message
@@ -108,6 +115,7 @@ fun LoginRoute(
     modifier: Modifier = Modifier,
     viewModel: LoginViewModel = koinViewModel(),
     goToMainProfile: () -> Unit,
+    goToEmailConfirmationScreen: (String) -> Unit,
     goToPrivacyPolicy: () -> Unit
 ) {
     val loginUiState by viewModel.loginUiState.collectAsState(
@@ -115,8 +123,14 @@ fun LoginRoute(
     )
 
     LaunchedEffect(loginUiState) {
-        if (loginUiState is AuthScreenState.Success) {
-            goToMainProfile()
+        when (val state = loginUiState) {
+            is AuthScreenState.Success -> goToMainProfile()
+            is AuthScreenState.EmailNotConfirmed -> {
+                delay(EMAIL_NOT_CONFIRMED_MESSAGE_DELAY_MS)
+                goToEmailConfirmationScreen(state.email)
+            }
+
+            else -> Unit
         }
     }
 
@@ -129,6 +143,8 @@ fun LoginRoute(
     )
 
 }
+
+private const val EMAIL_NOT_CONFIRMED_MESSAGE_DELAY_MS = 800L
 
 
 @Composable

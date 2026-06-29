@@ -1,6 +1,17 @@
 package domain.model
 
 sealed class LoginResult {
-    data class Success(val token: String) : LoginResult()
-    data class Failed(val message: String) : LoginResult()
+    data object Success : LoginResult()
+    data class Error(
+        val type: LoginErrorType,
+        val message: String? = null
+    ) : LoginResult()
+}
+
+enum class LoginErrorType {
+    EmailNotConfirmed,
+    InvalidCredentials,
+    NoInternet,
+    Server,
+    Unknown
 }
