@@ -23,8 +23,10 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.alinaposledam.firebase.FirebaseTokenProvider
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.launch
 import navigation.MainRoute
 import navigation.ProfileRoute
 import navigation.SearchRoute
@@ -78,8 +80,10 @@ fun AppNavGraph(
         if (token.isNullOrBlank()) {
             startDestination = "auth"
         } else {
-            firebaseTokenProvider.sendCurrentTokenToServer()
             startDestination = "main"
+            launch(Dispatchers.IO) {
+                firebaseTokenProvider.sendCurrentTokenToServer()
+            }
         }
     }
 
@@ -107,6 +111,7 @@ fun AppNavGraph(
             if (showProfileBar) {
                 val profileBarViewModel: ProfileBarViewModel = koinViewModel()
                 val profileBarState by profileBarViewModel.profileBarState.collectAsState()
+                val cityState by profileBarViewModel.cityState.collectAsState()
                 val notificationsIsNotRead by profileBarViewModel.notificationsIsNotRead.collectAsState()
 
                 LaunchedEffect(currentRoute) {
@@ -117,6 +122,7 @@ fun AppNavGraph(
 
                 ProfileBarComponent(
                     profileBarState = profileBarState,
+                    cityState = cityState,
                     onSettingsClick = {
                         navController.navigate(ProfileRoute.ProfileSettings.route) {
                             launchSingleTop = true
@@ -165,9 +171,17 @@ fun AppNavGraph(
 }
 
 private const val ACTION_OPEN_FROM_NOTIFICATION = "OPEN_FROM_NOTIFICATION"
+private const val EXTRA_NOTIFICATION_TYPE = "notification_type"
+private const val EXTRA_ENTITY_ID = "entity_id"
 
 private fun Intent?.isNotificationIntent(): Boolean {
-    return this?.action == ACTION_OPEN_FROM_NOTIFICATION
+    if (this == null) return false
+
+    val hasNotificationPayload =
+        getStringExtra(EXTRA_NOTIFICATION_TYPE) != null &&
+                getStringExtra(EXTRA_ENTITY_ID) != null
+
+    return action == ACTION_OPEN_FROM_NOTIFICATION || hasNotificationPayload
 }
 
 private fun handleNotificationIntent(
@@ -176,8 +190,8 @@ private fun handleNotificationIntent(
 ) {
     if (!intent.isNotificationIntent()) return
 
-    val notificationType = intent?.getStringExtra("notification_type")
-    val entityId = intent?.getStringExtra("entity_id") ?: return
+    val notificationType = intent?.getStringExtra(EXTRA_NOTIFICATION_TYPE)
+    val entityId = intent?.getStringExtra(EXTRA_ENTITY_ID) ?: return
 
     when (notificationType) {
         "ReportSpotted" -> {
@@ -217,4 +231,3 @@ private fun handleNotificationIntent(
 
 private const val MISS = 1
 private const val FIND = 0
-

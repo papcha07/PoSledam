@@ -4,17 +4,17 @@ import android.util.Log
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.DefaultRequest
 import io.ktor.client.plugins.HttpTimeout
+import io.ktor.client.plugins.api.createClientPlugin
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logger
 import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.request.accept
-import io.ktor.client.request.header
 import io.ktor.http.ContentType
+import io.ktor.http.HttpHeaders
 import io.ktor.http.URLProtocol
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
-import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
 import storage.TokenRepository
 
@@ -38,10 +38,10 @@ class KtorClient(
                     accept(ContentType.Application.Json)
                 }
 
-                val token = runBlocking { tokenRepository.getToken() }
-                if (token != null) {
-                    header("Authorization", "Bearer $token")
-                }
+            }
+
+            install(AuthHeaderPlugin) {
+                tokenProvider = tokenRepository::getToken
             }
 
             install(HttpTimeout) {
@@ -58,6 +58,24 @@ class KtorClient(
                 }
                 level = LogLevel.ALL
             }
+        }
+    }
+}
+
+private class AuthHeaderPluginConfig {
+    var tokenProvider: suspend () -> String? = { null }
+}
+
+private val AuthHeaderPlugin = createClientPlugin(
+    name = "AuthHeaderPlugin",
+    createConfiguration = ::AuthHeaderPluginConfig
+) {
+    val tokenProvider = pluginConfig.tokenProvider
+
+    onRequest { request, _ ->
+        val token = tokenProvider()
+        if (!token.isNullOrBlank() && !request.headers.contains(HttpHeaders.Authorization)) {
+            request.headers.append(HttpHeaders.Authorization, "Bearer $token")
         }
     }
 }

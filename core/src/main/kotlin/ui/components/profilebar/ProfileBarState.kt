@@ -8,3 +8,10 @@ sealed class ProfileBarState {
     data class Failed(val message: String) : ProfileBarState()
     data object Loading : ProfileBarState()
 }
+
+sealed class ProfileBarCityState {
+    data object Idle : ProfileBarCityState()
+    data object Loading : ProfileBarCityState()
+    data class Success(val city: String) : ProfileBarCityState()
+    data class Failed(val message: String) : ProfileBarCityState()
+}

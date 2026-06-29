@@ -43,6 +43,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService(), KoinComponent {
     @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
     override fun onMessageReceived(message: RemoteMessage) {
         super.onMessageReceived(message)
+        Log.d("FIREBASE_MESSAGE", message.data.toString())
         val title = message.notification?.title
             ?: message.data["title"]
             ?: "Новое уведомление"

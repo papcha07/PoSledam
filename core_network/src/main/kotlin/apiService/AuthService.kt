@@ -16,8 +16,6 @@ import io.ktor.client.request.post
 import io.ktor.client.request.put
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
-import io.ktor.http.Headers
-import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpMethod
 import io.ktor.http.contentType
 import io.ktor.http.isSuccess
@@ -28,6 +26,8 @@ import model.auth.request.RegisterRequest
 import model.auth.response.LoginResponse
 import model.errorResponse.ErrorResponse
 import storage.TokenRepository
+import toApiErrorCode
+import toSendResultError
 import java.io.File
 
 class AuthService(
@@ -68,7 +68,7 @@ class AuthService(
 
         } catch (e: Exception) {
             Log.d("RegisterViewModel", e.message.toString())
-            ApiResponse.Error(-1)
+            ApiResponse.Error(e.toApiErrorCode())
         }
     }
 
@@ -87,7 +87,7 @@ class AuthService(
                 ApiResponse.Error(400)
             }
         } catch (e: Exception) {
-            ApiResponse.Error(-1)
+            ApiResponse.Error(e.toApiErrorCode())
         }
     }
 
@@ -100,7 +100,7 @@ class AuthService(
                 ApiResponse.Error(response.status.value)
             }
         } catch (e: Exception) {
-            ApiResponse.Error(-1)
+            ApiResponse.Error(e.toApiErrorCode())
         }
     }
 
@@ -120,20 +120,7 @@ class AuthService(
             val response = client.submitFormWithBinaryData(
                 url = "api/user/$id/avatar",
                 formData = formData {
-                    append(
-                        "AvatarImage",
-                        file.readBytes(),
-                        Headers.build {
-                            append(
-                                HttpHeaders.ContentDisposition,
-                                "form-data; name=\"AvatarImage\"; filename=\"${file.name}\""
-                            )
-                            append(
-                                HttpHeaders.ContentType,
-                                ContentType.Image.JPEG.toString()
-                            )
-                        }
-                    )
+                    appendFilePart(key = "AvatarImage", file = file)
                 }
             ) {
                 method = HttpMethod.Put
@@ -165,7 +152,9 @@ class AuthService(
                     SendResult.BadRequest("Location update failed with code ${response.status.value}")
                 }
             } catch (e: Exception) {
-                SendResult.Error(e.message ?: "Location update network error")
+                e.toSendResultError(
+                    networkMessage = e.message ?: "Location update network error"
+                )
             }
         }
     }

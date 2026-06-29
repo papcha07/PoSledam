@@ -12,6 +12,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -26,6 +27,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -33,6 +35,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -40,11 +43,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.core.R
 import domain.models.StreetPetPreviewModel
 import helper.RequestLocationPermission
 import helper.RequestNotificationPermission
+import ui.components.other.PetInfoComponent
 import ui.components.other.NearPetCardComponent
+import ui.components.placeholder.ShimmerImagePlaceholder
+import ui.components.placeholder.ShimmerTextPlaceholder
 import ui.model.ArticleInfo
 import ui.theme.backgroundColor
 
@@ -70,6 +77,7 @@ fun MainScreen(
     navigateToNewsScreen: (NewsType) -> Unit,
     mainScreenViewModel: MainScreenViewModel,
 ) {
+    val latestStreetPetState by mainScreenViewModel.latestStreetPetState.collectAsStateWithLifecycle()
 
     RequestLocationPermission(
         onPermissionGranted = mainScreenViewModel::onForegroundLocationPermissionGranted,
@@ -103,6 +111,7 @@ fun MainScreen(
 
         item {
             TargetPetsSection(
+                latestStreetPetState = latestStreetPetState,
                 navigateToStreetPetScreen = navigateToStreetPetScreen,
                 navigateToCameraScreen = navigateToCameraScreen
             )
@@ -250,6 +259,7 @@ fun ArticleComponent(
 @Composable
 fun TargetPetsSection(
     modifier: Modifier = Modifier,
+    latestStreetPetState: LatestStreetPetState,
     navigateToStreetPetScreen: () -> Unit,
     navigateToCameraScreen: () -> Unit
 ) {
@@ -280,19 +290,138 @@ fun TargetPetsSection(
                 color = Color.Black
             )
             Spacer(Modifier.height(16.dp))
+            LatestStreetPetCard(
+                state = latestStreetPetState,
+                onClick = navigateToStreetPetScreen
+            )
+        }
+    }
+}
+
+@Composable
+private fun LatestStreetPetCard(
+    state: LatestStreetPetState,
+    onClick: () -> Unit
+) {
+    when (state) {
+        is LatestStreetPetState.Content -> {
             NearPetCardComponent(
                 Modifier,
-                streetPetPreviewModel = StreetPetPreviewModel(
-                    id = "dasd",
-                    street = "ул. Парижской Коммуны, 1",
-                    district = "Центральный",
-                    time = "20 минут назад",
-                    date = "28/02",
-                    image = "asdasdasd",
-                    minutesAgo = 20L
-                )
+                streetPetPreviewModel = state.streetPet
             ) {
-                navigateToStreetPetScreen()
+                onClick()
+            }
+        }
+
+        LatestStreetPetState.Loading -> {
+            LatestStreetPetCardShimmer()
+        }
+
+        LatestStreetPetState.Placeholder -> {
+            LatestStreetPetPlaceholderCard(onClick = onClick)
+        }
+    }
+}
+
+@Composable
+private fun LatestStreetPetPlaceholderCard(
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit
+) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(top = 4.dp)
+            .background(
+                color = Color.White,
+                shape = RoundedCornerShape(20.dp)
+            )
+            .clip(RoundedCornerShape(20.dp))
+            .clickable(onClick = onClick)
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(20.dp))
+        ) {
+            Image(
+                modifier = Modifier
+                    .height(332.dp)
+                    .fillMaxWidth()
+                    .background(backgroundColor),
+                painter = painterResource(R.drawable.ic_dog),
+                contentScale = ContentScale.Fit,
+                contentDescription = null
+            )
+
+            Column(
+                modifier = Modifier
+                    .align(Alignment.BottomStart)
+                    .padding(start = 16.dp, bottom = 20.dp)
+            ) {
+                Row {
+                    PetInfoComponent(text = "Пока нет объявлений")
+                }
+                Spacer(Modifier.height(8.dp))
+                PetInfoComponent(text = "Заметьте питомца первым")
+            }
+        }
+    }
+}
+
+@Composable
+private fun LatestStreetPetCardShimmer(
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(top = 4.dp)
+            .background(
+                color = Color.White,
+                shape = RoundedCornerShape(20.dp)
+            )
+            .clip(RoundedCornerShape(20.dp))
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(20.dp))
+        ) {
+            ShimmerImagePlaceholder(
+                modifier = Modifier
+                    .height(332.dp)
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(20.dp))
+            )
+
+            Column(
+                modifier = Modifier
+                    .align(Alignment.BottomStart)
+                    .padding(start = 16.dp, bottom = 20.dp)
+            ) {
+                Row {
+                    ShimmerTextPlaceholder(
+                        modifier = Modifier
+                            .height(36.dp)
+                            .width(112.dp)
+                            .clip(RoundedCornerShape(10.dp))
+                    )
+                    Spacer(Modifier.width(14.dp))
+                    ShimmerTextPlaceholder(
+                        modifier = Modifier
+                            .height(36.dp)
+                            .width(72.dp)
+                            .clip(RoundedCornerShape(10.dp))
+                    )
+                }
+                Spacer(Modifier.height(8.dp))
+                ShimmerTextPlaceholder(
+                    modifier = Modifier
+                        .height(36.dp)
+                        .width(240.dp)
+                        .clip(RoundedCornerShape(10.dp))
+                )
             }
         }
     }
@@ -354,4 +483,3 @@ fun NearPetMainComponentPreview() {
 
     }
 }
-

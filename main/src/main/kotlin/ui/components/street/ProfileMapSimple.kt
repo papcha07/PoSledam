@@ -37,6 +37,7 @@ fun ProfileMapSimple(
     zoom: Float = 15f
 ) {
     val context = LocalContext.current
+    ensureYandexMapKitInitialized(context)
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     val mapView = remember { MapView(context) }
     var cameraMoved by remember { mutableStateOf(false) }

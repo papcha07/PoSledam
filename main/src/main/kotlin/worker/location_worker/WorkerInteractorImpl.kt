@@ -18,13 +18,17 @@ class WorkerInteractorImpl(
         if (!hasRequiredLocationPermission()) return
         val constraints = Constraints.Builder()
             .setRequiredNetworkType(NetworkType.CONNECTED)
+            .setRequiresBatteryNotLow(true)
+            .setRequiresCharging(false)
+            .setRequiresStorageNotLow(true)
             .build()
 
         val request = PeriodicWorkRequestBuilder<LocationWorker>(
-            repeatInterval = 15,
+            repeatInterval = 30,
             repeatIntervalTimeUnit = TimeUnit.MINUTES
         )
             .setConstraints(constraints)
+
             .build()
 
         workManager.enqueueUniquePeriodicWork(

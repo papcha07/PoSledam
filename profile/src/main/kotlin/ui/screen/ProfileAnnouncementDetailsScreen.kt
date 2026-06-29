@@ -47,12 +47,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.core.R
+import com.yandex.mapkit.geometry.Point
 import domain.model.FoundReport
 import domain.model.FoundReportContact
 import domain.model.ProfileAnnouncementDetails
 import domain.model.SpottedLocation
 import kotlinx.coroutines.launch
 import ui.BASE_URL
+import ui.OverlayBlackout
+import ui.components.CurrentLocationMap
 import ui.components.SpottedLocationsMap
 import ui.components.SpottedMapPoint
 import ui.components.announcement.CancelAnnouncementReasonContent
@@ -182,10 +185,7 @@ fun ProfileAnnouncementDetailsProvider(
         }
 
         if (cancelState.isLoading) {
-            CircularProgressIndicator(
-                modifier = Modifier.align(Alignment.Center),
-                color = buttonPrimary
-            )
+            OverlayBlackout(modifier = Modifier.fillMaxSize())
         }
 
         cancelState.errorMessage?.let { message ->
@@ -610,6 +610,18 @@ private fun LocationBlock(
             text = announcement.addressText(),
             fontSize = 14.sp,
             color = textHint
+        )
+        Spacer(Modifier.height(12.dp))
+        CurrentLocationMap(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(200.dp)
+                .clip(RoundedCornerShape(12.dp)),
+            currentLocation = Point(
+                announcement.latitude,
+                announcement.longitude
+            ),
+            onLocationResolved = { _, _ -> }
         )
     }
 }

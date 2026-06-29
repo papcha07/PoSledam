@@ -2,6 +2,8 @@ package ui.screen.street
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -18,6 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -45,7 +48,8 @@ import ui.theme.buttonPrimary
 fun AddStreetAnimalScreen(
     modifier: Modifier = Modifier,
     cameraViewModel: CameraViewModel,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onPublished: () -> Unit = onBack
 ) {
     val advertState by cameraViewModel.advertState.collectAsState()
     val urisState = cameraViewModel.uris.collectAsState()
@@ -85,7 +89,7 @@ fun AddStreetAnimalScreen(
             visible = advertState.isPlaced,
             title = "Объявление отправлено",
             description = "Спасибо что отметили животное!\nЭто поможет найти ему дом.",
-            onDismiss = onBack,
+            onDismiss = onPublished,
         )
 
         if (advertState.internetError) {
@@ -96,18 +100,36 @@ fun AddStreetAnimalScreen(
             AnimatedToast(message = "Что-то пошло не так")
         }
 
-        if (advertState.isLoading) {
-            CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-        }
-
         BackCircleButton(
             onBack = onBack,
             modifier = Modifier
                 .align(Alignment.TopStart)
                 .padding(top = 30.dp, start = 30.dp)
         )
+
+        if (advertState.isLoading) {
+            AddStreetAnimalLoadingOverlay(modifier = Modifier.fillMaxSize())
+        }
     }
 
+}
+
+@Composable
+private fun AddStreetAnimalLoadingOverlay(
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+            .background(Color.Black.copy(alpha = 0.45f))
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null,
+                onClick = {}
+            ),
+        contentAlignment = Alignment.Center
+    ) {
+        CircularProgressIndicator(color = buttonPrimary)
+    }
 }
 
 @Composable

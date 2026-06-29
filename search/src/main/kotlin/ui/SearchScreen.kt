@@ -348,7 +348,8 @@ fun FoundPetsScreen(
                 when (refreshState) {
                     is LoadState.Error -> {
                         ErrorPlaceholder(
-                            modifier = Modifier.align(Alignment.Center)
+                            modifier = Modifier.align(Alignment.Center),
+                            onRefreshClick = pets::refresh
                         )
                     }
 
@@ -403,7 +404,8 @@ fun MissingPetsScreen(
 
                     is LoadState.Error -> {
                         ErrorPlaceholder(
-                            modifier = Modifier.align(Alignment.Center)
+                            modifier = Modifier.align(Alignment.Center),
+                            onRefreshClick = pets::refresh
                         )
                     }
 

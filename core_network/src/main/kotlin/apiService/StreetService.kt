@@ -12,11 +12,10 @@ import io.ktor.client.request.forms.formData
 import io.ktor.client.request.forms.submitFormWithBinaryData
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
-import io.ktor.http.Headers
-import io.ktor.http.HttpHeaders
 import io.ktor.http.isSuccess
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import toApiErrorCode
 import java.io.File
 
 class StreetService(private val client: HttpClient) {
@@ -34,16 +33,42 @@ class StreetService(private val client: HttpClient) {
                     streetRequest.type?.let {
                         parameter("type", it.toString())
                     }
-                    parameter("SearchCenter.Latitude", streetRequest.searchCenterLatitude.toString())
-                    parameter("SearchCenter.Longitude", streetRequest.searchCenterLongitude.toString())
-                    parameter("SearchRadius", streetRequest.centerRadius.toString())
+                    if (
+                        streetRequest.searchCenterLatitude != null &&
+                        streetRequest.searchCenterLongitude != null
+                    ) {
+                        parameter(
+                            "SearchCenter.Latitude",
+                            streetRequest.searchCenterLatitude.toString()
+                        )
+                        parameter(
+                            "SearchCenter.Longitude",
+                            streetRequest.searchCenterLongitude.toString()
+                        )
+                        streetRequest.centerRadius?.let {
+                            parameter("SearchRadius", it.toString())
+                        }
+                    }
                 }
                 if (response.status.isSuccess()) {
                     val body = response.body<List<StreetAnimalResponse>>()
                     ApiResponse.Success(body)
                 } else ApiResponse.Error(400)
             } catch (e: Exception) {
-                ApiResponse.Error(-1)
+                ApiResponse.Error(e.toApiErrorCode())
+            }
+        }
+    }
+
+    suspend fun getLatestStreetAnimal(
+        streetRequest: StreetListRequest
+    ): ApiResponse<StreetAnimalResponse?> {
+        return withContext(Dispatchers.IO) {
+            when (val response = getStreetAnimals(streetRequest)) {
+                is ApiResponse.Error -> response
+                is ApiResponse.Success<List<StreetAnimalResponse>> -> {
+                    ApiResponse.Success(response.data.firstOrNull())
+                }
             }
         }
     }
@@ -59,7 +84,7 @@ class StreetService(private val client: HttpClient) {
                     ApiResponse.Error(400)
                 }
             } catch (e: Exception) {
-                ApiResponse.Error(-1)
+                ApiResponse.Error(e.toApiErrorCode())
             }
         }
     }
@@ -80,24 +105,14 @@ class StreetService(private val client: HttpClient) {
                         append("eventDate", streetAnimalRequest.eventDate)
                         append("placeDescription", streetAnimalRequest.placeDescription)
                         fileList.forEach { file ->
-                            append(
-                                key = "Images",
-                                value = file.readBytes(),
-                                headers = Headers.build {
-                                    append(HttpHeaders.ContentType, "image/jpeg")
-                                    append(
-                                        HttpHeaders.ContentDisposition,
-                                        "filename=\"${file.name}\""
-                                    )
-                                }
-                            )
+                            appendFilePart(key = "Images", file = file)
                         }
                     }
                 )
                 if (response.status.isSuccess()) 200 else 400
             } catch (e: Exception) {
                 Log.d("createStreetAnimal", e.toString())
-                -1
+                e.toApiErrorCode()
             }
         }
 

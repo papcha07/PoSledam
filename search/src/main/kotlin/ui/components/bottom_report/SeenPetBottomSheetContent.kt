@@ -17,6 +17,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.yandex.mapkit.geometry.Point
 import ui.components.ButtonComponent
 import ui.components.slider.PhotosPager
 import ui.theme.buttonPrimary
@@ -27,6 +28,7 @@ fun SeenPetBottomSheetContent(
     photos: List<Uri>,
     buttonState: Boolean,
     loadingState: Boolean,
+    cameraLocation: Point? = null,
     updateLongitude: (Double) -> Unit,
     updateLatitude: (Double) -> Unit,
     onSendClick: () -> Unit,
@@ -63,6 +65,7 @@ fun SeenPetBottomSheetContent(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(260.dp),
+                cameraLocation = cameraLocation,
                 updateLongitude = updateLongitude,
                 updateLatitude = updateLatitude
             )

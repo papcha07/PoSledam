@@ -3,6 +3,8 @@ package navigation
 import NewsScreen
 import NewsType
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavType
@@ -93,7 +95,11 @@ fun NavGraphBuilder.mainNavGraph(navController: NavController, route: String = "
                         }
 
                         REPORT_ANNOUNCEMENT -> {
-                            navController.navigate("detailScreen/$id/0")
+                            navController.navigate(profileDetailRoute(id, MISSING_PROFILE_ANNOUNCEMENT))
+                        }
+
+                        REPORT_FOUND_ANNOUNCEMENT -> {
+                            navController.navigate(profileDetailRoute(id, MISSING_PROFILE_ANNOUNCEMENT))
                         }
                     }
                 },
@@ -106,6 +112,9 @@ fun NavGraphBuilder.mainNavGraph(navController: NavController, route: String = "
             }
             val streetViewModel: StreetPetViewModel =
                 koinViewModel(viewModelStoreOwner = parentEntry)
+            val refreshKey by parentEntry.savedStateHandle
+                .getStateFlow(STREET_ANIMALS_REFRESH_KEY, 0L)
+                .collectAsState()
             StreetPetRoute(
                 streetPetViewModel = streetViewModel,
                 returnToMainScreen = { navController.popBackStack() },
@@ -115,6 +124,10 @@ fun NavGraphBuilder.mainNavGraph(navController: NavController, route: String = "
                             it
                         )
                     )
+                },
+                refreshKey = refreshKey,
+                onRefreshHandled = {
+                    parentEntry.savedStateHandle[STREET_ANIMALS_REFRESH_KEY] = 0L
                 }
             )
         }
@@ -141,6 +154,12 @@ fun NavGraphBuilder.mainNavGraph(navController: NavController, route: String = "
             AddStreetAnimalScreen(
                 cameraViewModel = cameraViewModel,
                 onBack = {
+                    navController.popBackStack()
+                    cameraViewModel.clearViewModel()
+                },
+                onPublished = {
+                    parentEntry.savedStateHandle[STREET_ANIMALS_REFRESH_KEY] =
+                        System.currentTimeMillis()
                     navController.popBackStack()
                     cameraViewModel.clearViewModel()
                 }
@@ -194,3 +213,13 @@ fun NavGraphBuilder.mainNavGraph(navController: NavController, route: String = "
 
 private const val MISS_ANNOUNCEMENT = 1
 private const val REPORT_ANNOUNCEMENT = 0
+private const val REPORT_FOUND_ANNOUNCEMENT = 2
+private const val MISSING_PROFILE_ANNOUNCEMENT = 0
+private const val STREET_ANIMALS_REFRESH_KEY = "street_animals_refresh_key"
+
+private fun profileDetailRoute(
+    id: String,
+    announcementType: Int
+): String {
+    return "detailScreen/$id/$announcementType"
+}

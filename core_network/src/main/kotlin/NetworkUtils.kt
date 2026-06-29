@@ -5,6 +5,9 @@ import io.ktor.client.plugins.ServerResponseException
 import io.ktor.client.request.HttpRequest
 import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.bodyAsText
+import kotlinx.coroutines.CancellationException
+import java.io.IOException
+import java.nio.channels.UnresolvedAddressException
 
 suspend inline fun <reified T> safeCall(
     call: suspend () -> HttpResponse
@@ -22,10 +25,45 @@ suspend inline fun <reified T> safeCall(
     } catch (e: ResponseException) {
         val errorBody = e.response.bodyAsText()
         ResultWrapper.HttpError(e.response.status.value, errorBody)
-    } catch (e: io.ktor.utils.io.errors.IOException) {
-        ResultWrapper.NetworkError(e)
+    } catch (e: CancellationException) {
+        throw e
     } catch (e: Exception) {
-        ResultWrapper.UnknownError(e)
+        if (e.isNetworkException()) {
+            ResultWrapper.NetworkError(e)
+        } else {
+            ResultWrapper.UnknownError(e)
+        }
+    }
+}
+
+fun Throwable.isNetworkException(): Boolean {
+    var current: Throwable? = this
+    while (current != null) {
+        if (
+            current is IOException ||
+            current is UnresolvedAddressException
+        ) {
+            return true
+        }
+        current = current.cause
+    }
+    return false
+}
+
+fun Throwable.toApiErrorCode(defaultErrorCode: Int = 400): Int {
+    if (this is CancellationException) throw this
+    return if (isNetworkException()) NO_INTERNET_ERROR_CODE else defaultErrorCode
+}
+
+fun Throwable.toSendResultError(
+    networkMessage: String = message ?: "Проблемы с соединением",
+    badRequestMessage: String = "Bad request"
+): SendResult {
+    if (this is CancellationException) throw this
+    return if (isNetworkException()) {
+        SendResult.Error(networkMessage)
+    } else {
+        SendResult.BadRequest(badRequestMessage)
     }
 }
 
@@ -35,3 +73,5 @@ sealed class ResultWrapper<out T> {
     data class NetworkError(val exception: Throwable) : ResultWrapper<Nothing>()
     data class UnknownError(val exception: Throwable) : ResultWrapper<Nothing>()
 }
+
+private const val NO_INTERNET_ERROR_CODE = -1

@@ -17,11 +17,13 @@ class Converter(private val context: Context) {
             else -> ".bin"
         }
 
-        val inputStream = context.contentResolver.openInputStream(newUri)!!
         val file = File.createTempFile("upload_", extension, context.cacheDir)
 
-        FileOutputStream(file).use { output ->
-            inputStream.copyTo(output)
+        context.contentResolver.openInputStream(newUri).use { input ->
+            requireNotNull(input) { "Unable to open input stream for $newUri" }
+            FileOutputStream(file).use { output ->
+                input.copyTo(output)
+            }
         }
         file
     }

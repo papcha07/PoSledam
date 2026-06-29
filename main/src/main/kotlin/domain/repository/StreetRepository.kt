@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface StreetRepository {
     fun getStreetAnimals(streetParams: StreetAnimalParams): Flow<PagingData<StreetPetPreviewModel>>
+    suspend fun getLatestStreetAnimal(streetParams: StreetAnimalParams): Pair<StreetPetPreviewModel?, Int?>
     suspend fun createStreetAdvert(advertInfo: AdvertInfo): Int
 
     suspend fun getInformationAboutStreetAnimal(id: String) : Pair<StreetDetails?, Int?>

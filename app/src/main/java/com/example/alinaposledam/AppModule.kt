@@ -10,6 +10,7 @@ val appModule = module {
     viewModel {
         ProfileBarViewModel(
             userInteractor = get(),
+            yandexInteractor = get(),
             notificationInteractor = get()
         )
     }

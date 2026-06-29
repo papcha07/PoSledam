@@ -132,6 +132,10 @@ class FilterViewModel(
         }
     }
 
+    fun clearFilters() {
+        _filters.value = FilterDto(searchRadius = DEFAULT_SEARCH_RADIUS)
+    }
+
 
     val chips: StateFlow<List<FilterChipUi>> =
         filters.map { it.toChips() }.stateIn(
@@ -200,6 +204,10 @@ class FilterViewModel(
                 }
             }
         }
+    }
+
+    private companion object {
+        const val DEFAULT_SEARCH_RADIUS = 5
     }
 }
 

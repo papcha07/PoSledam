@@ -22,7 +22,6 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.core.R
 import domain.models.StreetPetPreviewModel
-import ui.BASE_URL
 
 @Composable
 fun StreetPetCardComponent(
@@ -43,9 +42,8 @@ fun StreetPetCardComponent(
                     .size(170.dp)
                     .clip(RoundedCornerShape(13.dp)),
                 contentScale = ContentScale.Crop,
-                model = "$BASE_URL/api/image/${streetPetPreviewModel.image}",
-                placeholder = painterResource(R.drawable.image),
-                error = painterResource(R.drawable.image),
+                model = "${streetPetPreviewModel.image}",
+                error = painterResource(R.drawable.ic_dog),
                 contentDescription = null,
                 onError = {
                     println("Image loading failed: ${it.result.throwable?.message}")

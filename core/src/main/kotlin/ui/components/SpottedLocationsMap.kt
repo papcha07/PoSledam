@@ -75,6 +75,7 @@ fun SpottedLocationsMap(
     points: List<SpottedMapPoint>
 ) {
     val context = LocalContext.current
+    ensureYandexMapKitInitialized(context)
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     val mapView = remember { MapView(context) }
     val pinProvider = rememberPinProvider(R.drawable.ic_lapa_point, sizeDp = 36f)

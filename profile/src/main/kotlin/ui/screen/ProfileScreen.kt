@@ -105,12 +105,14 @@ fun MainContentComponent(
                 1 -> PetLazyRow(
                     profileScreenState = animalListState,
                     animalType = selectedIndex,
+                    loadAnimalList = loadAnimalList,
                     openAnnouncementDetails = openAnnouncementDetails,
                 )
 
                 0 -> PetLazyRow(
                     profileScreenState = animalListState,
                     animalType = selectedIndex,
+                    loadAnimalList = loadAnimalList,
                     openAnnouncementDetails = openAnnouncementDetails,
                 )
             }
@@ -135,6 +137,7 @@ fun PetLazyRow(
     modifier: Modifier = Modifier,
     profileScreenState: ProfileScreenState,
     animalType: Int,
+    loadAnimalList: () -> Unit,
     openAnnouncementDetails: (String, Int) -> Unit,
 ) {
     Box(
@@ -166,7 +169,10 @@ fun PetLazyRow(
                     }
 
                     ProfileScreenState.Failed -> {
-                        ErrorPlaceholder(modifier = Modifier.align(Alignment.Center))
+                        ErrorPlaceholder(
+                            modifier = Modifier.align(Alignment.Center),
+                            onRefreshClick = loadAnimalList
+                        )
                     }
 
                     ProfileScreenState.Idle -> {
