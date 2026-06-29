@@ -74,7 +74,6 @@ fun ProfileSettingsScreen(
         }
     }
     val screenState by settingsViewModel.profileInfoState.collectAsState()
-    val notificationsEnabled by settingsViewModel.notificationsEnabled.collectAsState()
 
     LaunchedEffect(Unit) {
         settingsViewModel.observeUser()
@@ -107,8 +106,6 @@ fun ProfileSettingsScreen(
                 addVk = settingsViewModel::addVk,
                 addTg = settingsViewModel::addTelegram,
                 addWhatsApp = settingsViewModel::addWhatsApp,
-                updateNotificationState = settingsViewModel::setNotificationsEnabled,
-                notificationState = notificationsEnabled,
                 save = settingsViewModel::updateUserInfo,
                 onLegalInfoClick = onLegalInfoClick
             )
@@ -121,7 +118,6 @@ fun ProfileSettingsScreen(
 @Composable
 fun BottomSettingsMainContent(
     modifier: Modifier = Modifier,
-    notificationState: Boolean,
     userDataUi: User,
     exit: () -> Unit,
     setImage: () -> Unit,
@@ -129,7 +125,6 @@ fun BottomSettingsMainContent(
     setName: (String) -> Unit,
     addVk: (String) -> Unit,
     addTg: (String) -> Unit,
-    updateNotificationState: (Boolean) -> Unit,
     addWhatsApp: (String) -> Unit,
     save: () -> Unit,
     onLegalInfoClick: () -> Unit
@@ -205,9 +200,7 @@ fun BottomSettingsMainContent(
             )
             Spacer(Modifier.height(20.dp))
             BottomInfoComponent(
-                notificationState = notificationState,
                 exit = exit,
-                updateNotificationState = updateNotificationState,
                 onLegalInfoClick = onLegalInfoClick
             )
         }
@@ -217,17 +210,10 @@ fun BottomSettingsMainContent(
 @Composable
 fun BottomInfoComponent(
     modifier: Modifier = Modifier,
-    notificationState: Boolean,
-    updateNotificationState: (Boolean) -> Unit,
     onLegalInfoClick: () -> Unit,
     exit: () -> Unit
 ) {
     val listOfButtons = listOf(
-        SettingsButton(
-            title = "Настройки уведомлений",
-            type = SettingsButton.ButtonType.isSwitcherButton,
-            image = R.drawable.ic_notification_settings
-        ),
         SettingsButton(
             title = "Правовая информация",
             type = SettingsButton.ButtonType.isArrowButton,
@@ -251,8 +237,8 @@ fun BottomInfoComponent(
                     settingsButton = it,
                     contactWithMe = onLegalInfoClick,
                     exitAction = exit,
-                    notificationState = notificationState,
-                    updateNotificationState = updateNotificationState
+                    notificationState = false,
+                    updateNotificationState = {}
                 )
             }
         }
