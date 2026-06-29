@@ -10,7 +10,7 @@ android {
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.example.alinaposledam"
+        applicationId = "ru.posledam.app"
         minSdk = 29
         targetSdk = 35
         versionCode = 1

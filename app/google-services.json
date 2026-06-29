@@ -7,9 +7,9 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:387266082816:android:86ec64c084b07a699100e5",
+        "mobilesdk_app_id": "1:387266082816:android:13e6abf37c426c709100e5",
         "android_client_info": {
-          "package_name": "com.example.alinaposledam"
+          "package_name": "ru.posledam.app"
         }
       },
       "oauth_client": [],
