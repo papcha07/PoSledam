@@ -25,7 +25,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
@@ -810,9 +809,7 @@ private fun FoundReportDetailsBottomSheet(
             fontSize = 18.sp
         )
         Spacer(Modifier.height(10.dp))
-        if (report.user.contacts.isEmpty()) {
-            RouteMessage(text = "Сервер не передал контакты пользователя")
-        } else {
+        if (!report.user.contacts.isEmpty()) {
             Column(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
@@ -824,7 +821,6 @@ private fun FoundReportDetailsBottomSheet(
                 }
             }
         }
-
         Spacer(Modifier.height(8.dp))
     }
 }
