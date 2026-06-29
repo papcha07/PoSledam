@@ -74,6 +74,44 @@ fun Context.shouldShowForegroundLocationRationale(): Boolean {
     )
 }
 
+fun Context.hasNotificationPermission(): Boolean {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        ContextCompat.checkSelfPermission(
+            this,
+            Manifest.permission.POST_NOTIFICATIONS
+        ) == PackageManager.PERMISSION_GRANTED
+    } else {
+        true
+    }
+}
+
+fun Context.wasNotificationPermissionRequested(): Boolean {
+    return notificationPermissionPreferences()
+        .getBoolean(KEY_NOTIFICATION_REQUESTED, false)
+}
+
+fun Context.markNotificationPermissionRequested() {
+    notificationPermissionPreferences().edit {
+        putBoolean(KEY_NOTIFICATION_REQUESTED, true)
+    }
+}
+
+fun Context.isNotificationPermissionPermanentlyDenied(): Boolean {
+    return Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            wasNotificationPermissionRequested() &&
+            !hasNotificationPermission() &&
+            !shouldShowNotificationRationale()
+}
+
+fun Context.shouldShowNotificationRationale(): Boolean {
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return false
+    val activity = findActivity() ?: return false
+    return ActivityCompat.shouldShowRequestPermissionRationale(
+        activity,
+        Manifest.permission.POST_NOTIFICATIONS
+    )
+}
+
 fun Context.findActivity(): Activity? {
     var currentContext = this
     while (currentContext is ContextWrapper) {
@@ -89,6 +127,14 @@ private fun Context.locationPermissionPreferences() =
         Context.MODE_PRIVATE
     )
 
+private fun Context.notificationPermissionPreferences() =
+    applicationContext.getSharedPreferences(
+        NOTIFICATION_PERMISSION_PREFS,
+        Context.MODE_PRIVATE
+    )
+
 private const val LOCATION_PERMISSION_PREFS = "location_permission_prefs"
+private const val NOTIFICATION_PERMISSION_PREFS = "notification_permission_prefs"
 private const val KEY_FOREGROUND_LOCATION_REQUESTED = "foreground_location_requested"
 private const val KEY_BACKGROUND_LOCATION_REQUESTED = "background_location_requested"
+private const val KEY_NOTIFICATION_REQUESTED = "notification_requested"

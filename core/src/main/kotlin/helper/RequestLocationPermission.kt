@@ -3,7 +3,6 @@ package helper
 import android.Manifest
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.provider.Settings
@@ -21,7 +20,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 
@@ -224,33 +222,94 @@ fun RequestNotificationPermission(
     onPermissionDenied: () -> Unit
 ) {
     val context = LocalContext.current
+    var showNotificationDeniedDialog by remember { mutableStateOf(false) }
+    var showNotificationSettingsDialog by remember { mutableStateOf(false) }
 
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { isGranted ->
+        context.markNotificationPermissionRequested()
         if (isGranted) {
             onPermissionGranted()
         } else {
+            if (context.isNotificationPermissionPermanentlyDenied()) {
+                showNotificationSettingsDialog = true
+            } else {
+                showNotificationDeniedDialog = true
+            }
             onPermissionDenied()
         }
     }
 
-    LaunchedEffect(Unit) {
+    fun requestNotificationPermission() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
             onPermissionGranted()
-            return@LaunchedEffect
+            return
         }
 
-        val permissionGranted = ContextCompat.checkSelfPermission(
-            context,
-            Manifest.permission.POST_NOTIFICATIONS
-        ) == PackageManager.PERMISSION_GRANTED
-
-        if (permissionGranted) {
+        if (context.hasNotificationPermission()) {
             onPermissionGranted()
+        } else if (context.isNotificationPermissionPermanentlyDenied()) {
+            showNotificationSettingsDialog = true
+            onPermissionDenied()
         } else {
+            context.markNotificationPermissionRequested()
             launcher.launch(Manifest.permission.POST_NOTIFICATIONS)
         }
+    }
+
+    LaunchedEffect(Unit) {
+        requestNotificationPermission()
+    }
+
+    if (showNotificationDeniedDialog) {
+        AlertDialog(
+            onDismissRequest = { showNotificationDeniedDialog = false },
+            title = { Text("Нужны уведомления") },
+            text = {
+                Text("Разрешите уведомления, чтобы получать важные сообщения об объявлениях и событиях сервиса.")
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showNotificationDeniedDialog = false
+                        requestNotificationPermission()
+                    }
+                ) {
+                    Text("Повторить")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showNotificationDeniedDialog = false }) {
+                    Text("Позже")
+                }
+            }
+        )
+    }
+
+    if (showNotificationSettingsDialog) {
+        AlertDialog(
+            onDismissRequest = { showNotificationSettingsDialog = false },
+            title = { Text("Уведомления отключены") },
+            text = {
+                Text("Доступ к уведомлениям отключён в настройках приложения. Откройте настройки, чтобы разрешить уведомления.")
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showNotificationSettingsDialog = false
+                        context.openAppSettings()
+                    }
+                ) {
+                    Text("Настройки")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showNotificationSettingsDialog = false }) {
+                    Text("Позже")
+                }
+            }
+        )
     }
 }
 
