@@ -26,6 +26,9 @@ import io.ktor.utils.io.streams.asInput
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
+import model.errorResponse.ErrorDetails
+import model.errorResponse.ErrorResponse
 import model.announcement.AnnouncementRequest
 import model.announcement.FoundPetRequest
 import model.announcement.FoundPetResponse
@@ -38,6 +41,7 @@ import java.io.File
 
 
 class AnnouncementService(private val client: HttpClient) {
+    private val json = Json { ignoreUnknownKeys = true }
 
     suspend fun sendAnnouncement(
         announcementRequest: AnnouncementRequest,
@@ -327,20 +331,43 @@ class AnnouncementService(private val client: HttpClient) {
             when {
                 response.status.isSuccess() -> SendResult.Success
                 response.status.value == 400 ||
+                        response.status.value == 401 ||
                         response.status.value == 403 ||
                         response.status.value == 404 ||
                         response.status.value == 409 -> {
                     val text = runCatching { response.bodyAsText() }.getOrNull()
-                    SendResult.BadRequest(message = text ?: "Bad request")
+                    SendResult.BadRequest(
+                        message = text ?: "Bad request",
+                        statusCode = response.status.value,
+                        errorDetails = text.parseErrorDetails()
+                    )
                 }
 
-                else -> SendResult.BadRequest("HTTP ${response.status.value}")
+                else -> {
+                    val text = runCatching { response.bodyAsText() }.getOrNull()
+                    SendResult.BadRequest(
+                        message = text ?: "HTTP ${response.status.value}",
+                        statusCode = response.status.value,
+                        errorDetails = text.parseErrorDetails()
+                    )
+                }
             }
         } catch (e: Exception) {
             e.toSendResultError(
                 networkMessage = e.message ?: "Unknown error"
             )
         }
+    }
+
+    private fun String?.parseErrorDetails(): ErrorDetails? {
+        val text = this
+        if (text.isNullOrBlank()) return null
+
+        return runCatching {
+            json.decodeFromString<ErrorResponse>(text).asErrorDetails()
+        }.getOrNull() ?: runCatching {
+            json.decodeFromString<ErrorDetails>(text)
+        }.getOrNull()
     }
 
     private fun buildFindAnnouncementForm(

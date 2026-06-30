@@ -5,6 +5,7 @@ import androidx.paging.PagingData
 import domain.models.FilterDto
 import domain.models.FoundPetInfo
 import domain.models.PetUiPreview
+import domain.models.ReportAnnouncementResult
 import domain.repository.SearchRepository
 import kotlinx.coroutines.flow.Flow
 import model.InternetStatus
@@ -40,7 +41,10 @@ class SearchInteractorImpl(
         return repository.reportSpottedAnimal(id, spottedAnimalData)
     }
 
-    override suspend fun reportAnnouncement(announcementId: String, comment: String): Response {
+    override suspend fun reportAnnouncement(
+        announcementId: String,
+        comment: String
+    ): ReportAnnouncementResult {
         return repository.reportAnnouncement(announcementId, comment)
     }
 

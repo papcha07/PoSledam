@@ -44,87 +44,93 @@ fun PhotosPager(
     val pageCount = photos.size + if (canAddPhoto) 1 else 0
     val pagerState = rememberPagerState { pageCount }
 
-    HorizontalPager(
-        modifier = modifier.testTag("pager"),
-        state = pagerState,
-        beyondViewportPageCount = 1
-    ) { page ->
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(232.dp)
+            .testTag("pager")
+    ) {
+        HorizontalPager(
+            modifier = Modifier.fillMaxSize(),
+            state = pagerState,
+            beyondViewportPageCount = 1
+        ) { page ->
 
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(232.dp)
-                .clip(RoundedCornerShape(20.dp))
-                .testTag(
-                    if (page < photos.size) "photo_page_$page" else "add_photo_page"
-                )
-        ) {
-            if (page < photos.size) {
-                val uri = photos[page]
-                Box(
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    AsyncImage(
-                        model = uri,
-                        contentDescription = null,
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier.fillMaxSize()
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .clip(RoundedCornerShape(20.dp))
+                    .testTag(
+                        if (page < photos.size) "photo_page_$page" else "add_photo_page"
                     )
-                    if (onRemovePhotoClick != null) {
-                        Box(
-                            modifier = Modifier
-                                .align(Alignment.TopEnd)
-                                .padding(8.dp)
-                                .size(24.dp)
-                                .clip(CircleShape)
-                                .background(Color.White)
-                                .clickable { onRemovePhotoClick(uri) }
-                                .testTag("remove_photo_button_$page"),
-                            contentAlignment = Alignment.Center
+            ) {
+                if (page < photos.size) {
+                    val uri = photos[page]
+                    Box(
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        AsyncImage(
+                            model = uri,
+                            contentDescription = null,
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier.fillMaxSize()
+                        )
+                        if (onRemovePhotoClick != null) {
+                            Box(
+                                modifier = Modifier
+                                    .align(Alignment.TopEnd)
+                                    .padding(8.dp)
+                                    .size(24.dp)
+                                    .clip(CircleShape)
+                                    .background(Color.White)
+                                    .clickable { onRemovePhotoClick(uri) }
+                                    .testTag("remove_photo_button_$page"),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Image(
+                                    modifier = Modifier.size(20.dp),
+                                    painter = painterResource(R.drawable.ic_cancel_button),
+                                    contentDescription = "Удалить фото"
+                                )
+                            }
+                        }
+                    }
+                } else if (canAddPhoto) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(color = Color(0xFFF5F5F7))
+                            .clickable(onClick = onAddPhotoClick),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             Image(
-                                modifier = Modifier.size(20.dp),
-                                painter = painterResource(R.drawable.ic_cancel_button),
-                                contentDescription = "Удалить фото"
+                                painter = painterResource(R.drawable.ic_camera_add),
+                                contentDescription = "Добавить фото",
+                                modifier = Modifier.padding(10.dp)
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text(
+                                text = "Добавить фото питомца",
+                                fontSize = 14.sp,
+                                color = Color(0xFF8E8E93)
                             )
                         }
                     }
-
-                    if (photos.size > 1) {
-                        PhotoPagerIndicator(
-                            modifier = Modifier
-                                .align(Alignment.BottomCenter)
-                                .padding(bottom = 12.dp),
-                            currentIndex = page,
-                            totalCount = photos.size
-                        )
-                    }
-                }
-            } else if (canAddPhoto) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(color = Color(0xFFF5F5F7))
-                        .clickable(onClick = onAddPhotoClick),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Image(
-                            painter = painterResource(R.drawable.ic_camera_add),
-                            contentDescription = "Добавить фото",
-                            modifier = Modifier.padding(10.dp)
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(
-                            text = "Добавить фото питомца",
-                            fontSize = 14.sp,
-                            color = Color(0xFF8E8E93)
-                        )
-                    }
                 }
             }
+        }
+
+        if (photos.size > 1 && pagerState.currentPage < photos.size) {
+            PhotoPagerIndicator(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(bottom = 12.dp),
+                currentIndex = pagerState.currentPage,
+                totalCount = photos.size
+            )
         }
     }
 }

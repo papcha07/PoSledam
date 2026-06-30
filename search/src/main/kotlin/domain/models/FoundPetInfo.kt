@@ -5,6 +5,7 @@ data class FoundPetInfo(
     val house: String?,
     val district: String? = null,
     val imagePath: String? = null,
+    val imagePaths: List<String> = emptyList(),
     val creator: Creator,
     val petInfo: PetInfo,
     val lon: Double,
@@ -34,4 +35,3 @@ data class PetInfo(
     val breed: String,
     val description: String
 )
-

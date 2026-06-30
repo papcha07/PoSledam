@@ -141,8 +141,8 @@ fun DetailsPetScreenProvider(
         }
     }
 
-    LaunchedEffect(reportAnnouncementState.isSheetOpen) {
-        if (!reportAnnouncementState.isSheetOpen &&
+    LaunchedEffect(reportAnnouncementState.isReportBottomSheetVisible) {
+        if (!reportAnnouncementState.isReportBottomSheetVisible &&
             activeBottomSheet == DetailsPetBottomSheetType.ReportAnnouncement
         ) {
             scaffoldState.bottomSheetState.partialExpand()
@@ -155,15 +155,13 @@ fun DetailsPetScreenProvider(
             toastMessage = when (effect) {
                 ReportFoundAnimalEffect.ServerError -> "Что-то пошло не так"
                 ReportFoundAnimalEffect.InternetError -> "Проблемы с соединением"
-                ReportFoundAnimalEffect.AnnouncementReportSuccess -> "Жалоба отправлена"
-                ReportFoundAnimalEffect.AnnouncementReportError -> "Не удалось отправить жалобу. Попробуйте позже"
-                ReportFoundAnimalEffect.OwnAnnouncementReportError -> "Нельзя пожаловаться на своё объявление"
+                is ReportFoundAnimalEffect.AnnouncementReportMessage -> effect.message
             }
         }
     }
     val userState by viewModel.userState.collectAsState(null)
     val isReportLoading = reportUiState.isLoading
-    val isAnnouncementReportLoading = reportAnnouncementState.isLoading
+    val isAnnouncementReportLoading = reportAnnouncementState.isReportLoading
 
     fun closeBottomSheet() {
         scope.launch {
@@ -229,8 +227,8 @@ fun DetailsPetScreenProvider(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .heightIn(min = 320.dp, max = 620.dp),
-                            comment = reportAnnouncementState.comment,
-                            isLoading = reportAnnouncementState.isLoading,
+                            comment = reportAnnouncementState.reportComment,
+                            isLoading = reportAnnouncementState.isReportLoading,
                             commentLimit = REPORT_ANNOUNCEMENT_COMMENT_LIMIT,
                             onCommentChange = reportViewModel::updateReportAnnouncementComment,
                             onSendClick = {

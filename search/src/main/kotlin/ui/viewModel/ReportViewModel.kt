@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import domain.interactor.SearchInteractor
 import domain.models.REPORT_PHOTO_LIMIT
+import domain.models.ReportAnnouncementResult
 import domain.user.UserInteractor
 import domain.user.model.LocationDto
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -25,17 +26,15 @@ data class ReportFoundAnimalUiState(
 )
 
 data class ReportAnnouncementUiState(
-    val isSheetOpen: Boolean = false,
-    val comment: String = "",
-    val isLoading: Boolean = false
+    val isReportBottomSheetVisible: Boolean = false,
+    val reportComment: String = "",
+    val isReportLoading: Boolean = false
 )
 
 sealed interface ReportFoundAnimalEffect {
     data object InternetError : ReportFoundAnimalEffect
     data object ServerError : ReportFoundAnimalEffect
-    data object AnnouncementReportSuccess : ReportFoundAnimalEffect
-    data object AnnouncementReportError : ReportFoundAnimalEffect
-    data object OwnAnnouncementReportError : ReportFoundAnimalEffect
+    data class AnnouncementReportMessage(val message: String) : ReportFoundAnimalEffect
 }
 
 data class SpottedAnimalData(
@@ -127,19 +126,23 @@ class ReportViewModel(
 
     fun openReportAnnouncementSheet() {
         _reportAnnouncementState.update {
-            it.copy(isSheetOpen = true)
+            it.copy(isReportBottomSheetVisible = true)
         }
     }
 
     fun closeReportAnnouncementSheet() {
         _reportAnnouncementState.update {
-            it.copy(isSheetOpen = false, comment = "", isLoading = false)
+            it.copy(
+                isReportBottomSheetVisible = false,
+                reportComment = "",
+                isReportLoading = false
+            )
         }
     }
 
     fun updateReportAnnouncementComment(comment: String) {
         _reportAnnouncementState.update {
-            it.copy(comment = comment.take(REPORT_ANNOUNCEMENT_COMMENT_LIMIT))
+            it.copy(reportComment = comment.take(REPORT_ANNOUNCEMENT_COMMENT_LIMIT))
         }
     }
 
@@ -148,41 +151,59 @@ class ReportViewModel(
         announcementOwnerId: String,
         currentUserId: String?
     ) {
-        val trimmedComment = _reportAnnouncementState.value.comment.trim()
+        val state = _reportAnnouncementState.value
+        val trimmedComment = state.reportComment.trim()
         if (currentUserId?.takeIf { it.isNotBlank() } == announcementOwnerId) {
             viewModelScope.launch {
-                _effect.emit(ReportFoundAnimalEffect.OwnAnnouncementReportError)
+                _effect.emit(
+                    ReportFoundAnimalEffect.AnnouncementReportMessage(OWN_ANNOUNCEMENT_MESSAGE)
+                )
             }
             return
         }
 
-        if (trimmedComment.isBlank() || _reportAnnouncementState.value.isLoading) {
+        if (state.isReportLoading) {
+            return
+        }
+
+        if (trimmedComment.isBlank()) {
+            viewModelScope.launch {
+                _effect.emit(
+                    ReportFoundAnimalEffect.AnnouncementReportMessage(EMPTY_COMMENT_MESSAGE)
+                )
+            }
             return
         }
 
         viewModelScope.launch {
             _reportAnnouncementState.update {
-                it.copy(isLoading = true)
+                it.copy(isReportLoading = true)
             }
 
-            when (searchInteractor.reportAnnouncement(announcementId, trimmedComment)) {
-                Response.SUCCESS -> {
+            val result = searchInteractor.reportAnnouncement(announcementId, trimmedComment)
+            when (result) {
+                ReportAnnouncementResult.Success -> {
                     _reportAnnouncementState.update {
                         it.copy(
-                            isSheetOpen = false,
-                            comment = "",
-                            isLoading = false
+                            isReportBottomSheetVisible = false,
+                            reportComment = "",
+                            isReportLoading = false
                         )
                     }
-                    _effect.emit(ReportFoundAnimalEffect.AnnouncementReportSuccess)
+                    _effect.emit(
+                        ReportFoundAnimalEffect.AnnouncementReportMessage(REPORT_SUCCESS_MESSAGE)
+                    )
                 }
 
-                Response.INTERNET_ERROR,
-                Response.SERVER_ERROR -> {
+                else -> {
                     _reportAnnouncementState.update {
-                        it.copy(isLoading = false)
+                        it.copy(isReportLoading = false)
                     }
-                    _effect.emit(ReportFoundAnimalEffect.AnnouncementReportError)
+                    _effect.emit(
+                        ReportFoundAnimalEffect.AnnouncementReportMessage(
+                            result.toReportAnnouncementMessage()
+                        )
+                    )
                 }
             }
         }
@@ -238,5 +259,28 @@ class ReportViewModel(
 
     companion object {
         const val REPORT_ANNOUNCEMENT_COMMENT_LIMIT = 500
+        private const val REPORT_SUCCESS_MESSAGE = "Жалоба отправлена"
+        private const val EMPTY_COMMENT_MESSAGE = "Опишите причину жалобы"
+        private const val OWN_ANNOUNCEMENT_MESSAGE = "Нельзя пожаловаться на своё объявление"
+        private const val ALREADY_REPORTED_MESSAGE =
+            "Вы уже отправляли жалобу на это объявление"
+        private const val UNAUTHORIZED_MESSAGE = "Необходимо войти в аккаунт"
+        private const val FORBIDDEN_MESSAGE = "У вас нет доступа к этому действию"
+        private const val NOT_FOUND_MESSAGE = "Объявление не найдено"
+        private const val NO_INTERNET_MESSAGE = "Проверьте подключение к интернету"
+        private const val DEFAULT_REPORT_ERROR_MESSAGE =
+            "Не удалось отправить жалобу. Попробуйте позже"
+    }
+}
+
+private fun ReportAnnouncementResult.toReportAnnouncementMessage(): String {
+    return when (this) {
+        ReportAnnouncementResult.Success -> "Жалоба отправлена"
+        ReportAnnouncementResult.AlreadyReported -> "Вы уже отправляли жалобу на это объявление"
+        ReportAnnouncementResult.Unauthorized -> "Необходимо войти в аккаунт"
+        ReportAnnouncementResult.Forbidden -> "У вас нет доступа к этому действию"
+        ReportAnnouncementResult.NotFound -> "Объявление не найдено"
+        ReportAnnouncementResult.NoInternet -> "Проверьте подключение к интернету"
+        ReportAnnouncementResult.Error -> "Не удалось отправить жалобу. Попробуйте позже"
     }
 }
