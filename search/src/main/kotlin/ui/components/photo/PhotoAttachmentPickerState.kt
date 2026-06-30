@@ -7,9 +7,20 @@ import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material3.AlertDialog
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -17,10 +28,23 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import androidx.core.content.FileProvider
 import androidx.core.content.ContextCompat
+import com.example.core.R
 import domain.models.REPORT_PHOTO_LIMIT
 import java.io.File
 
@@ -107,31 +131,11 @@ fun rememberPhotoAttachmentPickerState(
     }
 
     if (showSourceDialog) {
-        AlertDialog(
-            onDismissRequest = { showSourceDialog = false },
-            title = { Text("Добавить фото") },
-            text = {
-                Column {
-                    TextButton(
-                        modifier = Modifier.fillMaxWidth(),
-                        onClick = ::launchGallery
-                    ) {
-                        Text("Выбрать из галереи")
-                    }
-                    TextButton(
-                        modifier = Modifier.fillMaxWidth(),
-                        onClick = ::launchCamera
-                    ) {
-                        Text("Сделать фото")
-                    }
-                }
-            },
-            confirmButton = {},
-            dismissButton = {
-                TextButton(onClick = { showSourceDialog = false }) {
-                    Text("Отмена")
-                }
-            }
+        PhotoSourceDialog(
+            availableSlots = availableSlots,
+            onDismiss = { showSourceDialog = false },
+            onGalleryClick = ::launchGallery,
+            onCameraClick = ::launchCamera
         )
     }
 
@@ -143,6 +147,126 @@ fun rememberPhotoAttachmentPickerState(
             }
         }
     )
+}
+
+@Composable
+private fun PhotoSourceDialog(
+    availableSlots: Int,
+    onDismiss: () -> Unit,
+    onGalleryClick: () -> Unit,
+    onCameraClick: () -> Unit
+) {
+    Dialog(onDismissRequest = onDismiss) {
+        Surface(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(28.dp),
+            color = Color(0xFFFAFAFA),
+            tonalElevation = 8.dp
+        ) {
+            Column(
+                modifier = Modifier.padding(horizontal = 20.dp, vertical = 18.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = "Добавить фото",
+                    style = TextStyle(
+                        fontFamily = LebowskiByPragmatica,
+                        fontSize = 26.sp,
+                        lineHeight = 30.sp,
+                        letterSpacing = (-0.26).sp,
+                        color = Color(0xFF1E1E1E),
+                        textAlign = TextAlign.Center
+                    )
+                )
+
+                Spacer(Modifier.height(6.dp))
+
+                Text(
+                    text = "Можно добавить еще $availableSlots",
+                    fontSize = 14.sp,
+                    lineHeight = 18.sp,
+                    color = Color(0xFF777777),
+                    textAlign = TextAlign.Center
+                )
+
+                Spacer(Modifier.height(18.dp))
+
+                PhotoSourceOption(
+                    icon = R.drawable.ic_uploadpet,
+                    title = "Выбрать из галереи",
+                    subtitle = "Добавить готовое фото",
+                    onClick = onGalleryClick
+                )
+
+                Spacer(Modifier.height(10.dp))
+
+                PhotoSourceOption(
+                    icon = R.drawable.ic_camera_add,
+                    title = "Сделать фото",
+                    subtitle = "Открыть камеру",
+                    onClick = onCameraClick
+                )
+
+                Spacer(Modifier.height(10.dp))
+
+                TextButton(onClick = onDismiss) {
+                    Text(
+                        text = "Отмена",
+                        color = Color(0xFF777777),
+                        fontSize = 16.sp
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun PhotoSourceOption(
+    icon: Int,
+    title: String,
+    subtitle: String,
+    onClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(18.dp))
+            .background(Color.White)
+            .border(
+                width = 1.dp,
+                color = Color(0xFFE5E5E5),
+                shape = RoundedCornerShape(18.dp)
+            )
+            .clickable(onClick = onClick)
+            .padding(horizontal = 16.dp, vertical = 14.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Image(
+            modifier = Modifier.size(34.dp),
+            painter = painterResource(icon),
+            contentDescription = null
+        )
+
+        Spacer(Modifier.width(14.dp))
+
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = title,
+                fontSize = 17.sp,
+                lineHeight = 21.sp,
+                fontWeight = FontWeight.Medium,
+                color = Color(0xFF222222)
+            )
+            Spacer(Modifier.height(2.dp))
+            Text(
+                text = subtitle,
+                fontSize = 13.sp,
+                lineHeight = 17.sp,
+                color = Color(0xFF8E8E93)
+            )
+        }
+    }
 }
 
 private fun Context.createCameraImageUri(): Uri {
@@ -177,3 +301,7 @@ private fun Context.isPermissionDeclared(permission: String): Boolean {
 private const val CAMERA_IMAGE_DIR = "camera_images"
 private const val CAMERA_IMAGE_PREFIX = "report_photo_"
 private const val CAMERA_IMAGE_SUFFIX = ".jpg"
+
+private val LebowskiByPragmatica = FontFamily(
+    Font(R.font.lebowski_by_pragmatica_regular)
+)
