@@ -26,34 +26,37 @@ fun RequestLocationPermission(
     onPermissionGranted: () -> Unit,
     onPermissionDenied: () -> Unit,
     onPermissionPermanentlyDenied: () -> Unit = {},
-    requestBackgroundPermission: Boolean = false,
-    onBackgroundPermissionGranted: () -> Unit = {},
-    onBackgroundPermissionDenied: () -> Unit = {}
+    // Background location is temporarily disabled for moderation.
+    // requestBackgroundPermission: Boolean = false,
+    // onBackgroundPermissionGranted: () -> Unit = {},
+    // onBackgroundPermissionDenied: () -> Unit = {}
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
     var showForegroundDeniedDialog by remember { mutableStateOf(false) }
     var showForegroundSettingsDialog by remember { mutableStateOf(false) }
-    var showBackgroundRationaleDialog by remember { mutableStateOf(false) }
+    // Background location is temporarily disabled for moderation.
+    // var showBackgroundRationaleDialog by remember { mutableStateOf(false) }
 
     fun handleForegroundGranted() {
         Log.d("USER_LOCATION", "Foreground location permission granted")
         onPermissionGranted()
-        if (!requestBackgroundPermission) return
-
-        if (context.hasBackgroundLocationPermission()) {
-            Log.d("WORKER_MANAGER", "Background location permission already granted")
-            onBackgroundPermissionGranted()
-            return
-        }
-
-        if (!context.wasBackgroundLocationPermissionRequested()) {
-            Log.d("WORKER_MANAGER", "Background location permission rationale requested")
-            showBackgroundRationaleDialog = true
-        } else {
-            Log.d("WORKER_MANAGER", "Background location permission is not granted")
-            onBackgroundPermissionDenied()
-        }
+        // Background location is temporarily disabled for moderation.
+        // if (!requestBackgroundPermission) return
+        //
+        // if (context.hasBackgroundLocationPermission()) {
+        //     Log.d("WORKER_MANAGER", "Background location permission already granted")
+        //     onBackgroundPermissionGranted()
+        //     return
+        // }
+        //
+        // if (!context.wasBackgroundLocationPermissionRequested()) {
+        //     Log.d("WORKER_MANAGER", "Background location permission rationale requested")
+        //     showBackgroundRationaleDialog = true
+        // } else {
+        //     Log.d("WORKER_MANAGER", "Background location permission is not granted")
+        //     onBackgroundPermissionDenied()
+        // }
     }
 
     val launcher = rememberLauncherForActivityResult(
@@ -76,18 +79,19 @@ fun RequestLocationPermission(
         }
     }
 
-    val backgroundLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestPermission()
-    ) { isGranted ->
-        context.markBackgroundLocationPermissionRequested()
-        if (isGranted) {
-            Log.d("WORKER_MANAGER", "Background location permission request result: granted")
-            onBackgroundPermissionGranted()
-        } else {
-            Log.d("WORKER_MANAGER", "Background location permission request result: denied")
-            onBackgroundPermissionDenied()
-        }
-    }
+    // Background location is temporarily disabled for moderation.
+    // val backgroundLauncher = rememberLauncherForActivityResult(
+    //     contract = ActivityResultContracts.RequestPermission()
+    // ) { isGranted ->
+    //     context.markBackgroundLocationPermissionRequested()
+    //     if (isGranted) {
+    //         Log.d("WORKER_MANAGER", "Background location permission request result: granted")
+    //         onBackgroundPermissionGranted()
+    //     } else {
+    //         Log.d("WORKER_MANAGER", "Background location permission request result: denied")
+    //         onBackgroundPermissionDenied()
+    //     }
+    // }
 
     fun requestForegroundPermission() {
         Log.d("USER_LOCATION", "Requesting foreground location permission")
@@ -183,52 +187,53 @@ fun RequestLocationPermission(
         )
     }
 
-    if (showBackgroundRationaleDialog) {
-        val backgroundPermissionLabel = remember {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                context.packageManager.backgroundPermissionOptionLabel.toString()
-            } else {
-                "Разрешить всегда"
-            }
-        }
-        AlertDialog(
-            onDismissRequest = {
-                showBackgroundRationaleDialog = false
-                context.markBackgroundLocationPermissionRequested()
-                onBackgroundPermissionDenied()
-            },
-            title = { Text("Фоновая геолокация") },
-            text = {
-                Text("Периодическая отправка геолокации работает, когда приложение не открыто. Для этого в настройках геолокации выберите \"$backgroundPermissionLabel\".")
-            },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        showBackgroundRationaleDialog = false
-                        context.markBackgroundLocationPermissionRequested()
-                        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.Q) {
-                            backgroundLauncher.launch(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
-                        } else {
-                            context.openAppSettings()
-                        }
-                    }
-                ) {
-                    Text("Продолжить")
-                }
-            },
-            dismissButton = {
-                TextButton(
-                    onClick = {
-                        showBackgroundRationaleDialog = false
-                        context.markBackgroundLocationPermissionRequested()
-                        onBackgroundPermissionDenied()
-                    }
-                ) {
-                    Text("Не сейчас")
-                }
-            }
-        )
-    }
+    // Background location is temporarily disabled for moderation.
+    // if (showBackgroundRationaleDialog) {
+    //     val backgroundPermissionLabel = remember {
+    //         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+    //             context.packageManager.backgroundPermissionOptionLabel.toString()
+    //         } else {
+    //             "Разрешить всегда"
+    //         }
+    //     }
+    //     AlertDialog(
+    //         onDismissRequest = {
+    //             showBackgroundRationaleDialog = false
+    //             context.markBackgroundLocationPermissionRequested()
+    //             onBackgroundPermissionDenied()
+    //         },
+    //         title = { Text("Фоновая геолокация") },
+    //         text = {
+    //             Text("Периодическая отправка геолокации работает, когда приложение не открыто. Для этого в настройках геолокации выберите \"$backgroundPermissionLabel\".")
+    //         },
+    //         confirmButton = {
+    //             TextButton(
+    //                 onClick = {
+    //                     showBackgroundRationaleDialog = false
+    //                     context.markBackgroundLocationPermissionRequested()
+    //                     if (Build.VERSION.SDK_INT == Build.VERSION_CODES.Q) {
+    //                         backgroundLauncher.launch(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
+    //                     } else {
+    //                         context.openAppSettings()
+    //                     }
+    //                 }
+    //             ) {
+    //                 Text("Продолжить")
+    //             }
+    //         },
+    //         dismissButton = {
+    //             TextButton(
+    //                 onClick = {
+    //                     showBackgroundRationaleDialog = false
+    //                     context.markBackgroundLocationPermissionRequested()
+    //                     onBackgroundPermissionDenied()
+    //                 }
+    //             ) {
+    //                 Text("Не сейчас")
+    //             }
+    //         }
+    //     )
+    // }
 }
 
 @Composable

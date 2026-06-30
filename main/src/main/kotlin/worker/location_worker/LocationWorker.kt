@@ -1,5 +1,8 @@
 package worker.location_worker
 
+/*
+Background location worker is temporarily disabled for moderation.
+
 import android.content.Context
 import android.util.Log
 import androidx.work.CoroutineWorker
@@ -59,3 +62,4 @@ class LocationWorker(
         }
     }
 }
+*/

@@ -19,18 +19,18 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
-import helper.hasBackgroundLocationPermission
 import helper.hasForegroundLocationPermission
 import helper.hasNotificationPermission
 import helper.isForegroundLocationPermanentlyDenied
 import helper.isNotificationPermissionPermanentlyDenied
-import helper.markBackgroundLocationPermissionRequested
+// import helper.hasBackgroundLocationPermission
+// import helper.markBackgroundLocationPermissionRequested
 import helper.markForegroundLocationPermissionRequested
 import helper.markNotificationPermissionRequested
 import helper.openAppSettings
 import helper.shouldShowForegroundLocationRationale
 import helper.shouldShowNotificationRationale
-import helper.wasBackgroundLocationPermissionRequested
+// import helper.wasBackgroundLocationPermissionRequested
 
 @Composable
 fun MainPermissionHandler(
@@ -40,7 +40,8 @@ fun MainPermissionHandler(
     val lifecycleOwner = LocalLifecycleOwner.current
     var showLocationRationaleDialog by remember { mutableStateOf(false) }
     var showLocationSettingsDialog by remember { mutableStateOf(false) }
-    var showBackgroundLocationRationaleDialog by remember { mutableStateOf(false) }
+    // Background location is temporarily disabled for moderation.
+    // var showBackgroundLocationRationaleDialog by remember { mutableStateOf(false) }
     var showNotificationRationaleDialog by remember { mutableStateOf(false) }
     var showNotificationSettingsDialog by remember { mutableStateOf(false) }
     var settingsTarget by remember { mutableStateOf<PermissionTarget?>(null) }
@@ -76,17 +77,18 @@ fun MainPermissionHandler(
         }
     }
 
-    val backgroundLocationLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestPermission()
-    ) { isGranted ->
-        context.markBackgroundLocationPermissionRequested()
-        if (isGranted) {
-            viewModel.onBackgroundLocationPermissionGranted()
-        } else {
-            viewModel.onBackgroundLocationPermissionDenied()
-        }
-        finishLocationStep()
-    }
+    // Background location is temporarily disabled for moderation.
+    // val backgroundLocationLauncher = rememberLauncherForActivityResult(
+    //     contract = ActivityResultContracts.RequestPermission()
+    // ) { isGranted ->
+    //     context.markBackgroundLocationPermissionRequested()
+    //     if (isGranted) {
+    //         viewModel.onBackgroundLocationPermissionGranted()
+    //     } else {
+    //         viewModel.onBackgroundLocationPermissionDenied()
+    //     }
+    //     finishLocationStep()
+    // }
 
     val notificationLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
@@ -141,22 +143,25 @@ fun MainPermissionHandler(
         }
     }
 
-    fun handleBackgroundLocation() {
-        if (context.hasBackgroundLocationPermission()) {
-            viewModel.onBackgroundLocationPermissionGranted()
-            finishLocationStep()
-        } else if (!context.wasBackgroundLocationPermissionRequested()) {
-            showBackgroundLocationRationaleDialog = true
-        } else {
-            viewModel.onBackgroundLocationPermissionDenied()
-            finishLocationStep()
-        }
-    }
+    // Background location is temporarily disabled for moderation.
+    // fun handleBackgroundLocation() {
+    //     if (context.hasBackgroundLocationPermission()) {
+    //         viewModel.onBackgroundLocationPermissionGranted()
+    //         finishLocationStep()
+    //     } else if (!context.wasBackgroundLocationPermissionRequested()) {
+    //         showBackgroundLocationRationaleDialog = true
+    //     } else {
+    //         viewModel.onBackgroundLocationPermissionDenied()
+    //         finishLocationStep()
+    //     }
+    // }
 
     handleForegroundLocationGranted = {
         Log.d("USER_LOCATION", "Foreground location permission granted")
         viewModel.onForegroundLocationPermissionGranted()
-        handleBackgroundLocation()
+        // Background location is temporarily disabled for moderation.
+        // handleBackgroundLocation()
+        finishLocationStep()
     }
 
     requestForegroundLocationPermission = {
@@ -212,15 +217,16 @@ fun MainPermissionHandler(
                     }
                 }
 
-                PermissionTarget.BackgroundLocation -> {
-                    settingsTarget = null
-                    if (context.hasBackgroundLocationPermission()) {
-                        viewModel.onBackgroundLocationPermissionGranted()
-                    } else {
-                        viewModel.onBackgroundLocationPermissionDenied()
-                    }
-                    finishLocationStep()
-                }
+                // Background location is temporarily disabled for moderation.
+                // PermissionTarget.BackgroundLocation -> {
+                //     settingsTarget = null
+                //     if (context.hasBackgroundLocationPermission()) {
+                //         viewModel.onBackgroundLocationPermissionGranted()
+                //     } else {
+                //         viewModel.onBackgroundLocationPermissionDenied()
+                //     }
+                //     finishLocationStep()
+                // }
 
                 PermissionTarget.Notification -> {
                     settingsTarget = null
@@ -265,56 +271,57 @@ fun MainPermissionHandler(
         )
     }
 
-    if (showBackgroundLocationRationaleDialog) {
-        val backgroundPermissionLabel = remember {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                context.packageManager.backgroundPermissionOptionLabel.toString()
-            } else {
-                "Разрешить всегда"
-            }
-        }
-
-        AlertDialog(
-            onDismissRequest = {
-                showBackgroundLocationRationaleDialog = false
-                context.markBackgroundLocationPermissionRequested()
-                viewModel.onBackgroundLocationPermissionDenied()
-                finishLocationStep()
-            },
-            title = { Text("Фоновая геолокация") },
-            text = {
-                Text("Периодическая отправка геолокации работает, когда приложение не открыто. Для этого в настройках геолокации выберите \"$backgroundPermissionLabel\".")
-            },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        showBackgroundLocationRationaleDialog = false
-                        context.markBackgroundLocationPermissionRequested()
-                        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.Q) {
-                            backgroundLocationLauncher.launch(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
-                        } else {
-                            settingsTarget = PermissionTarget.BackgroundLocation
-                            context.openAppSettings()
-                        }
-                    }
-                ) {
-                    Text("Продолжить")
-                }
-            },
-            dismissButton = {
-                TextButton(
-                    onClick = {
-                        showBackgroundLocationRationaleDialog = false
-                        context.markBackgroundLocationPermissionRequested()
-                        viewModel.onBackgroundLocationPermissionDenied()
-                        finishLocationStep()
-                    }
-                ) {
-                    Text("Позже")
-                }
-            }
-        )
-    }
+    // Background location is temporarily disabled for moderation.
+    // if (showBackgroundLocationRationaleDialog) {
+    //     val backgroundPermissionLabel = remember {
+    //         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+    //             context.packageManager.backgroundPermissionOptionLabel.toString()
+    //         } else {
+    //             "Разрешить всегда"
+    //         }
+    //     }
+    //
+    //     AlertDialog(
+    //         onDismissRequest = {
+    //             showBackgroundLocationRationaleDialog = false
+    //             context.markBackgroundLocationPermissionRequested()
+    //             viewModel.onBackgroundLocationPermissionDenied()
+    //             finishLocationStep()
+    //         },
+    //         title = { Text("Фоновая геолокация") },
+    //         text = {
+    //             Text("Периодическая отправка геолокации работает, когда приложение не открыто. Для этого в настройках геолокации выберите \"$backgroundPermissionLabel\".")
+    //         },
+    //         confirmButton = {
+    //             TextButton(
+    //                 onClick = {
+    //                     showBackgroundLocationRationaleDialog = false
+    //                     context.markBackgroundLocationPermissionRequested()
+    //                     if (Build.VERSION.SDK_INT == Build.VERSION_CODES.Q) {
+    //                         backgroundLocationLauncher.launch(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
+    //                     } else {
+    //                         settingsTarget = PermissionTarget.BackgroundLocation
+    //                         context.openAppSettings()
+    //                     }
+    //                 }
+    //             ) {
+    //                 Text("Продолжить")
+    //             }
+    //         },
+    //         dismissButton = {
+    //             TextButton(
+    //                 onClick = {
+    //                     showBackgroundLocationRationaleDialog = false
+    //                     context.markBackgroundLocationPermissionRequested()
+    //                     viewModel.onBackgroundLocationPermissionDenied()
+    //                     finishLocationStep()
+    //                 }
+    //             ) {
+    //                 Text("Позже")
+    //             }
+    //         }
+    //     )
+    // }
 
     if (showNotificationRationaleDialog) {
         NotificationPermissionDialog(
@@ -398,6 +405,7 @@ private fun NotificationPermissionDialog(
 
 private enum class PermissionTarget {
     Location,
-    BackgroundLocation,
+    // Background location is temporarily disabled for moderation.
+    // BackgroundLocation,
     Notification
 }

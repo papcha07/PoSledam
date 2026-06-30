@@ -21,11 +21,12 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import worker.location_worker.WorkerInteractor
+// import worker.location_worker.WorkerInteractor
 
 class MainScreenViewModel(
     private val notificationInteractor: NotificationInteractor,
-    private val workerInteractor: WorkerInteractor,
+    // Background location worker is temporarily disabled for moderation.
+    // private val workerInteractor: WorkerInteractor,
     private val locationInteractor: LocationInteractor,
     private val locationSyncRequestStore: LocationSyncRequestStore,
     private val streetPetInteractor: StreetPetInteractor,
@@ -40,7 +41,8 @@ class MainScreenViewModel(
     val latestStreetPetState = _latestStreetPetState.asStateFlow()
 
     private var locationSendJob: Job? = null
-    private var locationWorkerStarted = false
+    // Background location worker is temporarily disabled for moderation.
+    // private var locationWorkerStarted = false
     private var permissionFlowStarted = false
 
     val notificationState: StateFlow<List<Notification>> =
@@ -97,11 +99,12 @@ class MainScreenViewModel(
         }
     }
 
-    private fun startLocationWorker() {
-        if (locationWorkerStarted) return
-        locationWorkerStarted = true
-        workerInteractor.startLocationWorker()
-    }
+    // Background location worker is temporarily disabled for moderation.
+    // private fun startLocationWorker() {
+    //     if (locationWorkerStarted) return
+    //     locationWorkerStarted = true
+    //     workerInteractor.startLocationWorker()
+    // }
 
     fun consumePermissionFlowLaunch(): Boolean {
         if (permissionFlowStarted) return false
@@ -148,14 +151,15 @@ class MainScreenViewModel(
         _locationSendState.value = LocationSendUiState.PermissionPermanentlyDenied
     }
 
-    fun onBackgroundLocationPermissionGranted() {
-        Log.d("WORKER_MANAGER", "Background location permission granted")
-        startLocationWorker()
-    }
-
-    fun onBackgroundLocationPermissionDenied() {
-        Log.d("WORKER_MANAGER", "Background location permission is not granted")
-    }
+    // Background location worker is temporarily disabled for moderation.
+    // fun onBackgroundLocationPermissionGranted() {
+    //     Log.d("WORKER_MANAGER", "Background location permission granted")
+    //     startLocationWorker()
+    // }
+    //
+    // fun onBackgroundLocationPermissionDenied() {
+    //     Log.d("WORKER_MANAGER", "Background location permission is not granted")
+    // }
 }
 
 sealed interface LatestStreetPetState {

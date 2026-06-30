@@ -1,5 +1,8 @@
 package worker.location_worker.factory
 
+/*
+Background location worker is temporarily disabled for moderation.
+
 import android.content.Context
 import android.util.Log
 import androidx.work.ListenableWorker
@@ -31,3 +34,4 @@ class KoinWorkerFactory : WorkerFactory(), KoinComponent {
         }
     }
 }
+*/

@@ -27,16 +27,17 @@ fun Context.hasForegroundLocationPermission(): Boolean {
     return fineGranted || coarseGranted
 }
 
-fun Context.hasBackgroundLocationPermission(): Boolean {
-    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-        ContextCompat.checkSelfPermission(
-            this,
-            Manifest.permission.ACCESS_BACKGROUND_LOCATION
-        ) == PackageManager.PERMISSION_GRANTED
-    } else {
-        true
-    }
-}
+// Background location is temporarily disabled for moderation.
+// fun Context.hasBackgroundLocationPermission(): Boolean {
+//     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+//         ContextCompat.checkSelfPermission(
+//             this,
+//             Manifest.permission.ACCESS_BACKGROUND_LOCATION
+//         ) == PackageManager.PERMISSION_GRANTED
+//     } else {
+//         true
+//     }
+// }
 
 fun Context.wasForegroundLocationPermissionRequested(): Boolean {
     return locationPermissionPreferences()
@@ -49,16 +50,17 @@ fun Context.markForegroundLocationPermissionRequested() {
     }
 }
 
-fun Context.wasBackgroundLocationPermissionRequested(): Boolean {
-    return locationPermissionPreferences()
-        .getBoolean(KEY_BACKGROUND_LOCATION_REQUESTED, false)
-}
-
-fun Context.markBackgroundLocationPermissionRequested() {
-    locationPermissionPreferences().edit {
-        putBoolean(KEY_BACKGROUND_LOCATION_REQUESTED, true)
-    }
-}
+// Background location is temporarily disabled for moderation.
+// fun Context.wasBackgroundLocationPermissionRequested(): Boolean {
+//     return locationPermissionPreferences()
+//         .getBoolean(KEY_BACKGROUND_LOCATION_REQUESTED, false)
+// }
+//
+// fun Context.markBackgroundLocationPermissionRequested() {
+//     locationPermissionPreferences().edit {
+//         putBoolean(KEY_BACKGROUND_LOCATION_REQUESTED, true)
+//     }
+// }
 
 fun Context.isForegroundLocationPermanentlyDenied(): Boolean {
     return wasForegroundLocationPermissionRequested() &&
@@ -147,5 +149,6 @@ private fun Context.notificationPermissionPreferences() =
 private const val LOCATION_PERMISSION_PREFS = "location_permission_prefs"
 private const val NOTIFICATION_PERMISSION_PREFS = "notification_permission_prefs"
 private const val KEY_FOREGROUND_LOCATION_REQUESTED = "foreground_location_requested"
-private const val KEY_BACKGROUND_LOCATION_REQUESTED = "background_location_requested"
+// Background location is temporarily disabled for moderation.
+// private const val KEY_BACKGROUND_LOCATION_REQUESTED = "background_location_requested"
 private const val KEY_NOTIFICATION_REQUESTED = "notification_requested"
