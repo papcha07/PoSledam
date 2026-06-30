@@ -1,8 +1,5 @@
 package ui
 
-import android.net.Uri
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -51,6 +48,7 @@ import ui.components.EventDateComponent
 import ui.components.bottom_report.SeenPetBottomSheetContent
 import ui.components.bottom_spotted.SpottedPetConfirmationBottomSheetContent
 import ui.components.default_component.AnimatedToast
+import ui.components.photo.rememberPhotoAttachmentPickerState
 import ui.components.placeholder.ShimmerImagePlaceholder
 import ui.components.placeholder.ShimmerLoadingTransition
 import ui.components.placeholder.ShimmerTextPlaceholder
@@ -104,17 +102,15 @@ fun DetailsPetScreenProvider(
                 spottedData.lon != null &&
                 spottedData.lat != null
 
-    val pickSpottedImageLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent()
-    ) { uri: Uri? ->
-        uri?.let(reportViewModel::addImage)
-    }
+    val foundPhotoPickerState = rememberPhotoAttachmentPickerState(
+        selectedPhotoCount = findUriState.size,
+        onPhotosSelected = reportViewModel::addFindImages
+    )
 
-    val pickFoundImageLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent()
-    ) { uri: Uri? ->
-        uri?.let(reportViewModel::addFindImage)
-    }
+    val spottedPhotoPickerState = rememberPhotoAttachmentPickerState(
+        selectedPhotoCount = spottedData.uri.size,
+        onPhotosSelected = reportViewModel::addImages
+    )
 
     LaunchedEffect(petId, announcementType) {
         viewModel.getInfoAboutPet(
@@ -172,9 +168,9 @@ fun DetailsPetScreenProvider(
                                 .heightIn(min = 400.dp, max = 760.dp),
                             photos = findUriState,
                             isSendEnabled = findUriState.isNotEmpty() && !isReportLoading,
-                            onAddPhotoClick = {
-                                pickFoundImageLauncher.launch("image/*")
-                            },
+                            canAddPhoto = foundPhotoPickerState.canAddPhotos && !isReportLoading,
+                            onAddPhotoClick = foundPhotoPickerState.openPicker,
+                            onRemovePhotoClick = reportViewModel::removeFindImage,
                             onSendClick = {
                                 reportViewModel.reportFoundAnimal(petId)
                             }
@@ -195,9 +191,9 @@ fun DetailsPetScreenProvider(
                             onSendClick = {
                                 reportViewModel.reportSpottedAnimal(id = petId)
                             },
-                            onAddPhotoClick = {
-                                pickSpottedImageLauncher.launch("image/*")
-                            }
+                            canAddPhoto = spottedPhotoPickerState.canAddPhotos && !isReportLoading,
+                            onAddPhotoClick = spottedPhotoPickerState.openPicker,
+                            onRemovePhotoClick = reportViewModel::removeImage
                         )
                     }
 

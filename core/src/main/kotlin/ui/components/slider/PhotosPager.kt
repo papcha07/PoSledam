@@ -34,10 +34,11 @@ import com.example.core.R
 fun PhotosPager(
     modifier: Modifier = Modifier,
     photos: List<Uri>,
+    canAddPhoto: Boolean = true,
     onAddPhotoClick: () -> Unit,
     onRemovePhotoClick: ((Uri) -> Unit)? = null
 ) {
-    val pageCount = photos.size + 1
+    val pageCount = photos.size + if (canAddPhoto) 1 else 0
     val pagerState = rememberPagerState { pageCount }
 
     HorizontalPager(
@@ -86,7 +87,7 @@ fun PhotosPager(
                         }
                     }
                 }
-            } else {
+            } else if (canAddPhoto) {
                 Box(
                     modifier = Modifier
                         .fillMaxSize()

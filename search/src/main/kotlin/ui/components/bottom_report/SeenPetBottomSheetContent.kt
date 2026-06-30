@@ -32,7 +32,9 @@ fun SeenPetBottomSheetContent(
     updateLongitude: (Double) -> Unit,
     updateLatitude: (Double) -> Unit,
     onSendClick: () -> Unit,
-    onAddPhotoClick: () -> Unit
+    canAddPhoto: Boolean = true,
+    onAddPhotoClick: () -> Unit,
+    onRemovePhotoClick: (Uri) -> Unit = {}
 ) {
     Box(
         modifier = modifier
@@ -52,7 +54,7 @@ fun SeenPetBottomSheetContent(
             Spacer(modifier = Modifier.height(6.dp))
 
             Text(
-                text = "Отметьте место на карте и добавьте фото, чтобы владелец быстрее нашёл питомца.",
+                text = "Отметьте место на карте и добавьте фото из галереи или камеры, чтобы владелец быстрее нашёл питомца.",
                 modifier = Modifier.padding(horizontal = 16.dp),
                 fontSize = 14.sp,
                 lineHeight = 19.sp,
@@ -85,7 +87,9 @@ fun SeenPetBottomSheetContent(
             PhotosPager(
                 modifier = Modifier.padding(horizontal = 16.dp),
                 photos = photos,
+                canAddPhoto = canAddPhoto,
                 onAddPhotoClick = onAddPhotoClick,
+                onRemovePhotoClick = onRemovePhotoClick
             )
 
             Spacer(modifier = Modifier.height(20.dp))

@@ -4,6 +4,7 @@ import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import domain.interactor.SearchInteractor
+import domain.models.REPORT_PHOTO_LIMIT
 import domain.user.UserInteractor
 import domain.user.model.LocationDto
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -125,16 +126,38 @@ class ReportViewModel(
     }
 
     fun addImage(uri: Uri) {
+        addImages(listOf(uri))
+    }
+
+    fun addImages(uris: List<Uri>) {
         _spottedUiState.update { state ->
+            val remainingSlots = (REPORT_PHOTO_LIMIT - state.uri.size).coerceAtLeast(0)
             state.copy(
-                uri = state.uri + uri
+                uri = state.uri + uris.take(remainingSlots)
             )
         }
     }
 
     fun addFindImage(uri: Uri) {
+        addFindImages(listOf(uri))
+    }
+
+    fun addFindImages(uris: List<Uri>) {
         _findUriState.update { state ->
-            state + uri
+            val remainingSlots = (REPORT_PHOTO_LIMIT - state.size).coerceAtLeast(0)
+            state + uris.take(remainingSlots)
+        }
+    }
+
+    fun removeImage(uri: Uri) {
+        _spottedUiState.update { state ->
+            state.copy(uri = state.uri - uri)
+        }
+    }
+
+    fun removeFindImage(uri: Uri) {
+        _findUriState.update { state ->
+            state - uri
         }
     }
 }
