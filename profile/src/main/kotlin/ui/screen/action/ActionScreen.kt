@@ -82,6 +82,7 @@ import ui.theme.blueStatusColorButton
 import ui.theme.buttonPrimary
 import ui.theme.greyStatusColorButton
 import ui.theme.purpleStatusColor
+import ui.theme.textHint
 import ui.viewModel.ActionPage
 import ui.viewModel.ActionScreenData
 import ui.viewModel.ActionViewModel
@@ -387,7 +388,12 @@ fun AddressMainComponent(
             Spacer(Modifier.height(8.dp))
             AddressRow(actionViewModel = actionViewModel)
             Spacer(Modifier.height(8.dp))
-
+            Text(
+                text = "Удерживайте палец на карте, чтобы поставить точку",
+                fontSize = 13.sp,
+                color = textHint
+            )
+            Spacer(Modifier.height(8.dp))
             ProfileMap(
                 modifier = Modifier
                     .fillMaxWidth()
