@@ -1,7 +1,6 @@
 package ui.components.bottom_report
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -55,7 +54,6 @@ fun ReportAnnouncementBottomSheetContent(
             modifier = Modifier.fillMaxWidth(),
             text = "Пожаловаться",
             textAlign = TextAlign.Center,
-            fontFamily = LebowskiByPragmatica,
             fontSize = 26.sp,
             color = Color(0xFF1E1E1E)
         )
