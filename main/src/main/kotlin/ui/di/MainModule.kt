@@ -48,7 +48,7 @@ fun getMainModule() = module {
     }
 
     single<StreetRepository> {
-        StreetRepositoryImpl(get(), get())
+        StreetRepositoryImpl(get(), get(), get())
     }
     single<StreetPetInteractor> {
         StreetPetInteractorImpl(get())

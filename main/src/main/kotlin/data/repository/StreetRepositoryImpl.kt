@@ -1,12 +1,14 @@
 package data.repository
 
 import ApiResponse
+import SendResult
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.map
+import apiService.AnnouncementService
 import apiService.StreetService
 import apiService.models.StreetListRequest
 import apiService.models.street_models.StreetAnimalDetailsResponse
@@ -16,6 +18,7 @@ import data.pager.StreetAnimalPagingSource
 import data.toStreetDetails
 import domain.model.StreetAnimalParams
 import domain.models.AdvertInfo
+import domain.models.ReportAnnouncementResult
 import domain.models.StreetDetails
 import domain.models.StreetPetPreviewModel
 import domain.repository.StreetRepository
@@ -31,6 +34,7 @@ import java.time.format.DateTimeFormatter
 @RequiresApi(Build.VERSION_CODES.O)
 class StreetRepositoryImpl(
     private val streetService: StreetService,
+    private val announcementService: AnnouncementService,
     private val converter: Converter,
 ) : StreetRepository {
 
@@ -103,6 +107,36 @@ class StreetRepositoryImpl(
         }
     }
 
+    override suspend fun reportAnnouncement(
+        announcementId: String,
+        comment: String
+    ): ReportAnnouncementResult {
+        return when (val response = announcementService.reportAnnouncement(announcementId, comment)) {
+            is SendResult.BadRequest -> response.toReportAnnouncementResult()
+            is SendResult.Error -> ReportAnnouncementResult.NoInternet
+            SendResult.Success -> ReportAnnouncementResult.Success
+        }
+    }
+
+    private fun SendResult.BadRequest.toReportAnnouncementResult(): ReportAnnouncementResult {
+        return when {
+            isAlreadyReportedError() -> ReportAnnouncementResult.AlreadyReported
+            statusCode == 401 -> ReportAnnouncementResult.Unauthorized
+            statusCode == 403 -> ReportAnnouncementResult.Forbidden
+            statusCode == 404 -> ReportAnnouncementResult.NotFound
+            else -> ReportAnnouncementResult.Error
+        }
+    }
+
+    private fun SendResult.BadRequest.isAlreadyReportedError(): Boolean {
+        val details = errorDetails ?: return false
+        return details.code.equals(DOMAIN_RULE_VIOLATION, ignoreCase = true) &&
+                details.details.orEmpty().any { detail ->
+                    detail.field.equals(ANNOUNCEMENT_ID_FIELD, ignoreCase = true) &&
+                            detail.issue.equals(NOT_UNIQUE_ISSUE, ignoreCase = true)
+                }
+    }
+
     private fun convertToStreetPreviewModel(streetResponse: StreetAnimalResponse): StreetPetPreviewModel {
         val primeTime = convertToUiTime(streetResponse.eventDate)
         return StreetPetPreviewModel(
@@ -139,5 +173,11 @@ class StreetRepositoryImpl(
         val posted = Instant.parse(timeFromServer)
         val now = Instant.now()
         return Duration.between(posted, now).toMinutes()
+    }
+
+    private companion object {
+        const val DOMAIN_RULE_VIOLATION = "DOMAIN_RULE_VIOLATION"
+        const val ANNOUNCEMENT_ID_FIELD = "AnnouncementId"
+        const val NOT_UNIQUE_ISSUE = "NOT_UNIQUE"
     }
 }
