@@ -24,9 +24,18 @@ data class ReportFoundAnimalUiState(
     val isLoading: Boolean = false
 )
 
+data class ReportAnnouncementUiState(
+    val isSheetOpen: Boolean = false,
+    val comment: String = "",
+    val isLoading: Boolean = false
+)
+
 sealed interface ReportFoundAnimalEffect {
     data object InternetError : ReportFoundAnimalEffect
     data object ServerError : ReportFoundAnimalEffect
+    data object AnnouncementReportSuccess : ReportFoundAnimalEffect
+    data object AnnouncementReportError : ReportFoundAnimalEffect
+    data object OwnAnnouncementReportError : ReportFoundAnimalEffect
 }
 
 data class SpottedAnimalData(
@@ -54,6 +63,9 @@ class ReportViewModel(
 
     private val _effect = MutableSharedFlow<ReportFoundAnimalEffect>()
     val effect = _effect.asSharedFlow()
+
+    private val _reportAnnouncementState = MutableStateFlow(ReportAnnouncementUiState())
+    val reportAnnouncementState = _reportAnnouncementState.asStateFlow()
 
     private val _spottedUiState = MutableStateFlow<SpottedAnimalData>(SpottedAnimalData())
     val spottedAnimalData = _spottedUiState.asStateFlow()
@@ -113,6 +125,69 @@ class ReportViewModel(
         }
     }
 
+    fun openReportAnnouncementSheet() {
+        _reportAnnouncementState.update {
+            it.copy(isSheetOpen = true)
+        }
+    }
+
+    fun closeReportAnnouncementSheet() {
+        _reportAnnouncementState.update {
+            it.copy(isSheetOpen = false, comment = "", isLoading = false)
+        }
+    }
+
+    fun updateReportAnnouncementComment(comment: String) {
+        _reportAnnouncementState.update {
+            it.copy(comment = comment.take(REPORT_ANNOUNCEMENT_COMMENT_LIMIT))
+        }
+    }
+
+    fun reportAnnouncement(
+        announcementId: String,
+        announcementOwnerId: String,
+        currentUserId: String?
+    ) {
+        val trimmedComment = _reportAnnouncementState.value.comment.trim()
+        if (currentUserId?.takeIf { it.isNotBlank() } == announcementOwnerId) {
+            viewModelScope.launch {
+                _effect.emit(ReportFoundAnimalEffect.OwnAnnouncementReportError)
+            }
+            return
+        }
+
+        if (trimmedComment.isBlank() || _reportAnnouncementState.value.isLoading) {
+            return
+        }
+
+        viewModelScope.launch {
+            _reportAnnouncementState.update {
+                it.copy(isLoading = true)
+            }
+
+            when (searchInteractor.reportAnnouncement(announcementId, trimmedComment)) {
+                Response.SUCCESS -> {
+                    _reportAnnouncementState.update {
+                        it.copy(
+                            isSheetOpen = false,
+                            comment = "",
+                            isLoading = false
+                        )
+                    }
+                    _effect.emit(ReportFoundAnimalEffect.AnnouncementReportSuccess)
+                }
+
+                Response.INTERNET_ERROR,
+                Response.SERVER_ERROR -> {
+                    _reportAnnouncementState.update {
+                        it.copy(isLoading = false)
+                    }
+                    _effect.emit(ReportFoundAnimalEffect.AnnouncementReportError)
+                }
+            }
+        }
+    }
+
     fun updateLatitude(lat: Double) {
         _spottedUiState.update {
             it.copy(lat = lat)
@@ -159,5 +234,9 @@ class ReportViewModel(
         _findUriState.update { state ->
             state - uri
         }
+    }
+
+    companion object {
+        const val REPORT_ANNOUNCEMENT_COMMENT_LIMIT = 500
     }
 }

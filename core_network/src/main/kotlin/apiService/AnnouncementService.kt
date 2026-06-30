@@ -20,6 +20,7 @@ import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.Headers
 import io.ktor.http.HttpHeaders
+import io.ktor.http.contentType
 import io.ktor.http.isSuccess
 import io.ktor.utils.io.streams.asInput
 import kotlinx.coroutines.Dispatchers
@@ -314,6 +315,34 @@ class AnnouncementService(private val client: HttpClient) {
         }
     }
 
+    suspend fun reportAnnouncement(
+        announcementId: String,
+        comment: String
+    ): SendResult = withContext(Dispatchers.IO) {
+        try {
+            val response = client.post("api/animal-announcement/$announcementId/report") {
+                contentType(ContentType.Application.Json)
+                setBody(ReportAnnouncementBody(comment = comment))
+            }
+            when {
+                response.status.isSuccess() -> SendResult.Success
+                response.status.value == 400 ||
+                        response.status.value == 403 ||
+                        response.status.value == 404 ||
+                        response.status.value == 409 -> {
+                    val text = runCatching { response.bodyAsText() }.getOrNull()
+                    SendResult.BadRequest(message = text ?: "Bad request")
+                }
+
+                else -> SendResult.BadRequest("HTTP ${response.status.value}")
+            }
+        } catch (e: Exception) {
+            e.toSendResultError(
+                networkMessage = e.message ?: "Unknown error"
+            )
+        }
+    }
+
     private fun buildFindAnnouncementForm(
         req: AnnouncementRequest,
         files: List<File>
@@ -357,6 +386,11 @@ private data class CancelMissingAnnouncementBody(
 @Serializable
 private data class CancelFindAnnouncementBody(
     val cancelReason: Int
+)
+
+@Serializable
+private data class ReportAnnouncementBody(
+    val comment: String
 )
 
 internal fun FormBuilder.appendFilePart(

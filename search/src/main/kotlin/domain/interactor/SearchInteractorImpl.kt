@@ -40,4 +40,8 @@ class SearchInteractorImpl(
         return repository.reportSpottedAnimal(id, spottedAnimalData)
     }
 
+    override suspend fun reportAnnouncement(announcementId: String, comment: String): Response {
+        return repository.reportAnnouncement(announcementId, comment)
+    }
+
 }

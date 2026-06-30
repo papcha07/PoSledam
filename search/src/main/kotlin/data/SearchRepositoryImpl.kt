@@ -143,6 +143,17 @@ class SearchRepositoryImpl(
         }
     }
 
+    override suspend fun reportAnnouncement(announcementId: String, comment: String): Response {
+        val request = announcementService.reportAnnouncement(
+            announcementId = announcementId,
+            comment = comment
+        )
+        return when (request) {
+            is SendResult.BadRequest -> Response.SERVER_ERROR
+            is SendResult.Error -> Response.INTERNET_ERROR
+            SendResult.Success -> Response.SUCCESS
+        }
+    }
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun convertToPetInfo(petResponse: FoundPetResponse): FoundPetInfo {

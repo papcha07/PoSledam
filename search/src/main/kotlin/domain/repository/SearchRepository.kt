@@ -21,5 +21,6 @@ interface SearchRepository {
 
     suspend fun reportFoundAnimal(id: String, uris: List<Uri>): Response
     suspend fun reportSpottedAnimal(id: String, spottedAnimalData: SpottedAnimalData): Response
+    suspend fun reportAnnouncement(announcementId: String, comment: String): Response
 
 }

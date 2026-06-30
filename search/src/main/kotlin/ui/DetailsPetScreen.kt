@@ -24,6 +24,7 @@ import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SheetValue
+import androidx.compose.material3.Text
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -38,6 +39,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.yandex.mapkit.geometry.Point
 import domain.models.Creator
@@ -45,6 +47,7 @@ import domain.models.FoundPetInfo
 import kotlinx.coroutines.launch
 import ui.components.ButtonComponent
 import ui.components.EventDateComponent
+import ui.components.bottom_report.ReportAnnouncementBottomSheetContent
 import ui.components.bottom_report.SeenPetBottomSheetContent
 import ui.components.bottom_spotted.SpottedPetConfirmationBottomSheetContent
 import ui.components.default_component.AnimatedToast
@@ -60,10 +63,12 @@ import ui.viewModel.FilterViewModel
 import ui.viewModel.PetDetailsScreenState
 import ui.viewModel.ReportFoundAnimalEffect
 import ui.viewModel.ReportViewModel
+import ui.viewModel.ReportViewModel.Companion.REPORT_ANNOUNCEMENT_COMMENT_LIMIT
 
 private enum class DetailsPetBottomSheetType {
     FoundPetConfirmation,
-    SeenPetLocation
+    SeenPetLocation,
+    ReportAnnouncement
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -90,6 +95,7 @@ fun DetailsPetScreenProvider(
 
     val spottedData by reportViewModel.spottedAnimalData.collectAsStateWithLifecycle()
     val reportUiState by reportViewModel.uiState.collectAsStateWithLifecycle()
+    val reportAnnouncementState by reportViewModel.reportAnnouncementState.collectAsStateWithLifecycle()
     val foundPetState by viewModel.petInfoState.collectAsStateWithLifecycle()
     val findUriState by reportViewModel.findUriState.collectAsStateWithLifecycle()
     val mapCameraLocation by reportViewModel.mapCameraLocation.collectAsStateWithLifecycle()
@@ -121,6 +127,9 @@ fun DetailsPetScreenProvider(
 
     LaunchedEffect(scaffoldState.bottomSheetState.currentValue) {
         if (scaffoldState.bottomSheetState.currentValue != SheetValue.Expanded) {
+            if (activeBottomSheet == DetailsPetBottomSheetType.ReportAnnouncement) {
+                reportViewModel.closeReportAnnouncementSheet()
+            }
             activeBottomSheet = null
         }
     }
@@ -132,20 +141,36 @@ fun DetailsPetScreenProvider(
         }
     }
 
+    LaunchedEffect(reportAnnouncementState.isSheetOpen) {
+        if (!reportAnnouncementState.isSheetOpen &&
+            activeBottomSheet == DetailsPetBottomSheetType.ReportAnnouncement
+        ) {
+            scaffoldState.bottomSheetState.partialExpand()
+            activeBottomSheet = null
+        }
+    }
+
     LaunchedEffect(Unit) {
         reportViewModel.effect.collect { effect ->
             toastMessage = when (effect) {
                 ReportFoundAnimalEffect.ServerError -> "Что-то пошло не так"
                 ReportFoundAnimalEffect.InternetError -> "Проблемы с соединением"
+                ReportFoundAnimalEffect.AnnouncementReportSuccess -> "Жалоба отправлена"
+                ReportFoundAnimalEffect.AnnouncementReportError -> "Не удалось отправить жалобу. Попробуйте позже"
+                ReportFoundAnimalEffect.OwnAnnouncementReportError -> "Нельзя пожаловаться на своё объявление"
             }
         }
     }
     val userState by viewModel.userState.collectAsState(null)
     val isReportLoading = reportUiState.isLoading
+    val isAnnouncementReportLoading = reportAnnouncementState.isLoading
 
     fun closeBottomSheet() {
         scope.launch {
             scaffoldState.bottomSheetState.partialExpand()
+            if (activeBottomSheet == DetailsPetBottomSheetType.ReportAnnouncement) {
+                reportViewModel.closeReportAnnouncementSheet()
+            }
             activeBottomSheet = null
         }
     }
@@ -156,9 +181,11 @@ fun DetailsPetScreenProvider(
             scaffoldState = scaffoldState,
             sheetPeekHeight = 1.dp,
             sheetShape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
-            sheetContainerColor = Color(0xFFFAFAFA),
+            sheetContainerColor = Color.White,
             sheetContentColor = Color(0xFF222222),
-            sheetSwipeEnabled = activeBottomSheet != null && !isReportLoading,
+            sheetSwipeEnabled = activeBottomSheet != null &&
+                    !isReportLoading &&
+                    !isAnnouncementReportLoading,
             sheetContent = {
                 when (activeBottomSheet) {
                     DetailsPetBottomSheetType.FoundPetConfirmation -> {
@@ -197,6 +224,31 @@ fun DetailsPetScreenProvider(
                         )
                     }
 
+                    DetailsPetBottomSheetType.ReportAnnouncement -> {
+                        ReportAnnouncementBottomSheetContent(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .heightIn(min = 320.dp, max = 620.dp),
+                            comment = reportAnnouncementState.comment,
+                            isLoading = reportAnnouncementState.isLoading,
+                            commentLimit = REPORT_ANNOUNCEMENT_COMMENT_LIMIT,
+                            onCommentChange = reportViewModel::updateReportAnnouncementComment,
+                            onSendClick = {
+                                val ownerId =
+                                    (foundPetState as? PetDetailsScreenState.Success)
+                                        ?.petInfo
+                                        ?.creator
+                                        ?.id
+                                        .orEmpty()
+                                reportViewModel.reportAnnouncement(
+                                    announcementId = petId,
+                                    announcementOwnerId = ownerId,
+                                    currentUserId = userState?.id
+                                )
+                            }
+                        )
+                    }
+
                     null -> {
                         Spacer(Modifier.height(1.dp))
                     }
@@ -225,6 +277,13 @@ fun DetailsPetScreenProvider(
                 },
                 onSeenPetClick = {
                     activeBottomSheet = DetailsPetBottomSheetType.SeenPetLocation
+                    scope.launch {
+                        scaffoldState.bottomSheetState.expand()
+                    }
+                },
+                onReportAnnouncementClick = {
+                    reportViewModel.openReportAnnouncementSheet()
+                    activeBottomSheet = DetailsPetBottomSheetType.ReportAnnouncement
                     scope.launch {
                         scaffoldState.bottomSheetState.expand()
                     }
@@ -273,7 +332,8 @@ fun DetailPetScreen(
     onOwnerClick: (Creator) -> Unit,
     onToastDismiss: () -> Unit,
     onFoundPetClick: () -> Unit,
-    onSeenPetClick: () -> Unit
+    onSeenPetClick: () -> Unit,
+    onReportAnnouncementClick: () -> Unit
 ) {
     ShimmerLoadingTransition(
         modifier = modifier.fillMaxSize(),
@@ -309,7 +369,8 @@ fun DetailPetScreen(
                     onOwnerClick = onOwnerClick,
                     onToastDismiss = onToastDismiss,
                     onFoundPetClick = onFoundPetClick,
-                    onSeenPetClick = onSeenPetClick
+                    onSeenPetClick = onSeenPetClick,
+                    onReportAnnouncementClick = onReportAnnouncementClick
                 )
             }
         }
@@ -456,10 +517,12 @@ private fun DetailPetContent(
     onOwnerClick: (Creator) -> Unit,
     onToastDismiss: () -> Unit,
     onFoundPetClick: () -> Unit,
-    onSeenPetClick: () -> Unit
+    onSeenPetClick: () -> Unit,
+    onReportAnnouncementClick: () -> Unit
 ) {
     val scrollState = rememberScrollState()
     var isMapTouched by remember { mutableStateOf(false) }
+    val isOwnAnnouncement = userState == petInfo.creator.id
 
     LaunchedEffect(isMapSheetOpen) {
         if (isMapSheetOpen) {
@@ -524,12 +587,19 @@ private fun DetailPetContent(
 
                 Spacer(Modifier.height(20.dp))
 
-                if (userState != petInfo.creator.id) {
+                if (!isOwnAnnouncement) {
                     PetActionButtons(
                         announcementType = announcementType,
                         enabled = !isReportLoading,
                         onFoundPetClick = onFoundPetClick,
                         onSeenPetClick = onSeenPetClick
+                    )
+
+                    Spacer(Modifier.height(12.dp))
+
+                    ReportAnnouncementAction(
+                        enabled = !isReportLoading,
+                        onClick = onReportAnnouncementClick
                     )
                 }
             }
@@ -548,6 +618,29 @@ private fun DetailPetContent(
             description = "Спасибо за вашу отзывчивость!",
             onDismiss = goBackClick,
             modifier = Modifier.align(Alignment.Center)
+        )
+    }
+}
+
+@Composable
+private fun ReportAnnouncementAction(
+    modifier: Modifier = Modifier,
+    enabled: Boolean,
+    onClick: () -> Unit
+) {
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(40.dp)
+            .clip(RoundedCornerShape(40.dp))
+            .background(Color(0xFFFFE7E7))
+            .clickable(enabled = enabled, onClick = onClick),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = "Пожаловаться",
+            color = Color(0xFFFF3B3B),
+            fontSize = 16.sp
         )
     }
 }

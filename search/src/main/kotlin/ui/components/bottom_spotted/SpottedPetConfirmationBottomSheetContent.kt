@@ -54,7 +54,7 @@ fun SpottedPetConfirmationBottomSheetContent(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .background(Color(0xFFFAFAFA))
+            .background(Color.White)
             .padding(top = 10.dp, bottom = 20.dp)
             .verticalScroll(rememberScrollState())
     ) {

@@ -4,14 +4,17 @@ import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
@@ -86,6 +89,16 @@ fun PhotosPager(
                             )
                         }
                     }
+
+                    if (photos.size > 1) {
+                        PhotoPagerIndicator(
+                            modifier = Modifier
+                                .align(Alignment.BottomCenter)
+                                .padding(bottom = 12.dp),
+                            currentIndex = page,
+                            totalCount = photos.size
+                        )
+                    }
                 }
             } else if (canAddPhoto) {
                 Box(
@@ -113,5 +126,40 @@ fun PhotosPager(
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun PhotoPagerIndicator(
+    modifier: Modifier = Modifier,
+    currentIndex: Int,
+    totalCount: Int
+) {
+    Row(
+        modifier = modifier
+            .clip(RoundedCornerShape(18.dp))
+            .background(Color.Black.copy(alpha = 0.38f))
+            .padding(horizontal = 10.dp, vertical = 6.dp),
+        horizontalArrangement = Arrangement.spacedBy(5.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        repeat(totalCount) { index ->
+            Box(
+                modifier = Modifier
+                    .height(6.dp)
+                    .width(if (index == currentIndex) 16.dp else 6.dp)
+                    .clip(CircleShape)
+                    .background(
+                        if (index == currentIndex) Color.White else Color.White.copy(alpha = 0.55f)
+                    )
+            )
+        }
+
+        Text(
+            modifier = Modifier.padding(start = 3.dp),
+            text = "${currentIndex + 1}/$totalCount",
+            color = Color.White,
+            fontSize = 11.sp
+        )
     }
 }
