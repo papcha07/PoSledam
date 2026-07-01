@@ -3,6 +3,8 @@ package ui.login
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import domain.model.LoginInfo
+import domain.model.LoginErrorType
+import domain.model.LoginResult
 import helper.LocationSyncRequestStore
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -25,13 +27,36 @@ class LoginViewModel(
         viewModelScope.launch {
             _loginUiState.emit(AuthScreenState.Loading)
             val loginResult = authInteractor.login(loginInfo)
-            val isSuccess = loginResult.first
-            if (isSuccess) {
-                locationSyncRequestStore.markSendAfterLoginPending()
-                _loginUiState.emit(AuthScreenState.Success)
-                return@launch
+
+            when (loginResult) {
+                LoginResult.Success -> {
+                    locationSyncRequestStore.markSendAfterLoginPending()
+                    _loginUiState.emit(AuthScreenState.Success)
+                }
+
+                is LoginResult.Error -> {
+                    _loginUiState.emit(loginResult.toAuthScreenState(loginInfo.email))
+                }
             }
-            _loginUiState.emit(AuthScreenState.Error("Что-то пошло не так"))
+        }
+    }
+
+    private fun LoginResult.Error.toAuthScreenState(email: String): AuthScreenState {
+        return when (type) {
+            LoginErrorType.EmailNotConfirmed ->
+                AuthScreenState.EmailNotConfirmed(email.trim())
+
+            LoginErrorType.InvalidCredentials ->
+                AuthScreenState.Error("Неверный логин или пароль")
+
+            LoginErrorType.NoInternet ->
+                AuthScreenState.Error("Проверьте подключение к интернету")
+
+            LoginErrorType.Server ->
+                AuthScreenState.Error("Сервер временно недоступен")
+
+            LoginErrorType.Unknown ->
+                AuthScreenState.Error(message?.takeIf { it.isNotBlank() } ?: "Что-то пошло не так")
         }
     }
 }

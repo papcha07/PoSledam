@@ -53,6 +53,8 @@ fun EmptyAnimalList(modifier: Modifier = Modifier) {
             color = Ser
         )
     }
+
+
 }
 
 @Preview

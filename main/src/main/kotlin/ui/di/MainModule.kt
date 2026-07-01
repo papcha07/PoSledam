@@ -38,7 +38,8 @@ fun getMainModule() = module {
     viewModel {
         MainScreenViewModel(
             notificationInteractor = get(),
-            workerInteractor = get(),
+            // Background location worker is temporarily disabled for moderation.
+            // workerInteractor = get(),
             locationInteractor = get(),
             locationSyncRequestStore = get(),
             streetPetInteractor = get(),
@@ -47,7 +48,7 @@ fun getMainModule() = module {
     }
 
     single<StreetRepository> {
-        StreetRepositoryImpl(get(), get())
+        StreetRepositoryImpl(get(), get(), get())
     }
     single<StreetPetInteractor> {
         StreetPetInteractorImpl(get())

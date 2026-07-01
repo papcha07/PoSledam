@@ -156,9 +156,9 @@ class AnnouncementRepositoryImpl(
             imagePath = imagesPaths?.firstOrNull(),
             petType = petType,
             gender = gender,
-            color = color,
-            breed = breed,
-            description = description,
+            color = color.orEmpty(),
+            breed = breed.orEmpty(),
+            description = description.orEmpty(),
             district = district,
             street = street,
             house = house,
@@ -186,7 +186,7 @@ class AnnouncementRepositoryImpl(
             createdTime = dateTime.second,
             latitude = location.latitude,
             longitude = location.longitude,
-            imagesPath = imagesPath
+            imagesPath = imagesPath.orEmpty()
         )
     }
 
@@ -220,7 +220,7 @@ class AnnouncementRepositoryImpl(
             ),
             createdDate = dateTime.first,
             createdTime = dateTime.second,
-            imagesPath = imagesPath
+            imagesPath = imagesPath.orEmpty()
         )
     }
 

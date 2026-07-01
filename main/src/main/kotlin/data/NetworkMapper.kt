@@ -10,7 +10,7 @@ import ui.other.timeUtils.DateTimeUtils
 @RequiresApi(Build.VERSION_CODES.O)
 fun StreetAnimalDetailsResponse.toStreetDetails(): StreetDetails {
     return StreetDetails(
-        imagePath = this.imagePaths,
+        imagePath = this.imagePaths.orEmpty(),
         creator = CreatorDetails(
             id = this.creator.id,
             firstName = this.creator.firstName,
@@ -22,5 +22,4 @@ fun StreetAnimalDetailsResponse.toStreetDetails(): StreetDetails {
         dateInfo = DateTimeUtils.formatUtcToDeviceTime(this.eventDate)
     )
 }
-
 

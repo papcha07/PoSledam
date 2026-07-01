@@ -3,6 +3,7 @@ package domain.interactor.street
 import androidx.paging.PagingData
 import domain.model.StreetAnimalParams
 import domain.models.AdvertInfo
+import domain.models.ReportAnnouncementResult
 import domain.models.StreetDetails
 import domain.models.StreetPetPreviewModel
 import domain.repository.StreetRepository
@@ -28,5 +29,12 @@ class StreetPetInteractorImpl(
 
     override suspend fun getInfoAboutStreetAnimal(id: String): Pair<StreetDetails?, Int?> {
         return streetRepository.getInformationAboutStreetAnimal(id)
+    }
+
+    override suspend fun reportAnnouncement(
+        announcementId: String,
+        comment: String
+    ): ReportAnnouncementResult {
+        return streetRepository.reportAnnouncement(announcementId, comment)
     }
 }

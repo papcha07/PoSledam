@@ -5,6 +5,7 @@ import androidx.paging.PagingData
 import domain.models.FilterDto
 import domain.models.FoundPetInfo
 import domain.models.PetUiPreview
+import domain.models.ReportAnnouncementResult
 import kotlinx.coroutines.flow.Flow
 import model.InternetStatus
 import ui.model.Response
@@ -21,5 +22,6 @@ interface SearchRepository {
 
     suspend fun reportFoundAnimal(id: String, uris: List<Uri>): Response
     suspend fun reportSpottedAnimal(id: String, spottedAnimalData: SpottedAnimalData): Response
+    suspend fun reportAnnouncement(announcementId: String, comment: String): ReportAnnouncementResult
 
 }

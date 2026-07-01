@@ -45,6 +45,7 @@ import ui.components.default_component.TabRowSelection
 import ui.components.default_component.ToolBar
 import ui.components.default_component.ToolBarInfo
 import ui.components.placeholder.ErrorPlaceholder
+import ui.components.placeholder.NotFoundSearchPlaceholder
 import ui.components.placeholder.PetCardShimmerPlaceholder
 import ui.components.placeholder.ShimmerLoadingTransition
 import ui.model.TabRowInfo
@@ -364,9 +365,10 @@ fun FoundPetsScreen(
                                 isFoundTab = true
                             )
                         } else {
-                            Box(Modifier.align(Alignment.Center)) {
-                                Text("Нет найденных питомцев")
-                            }
+                            val modifier = Modifier.align(Alignment.Center)
+                            NotFoundSearchPlaceholder(
+                                modifier = modifier
+                            )
                         }
                     }
                 }
@@ -418,9 +420,10 @@ fun MissingPetsScreen(
                                 isFoundTab = false
                             )
                         } else {
-                            Box(Modifier.align(Alignment.Center)) {
-                                Text("Нет найденных питомцев")
-                            }
+                            val modifier = Modifier.align(Alignment.Center)
+                            NotFoundSearchPlaceholder(
+                                modifier = modifier
+                            )
                         }
                     }
                 }

@@ -15,15 +15,20 @@ import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.put
 import io.ktor.client.request.setBody
+import io.ktor.client.statement.HttpResponse
+import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.HttpMethod
 import io.ktor.http.contentType
 import io.ktor.http.isSuccess
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.json.Json
 import model.auth.request.LoginRequest
 import model.auth.request.RegisterRequest
+import model.auth.request.ResendEmailConfirmationRequest
 import model.auth.response.LoginResponse
+import model.errorResponse.ErrorDetails
 import model.errorResponse.ErrorResponse
 import storage.TokenRepository
 import toApiErrorCode
@@ -34,16 +39,19 @@ class AuthService(
     private val client: HttpClient,
     private val tokenRepository: TokenRepository
 ) {
+    private val json = Json { ignoreUnknownKeys = true }
 
     suspend fun register(registerRequest: RegisterRequest): ApiResponse<Unit> {
         return try {
             val response = client.submitFormWithBinaryData(
                 url = "api/auth/register",
                 formData = formData {
-                    append("email", registerRequest.email)
-                    append("password", registerRequest.password)
-                    append("firstName", registerRequest.firstName)
-                    append("description", registerRequest.description ?: "")
+                    append("Email", registerRequest.email)
+                    append("Password", registerRequest.password)
+                    append("FirstName", registerRequest.firstName)
+                    registerRequest.description?.takeIf { it.isNotBlank() }?.let {
+                        append("Description", it)
+                    }
                     registerRequest.contacts?.forEachIndexed { index, contact ->
                         append("UserContacts[$index].contactType", contact.contactType.toString())
                         append("UserContacts[$index].url", contact.url)
@@ -53,15 +61,15 @@ class AuthService(
             if (response.status.isSuccess()) {
                 ApiResponse.Success(Unit)
             } else {
-                val response = response.body<ErrorResponse>()
-                Log.d("errorRegisterResponse", response.toString())
-                when (response.error.details[0].issue) {
+                val errorDetails = response.errorDetails()
+                Log.d("errorRegisterResponse", errorDetails.toString())
+                when (errorDetails?.details?.firstOrNull()?.issue) {
                     "NOT_UNIQUE" -> {
-                        ApiResponse.Error(403)
+                        ApiResponse.Error(403, errorDetails)
                     }
 
                     else -> {
-                        ApiResponse.Error(400)
+                        ApiResponse.Error(response.status.value, errorDetails)
                     }
                 }
             }
@@ -84,7 +92,25 @@ class AuthService(
                 tokenRepository.saveToken(body.token)
                 ApiResponse.Success(body)
             } else {
-                ApiResponse.Error(400)
+                ApiResponse.Error(response.status.value, response.errorDetails())
+            }
+        } catch (e: Exception) {
+            ApiResponse.Error(e.toApiErrorCode())
+        }
+    }
+
+    suspend fun resendEmailConfirmation(
+        request: ResendEmailConfirmationRequest
+    ): ApiResponse<Unit> {
+        return try {
+            val response = client.post("api/auth/resend-email-confirmation") {
+                contentType(ContentType.Application.Json)
+                setBody(request)
+            }
+            if (response.status.isSuccess()) {
+                ApiResponse.Success(Unit)
+            } else {
+                ApiResponse.Error(response.status.value, response.errorDetails())
             }
         } catch (e: Exception) {
             ApiResponse.Error(e.toApiErrorCode())
@@ -132,26 +158,47 @@ class AuthService(
     }
 
 
-    suspend fun sendDeviceToken(deviceToken: DeviceTokenRequest) {
-        client.post("api/user/device") {
-            setBody(deviceToken)
+    suspend fun sendDeviceToken(deviceToken: DeviceTokenRequest): Boolean {
+        return try {
+            val response = client.post("api/user/device") {
+                contentType(ContentType.Application.Json)
+                setBody(deviceToken)
+            }
+
+            if (response.status.isSuccess()) {
+                Log.d("FCM", "Device token response: ${response.status.value}")
+                true
+            } else {
+                Log.w("FCM", "Device token failed with code ${response.status.value}")
+                false
+            }
+        } catch (e: Exception) {
+            Log.e("FCM", "Device token request failed", e)
+            false
         }
     }
 
     suspend fun sendCurrentLocation(locationRequest: LocationRequestDto): SendResult {
         return withContext(Dispatchers.IO) {
             try {
+                Log.d(
+                    "USER_LOCATION",
+                    "Sending location to server: lat=${locationRequest.latitude}, lon=${locationRequest.longitude}"
+                )
                 val response = client.put("api/user/location") {
                     contentType(ContentType.Application.Json)
                     setBody(locationRequest)
                 }
 
                 if (response.status.isSuccess()) {
+                    Log.d("USER_LOCATION", "Location update response: ${response.status.value}")
                     SendResult.Success
                 } else {
+                    Log.d("USER_LOCATION", "Location update failed with code ${response.status.value}")
                     SendResult.BadRequest("Location update failed with code ${response.status.value}")
                 }
             } catch (e: Exception) {
+                Log.e("USER_LOCATION", "Location update request failed", e)
                 e.toSendResultError(
                     networkMessage = e.message ?: "Location update network error"
                 )
@@ -159,4 +206,14 @@ class AuthService(
         }
     }
 
+    private suspend fun HttpResponse.errorDetails(): ErrorDetails? {
+        val text = bodyAsText()
+        if (text.isBlank()) return null
+
+        return runCatching {
+            json.decodeFromString<ErrorResponse>(text).asErrorDetails()
+        }.getOrNull() ?: runCatching {
+            json.decodeFromString<ErrorDetails>(text)
+        }.getOrNull()
+    }
 }

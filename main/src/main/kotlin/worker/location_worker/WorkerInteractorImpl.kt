@@ -1,5 +1,8 @@
 package worker.location_worker
 
+/*
+Background location worker is temporarily disabled for moderation.
+
 import android.content.Context
 import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy
@@ -51,3 +54,4 @@ class WorkerInteractorImpl(
         private const val LOCATION_WORK_NAME = "location_work"
     }
 }
+*/

@@ -82,6 +82,7 @@ import ui.theme.blueStatusColorButton
 import ui.theme.buttonPrimary
 import ui.theme.greyStatusColorButton
 import ui.theme.purpleStatusColor
+import ui.theme.textHint
 import ui.viewModel.ActionPage
 import ui.viewModel.ActionScreenData
 import ui.viewModel.ActionViewModel
@@ -128,7 +129,8 @@ fun ActionScreen(
 
                 ActionPage.ADDRESS -> AddressMainComponent(
                     actionViewModel = viewModel,
-                    actionScreenData = announcementInfo
+                    actionScreenData = announcementInfo,
+                    enableScroll = false
                 )
 
                 ActionPage.RESULT -> PlaceAnnouncementComponent(actionViewModel = viewModel)
@@ -298,7 +300,8 @@ fun ActionTopBar(
 fun AddressMainComponent(
     modifier: Modifier = Modifier,
     actionScreenData: ActionScreenData,
-    actionViewModel: ActionViewModel
+    actionViewModel: ActionViewModel,
+    enableScroll: Boolean = true
 ) {
     val calendarState = rememberUseCaseState()
     val clockState = rememberUseCaseState()
@@ -306,6 +309,7 @@ fun AddressMainComponent(
     val mapCameraLocation = actionScreenData.mapCameraLocation?.let { location ->
         Point(location.latitude, location.longitude)
     }
+    val scrollState = rememberScrollState()
 
     LaunchedEffect(actionViewModel) {
         actionViewModel.setCurrentLocation()
@@ -344,7 +348,13 @@ fun AddressMainComponent(
             modifier = Modifier
                 .padding(horizontal = 16.dp)
                 .padding(top = 16.dp)
-                .verticalScroll(rememberScrollState())
+                .then(
+                    if (enableScroll) {
+                        Modifier.verticalScroll(scrollState)
+                    } else {
+                        Modifier
+                    }
+                )
                 .padding(bottom = 90.dp)
         ) {
             TextInfo(name = "Время и дата пропажи")
@@ -378,7 +388,12 @@ fun AddressMainComponent(
             Spacer(Modifier.height(8.dp))
             AddressRow(actionViewModel = actionViewModel)
             Spacer(Modifier.height(8.dp))
-
+            Text(
+                text = "Удерживайте палец на карте, чтобы поставить точку",
+                fontSize = 13.sp,
+                color = textHint
+            )
+            Spacer(Modifier.height(8.dp))
             ProfileMap(
                 modifier = Modifier
                     .fillMaxWidth()

@@ -8,13 +8,13 @@ data class SpottedLocationResponse(
     val spottedUser: SpottedUserResponse,
     val createdAt: String,
     val location: SpottedLocationDto,
-    val imagesPath: List<String> = emptyList()
+    val imagesPath: List<String>? = null
 )
 
 @Serializable
 data class SpottedUserResponse(
     val id: String,
-    val firstName: String,
+    val firstName: String? = null,
     val secondName: String? = null
 )
 

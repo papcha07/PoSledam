@@ -3,8 +3,8 @@ package ui.components.street
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.paging.LoadState
-import ui.components.placeholder.EmptyAnimalList
 import ui.components.placeholder.ErrorPlaceholder
+import ui.components.placeholder.NotFoundSearchPlaceholder
 
 @Composable
 fun StreetPetRefreshState(
@@ -23,7 +23,7 @@ fun StreetPetRefreshState(
 
         is LoadState.NotLoading -> {
             if (isEmpty) {
-                EmptyAnimalList(
+                NotFoundSearchPlaceholder(
                     modifier = modifier
                 )
             }

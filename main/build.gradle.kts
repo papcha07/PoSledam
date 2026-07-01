@@ -26,6 +26,7 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
+        isCoreLibraryDesugaringEnabled = true
     }
 
     kotlinOptions {
@@ -45,6 +46,7 @@ dependencies {
     implementation(project(":core_datastore"))
     implementation(project(":search"))
 
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.5")
     implementation(libs.koin.core)
     implementation(libs.koin.android)
     implementation ("io.insert-koin:koin-androidx-compose:3.4.3")
@@ -71,7 +73,8 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
-    implementation("androidx.work:work-runtime-ktx:2.11.1")
+    // Background location worker is temporarily disabled for moderation.
+    // implementation("androidx.work:work-runtime-ktx:2.11.1")
 
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")

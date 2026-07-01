@@ -2,12 +2,14 @@ package ui.components.bottom_report
 
 import android.net.Uri
 import androidx.compose.foundation.background
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -32,15 +34,21 @@ fun SeenPetBottomSheetContent(
     updateLongitude: (Double) -> Unit,
     updateLatitude: (Double) -> Unit,
     onSendClick: () -> Unit,
-    onAddPhotoClick: () -> Unit
+    canAddPhoto: Boolean = true,
+    onAddPhotoClick: () -> Unit,
+    onRemovePhotoClick: (Uri) -> Unit = {}
 ) {
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .background(Color(0xFFFAFAFA))
+            .background(Color.White)
             .padding(top = 10.dp, bottom = 20.dp)
     ) {
-        Column {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .verticalScroll(rememberScrollState())
+        ) {
             Text(
                 text = "Где вы видели питомца?",
                 modifier = Modifier.padding(horizontal = 16.dp),
@@ -52,7 +60,7 @@ fun SeenPetBottomSheetContent(
             Spacer(modifier = Modifier.height(6.dp))
 
             Text(
-                text = "Отметьте место на карте и добавьте фото, чтобы владелец быстрее нашёл питомца.",
+                text = "Отметьте место на карте и добавьте фото из галереи или камеры, чтобы владелец быстрее нашёл питомца.",
                 modifier = Modifier.padding(horizontal = 16.dp),
                 fontSize = 14.sp,
                 lineHeight = 19.sp,
@@ -85,7 +93,9 @@ fun SeenPetBottomSheetContent(
             PhotosPager(
                 modifier = Modifier.padding(horizontal = 16.dp),
                 photos = photos,
+                canAddPhoto = canAddPhoto,
                 onAddPhotoClick = onAddPhotoClick,
+                onRemovePhotoClick = onRemovePhotoClick
             )
 
             Spacer(modifier = Modifier.height(20.dp))

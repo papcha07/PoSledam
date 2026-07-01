@@ -1,14 +1,17 @@
 package ui.components.bottom_spotted
 
 import android.net.Uri
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -16,6 +19,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -41,15 +45,18 @@ fun SpottedPetConfirmationBottomSheetContent(
     modifier: Modifier = Modifier,
     photos: List<Uri>,
     isSendEnabled: Boolean = photos.isNotEmpty(),
+    canAddPhoto: Boolean = true,
     onAddPhotoClick: () -> Unit,
     onPhotoClick: (Uri) -> Unit = {},
+    onRemovePhotoClick: (Uri) -> Unit = {},
     onSendClick: () -> Unit
 ) {
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .background(Color(0xFFFAFAFA))
+            .background(Color.White)
             .padding(top = 10.dp, bottom = 20.dp)
+            .verticalScroll(rememberScrollState())
     ) {
         Text(
             modifier = Modifier
@@ -69,7 +76,7 @@ fun SpottedPetConfirmationBottomSheetContent(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 32.dp),
-            text = "Добавьте его фотографии из устройства",
+            text = "Выберите фотографии из галереи или сделайте фото",
             textAlign = TextAlign.Center,
             fontSize = 18.sp,
             lineHeight = 24.sp,
@@ -80,8 +87,10 @@ fun SpottedPetConfirmationBottomSheetContent(
 
         PhotoSlider(
             photos = photos,
+            canAddPhoto = canAddPhoto,
             onAddPhotoClick = onAddPhotoClick,
-            onPhotoClick = onPhotoClick
+            onPhotoClick = onPhotoClick,
+            onRemovePhotoClick = onRemovePhotoClick
         )
 
         Spacer(Modifier.height(32.dp))
@@ -114,16 +123,20 @@ fun SpottedPetConfirmationBottomSheetContent(
 private fun PhotoSlider(
     modifier: Modifier = Modifier,
     photos: List<Uri>,
+    canAddPhoto: Boolean,
     onAddPhotoClick: () -> Unit,
-    onPhotoClick: (Uri) -> Unit
+    onPhotoClick: (Uri) -> Unit,
+    onRemovePhotoClick: (Uri) -> Unit
 ) {
     LazyRow(
         modifier = modifier.fillMaxWidth(),
         contentPadding = PaddingValues(horizontal = 24.dp),
         horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        item {
-            AddPhotoItem(onClick = onAddPhotoClick)
+        if (canAddPhoto) {
+            item {
+                AddPhotoItem(onClick = onAddPhotoClick)
+            }
         }
 
         itemsIndexed(
@@ -132,7 +145,8 @@ private fun PhotoSlider(
         ) { _, photo ->
             PhotoItem(
                 uri = photo,
-                onClick = { onPhotoClick(photo) }
+                onClick = { onPhotoClick(photo) },
+                onRemoveClick = { onRemovePhotoClick(photo) }
             )
         }
     }
@@ -169,9 +183,10 @@ private fun AddPhotoItem(
 private fun PhotoItem(
     modifier: Modifier = Modifier,
     uri: Uri,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    onRemoveClick: () -> Unit
 ) {
-    AsyncImage(
+    Box(
         modifier = modifier
             .size(PhotoItemSize)
             .clip(RoundedCornerShape(18.dp))
@@ -180,13 +195,34 @@ private fun PhotoItem(
                 color = buttonSecondPrimary,
                 shape = RoundedCornerShape(18.dp)
             )
-            .clickable(onClick = onClick),
-        model = uri,
-        contentDescription = "Фото питомца",
-        contentScale = ContentScale.Crop,
-        placeholder = painterResource(R.drawable.ic_dog),
-        error = painterResource(R.drawable.ic_dog)
-    )
+    ) {
+        AsyncImage(
+            modifier = Modifier
+                .fillMaxSize()
+                .clickable(onClick = onClick),
+            model = uri,
+            contentDescription = "Фото питомца",
+            contentScale = ContentScale.Crop,
+            placeholder = painterResource(R.drawable.ic_dog),
+            error = painterResource(R.drawable.ic_dog)
+        )
+        Box(
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(8.dp)
+                .size(24.dp)
+                .clip(RoundedCornerShape(12.dp))
+                .background(Color.White)
+                .clickable(onClick = onRemoveClick),
+            contentAlignment = Alignment.Center
+        ) {
+            Image(
+                modifier = Modifier.size(20.dp),
+                painter = painterResource(R.drawable.ic_cancel_button),
+                contentDescription = "Удалить фото"
+            )
+        }
+    }
 }
 
 private val PhotoItemSize = 156.dp

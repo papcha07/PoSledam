@@ -14,15 +14,15 @@ data class FoundPetResponse(
     val eventDate: String,
     val petType: Int,
     val gender: Int,
-    val color: String,
-    val breed: String,
+    val color: String? = null,
+    val breed: String? = null,
     val type: Int,
-    val description: String,
+    val description: String? = null,
 ) {
     @Serializable
     data class CreatorDto(
         val id: String,
-        val firstName: String,
+        val firstName: String? = null,
         val avatarPath: String? = null,
         val description: String? = null,
         val contacts: List<Contacts>? = null

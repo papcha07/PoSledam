@@ -19,7 +19,10 @@ class LoginScenarioUiTest {
         composeRule.setContent {
             LoginScreen(
                 state = state,
-                onLogin = onLogin
+                onLogin = onLogin,
+                modifier = TODO(),
+                onPrivacyPolicyClick = TODO(),
+                googleEnter = TODO()
             )
         }
     }

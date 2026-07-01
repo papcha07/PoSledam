@@ -5,6 +5,7 @@ import domain.repository.AuthRepository
 import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
+import ui.email_confirmation.EmailConfirmationViewModel
 import ui.login.LoginViewModel
 import ui.other.Converter
 import ui.register.RegisterViewModel
@@ -41,6 +42,12 @@ fun getAuthViewModel() = module {
 
     viewModel {
         RegisterViewModel(
+            authInteractor = get()
+        )
+    }
+
+    viewModel {
+        EmailConfirmationViewModel(
             authInteractor = get()
         )
     }

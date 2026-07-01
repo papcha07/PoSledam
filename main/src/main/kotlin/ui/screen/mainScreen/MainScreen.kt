@@ -27,6 +27,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -46,8 +47,6 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.core.R
 import domain.models.StreetPetPreviewModel
-import helper.RequestLocationPermission
-import helper.RequestNotificationPermission
 import ui.components.other.PetInfoComponent
 import ui.components.other.NearPetCardComponent
 import ui.components.placeholder.ShimmerImagePlaceholder
@@ -79,18 +78,12 @@ fun MainScreen(
 ) {
     val latestStreetPetState by mainScreenViewModel.latestStreetPetState.collectAsStateWithLifecycle()
 
-    RequestLocationPermission(
-        onPermissionGranted = mainScreenViewModel::onForegroundLocationPermissionGranted,
-        onPermissionDenied = mainScreenViewModel::onForegroundLocationPermissionDenied,
-        onPermissionPermanentlyDenied = mainScreenViewModel::onForegroundLocationPermissionPermanentlyDenied,
-        requestBackgroundPermission = true,
-        onBackgroundPermissionGranted = mainScreenViewModel::onBackgroundLocationPermissionGranted,
-        onBackgroundPermissionDenied = mainScreenViewModel::onBackgroundLocationPermissionDenied
-    )
+    LaunchedEffect(Unit) {
+        Log.d("USER_LOCATION", "MainScreen composed")
+    }
 
-    RequestNotificationPermission(
-        onPermissionGranted = {},
-        onPermissionDenied = {}
+    MainPermissionHandler(
+        viewModel = mainScreenViewModel
     )
 
     LazyColumn(

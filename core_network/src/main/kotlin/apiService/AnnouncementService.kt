@@ -20,11 +20,15 @@ import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.Headers
 import io.ktor.http.HttpHeaders
+import io.ktor.http.contentType
 import io.ktor.http.isSuccess
 import io.ktor.utils.io.streams.asInput
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
+import model.errorResponse.ErrorDetails
+import model.errorResponse.ErrorResponse
 import model.announcement.AnnouncementRequest
 import model.announcement.FoundPetRequest
 import model.announcement.FoundPetResponse
@@ -37,6 +41,7 @@ import java.io.File
 
 
 class AnnouncementService(private val client: HttpClient) {
+    private val json = Json { ignoreUnknownKeys = true }
 
     suspend fun sendAnnouncement(
         announcementRequest: AnnouncementRequest,
@@ -314,6 +319,57 @@ class AnnouncementService(private val client: HttpClient) {
         }
     }
 
+    suspend fun reportAnnouncement(
+        announcementId: String,
+        comment: String
+    ): SendResult = withContext(Dispatchers.IO) {
+        try {
+            val response = client.post("api/animal-announcement/$announcementId/report") {
+                contentType(ContentType.Application.Json)
+                setBody(ReportAnnouncementBody(comment = comment))
+            }
+            when {
+                response.status.isSuccess() -> SendResult.Success
+                response.status.value == 400 ||
+                        response.status.value == 401 ||
+                        response.status.value == 403 ||
+                        response.status.value == 404 ||
+                        response.status.value == 409 -> {
+                    val text = runCatching { response.bodyAsText() }.getOrNull()
+                    SendResult.BadRequest(
+                        message = text ?: "Bad request",
+                        statusCode = response.status.value,
+                        errorDetails = text.parseErrorDetails()
+                    )
+                }
+
+                else -> {
+                    val text = runCatching { response.bodyAsText() }.getOrNull()
+                    SendResult.BadRequest(
+                        message = text ?: "HTTP ${response.status.value}",
+                        statusCode = response.status.value,
+                        errorDetails = text.parseErrorDetails()
+                    )
+                }
+            }
+        } catch (e: Exception) {
+            e.toSendResultError(
+                networkMessage = e.message ?: "Unknown error"
+            )
+        }
+    }
+
+    private fun String?.parseErrorDetails(): ErrorDetails? {
+        val text = this
+        if (text.isNullOrBlank()) return null
+
+        return runCatching {
+            json.decodeFromString<ErrorResponse>(text).asErrorDetails()
+        }.getOrNull() ?: runCatching {
+            json.decodeFromString<ErrorDetails>(text)
+        }.getOrNull()
+    }
+
     private fun buildFindAnnouncementForm(
         req: AnnouncementRequest,
         files: List<File>
@@ -357,6 +413,11 @@ private data class CancelMissingAnnouncementBody(
 @Serializable
 private data class CancelFindAnnouncementBody(
     val cancelReason: Int
+)
+
+@Serializable
+private data class ReportAnnouncementBody(
+    val comment: String
 )
 
 internal fun FormBuilder.appendFilePart(

@@ -2,6 +2,7 @@ package ui.login
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,19 +25,23 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import kotlinx.coroutines.delay
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.auth.R as AuthR
 import com.example.core.R
 import domain.model.LoginInfo
 import org.koin.androidx.compose.koinViewModel
@@ -54,6 +59,7 @@ fun LoginScreen(
     modifier: Modifier = Modifier,
     state: AuthScreenState = AuthScreenState.Idle,
     onLogin: (LoginInfo) -> Unit,
+    onPrivacyPolicyClick: () -> Unit,
     googleEnter: () -> Unit = {}
 ) {
     Box(
@@ -71,6 +77,7 @@ fun LoginScreen(
                 .align(Alignment.BottomCenter)
                 .fillMaxHeight(2.4f / 4f),
             onLogin = onLogin,
+            onPrivacyPolicyClick = onPrivacyPolicyClick,
             googleEnter = googleEnter
         )
 
@@ -78,6 +85,12 @@ fun LoginScreen(
             AuthScreenState.Idle -> Unit
 
             AuthScreenState.Success -> Unit
+
+            is AuthScreenState.EmailNotConfirmed -> {
+                AnimatedToast(
+                    message = "Почта не подтверждена"
+                )
+            }
 
             is AuthScreenState.Error -> {
                 AnimatedToast(
@@ -101,15 +114,23 @@ fun LoginScreen(
 fun LoginRoute(
     modifier: Modifier = Modifier,
     viewModel: LoginViewModel = koinViewModel(),
-    goToMainProfile: () -> Unit
+    goToMainProfile: () -> Unit,
+    goToEmailConfirmationScreen: (String) -> Unit,
+    goToPrivacyPolicy: () -> Unit
 ) {
     val loginUiState by viewModel.loginUiState.collectAsState(
         initial = AuthScreenState.Idle
     )
 
     LaunchedEffect(loginUiState) {
-        if (loginUiState is AuthScreenState.Success) {
-            goToMainProfile()
+        when (val state = loginUiState) {
+            is AuthScreenState.Success -> goToMainProfile()
+            is AuthScreenState.EmailNotConfirmed -> {
+                delay(EMAIL_NOT_CONFIRMED_MESSAGE_DELAY_MS)
+                goToEmailConfirmationScreen(state.email)
+            }
+
+            else -> Unit
         }
     }
 
@@ -117,10 +138,13 @@ fun LoginRoute(
         modifier = modifier,
         state = loginUiState,
         onLogin = viewModel::login,
+        onPrivacyPolicyClick = goToPrivacyPolicy,
         googleEnter = {}
     )
 
 }
+
+private const val EMAIL_NOT_CONFIRMED_MESSAGE_DELAY_MS = 800L
 
 
 @Composable
@@ -167,6 +191,7 @@ fun LoginBackground(modifier: Modifier) {
 fun EnterBottomComponent(
     modifier: Modifier = Modifier,
     onLogin: (LoginInfo) -> Unit,
+    onPrivacyPolicyClick: () -> Unit,
     googleEnter: () -> Unit,
 ) {
     val textFields = listOf(
@@ -247,7 +272,9 @@ fun EnterBottomComponent(
                 }
             )
             Spacer(Modifier.height(32.dp))
-            PoliticTextComponent()
+            PoliticTextComponent(
+                onPrivacyPolicyClick = onPrivacyPolicyClick
+            )
         }
     }
 }
@@ -298,16 +325,47 @@ fun GoogleButtonComponent(modifier: Modifier = Modifier, onClick: () -> Unit) {
 }
 
 @Composable
-fun PoliticTextComponent(modifier: Modifier = Modifier) {
-    Text(
+fun PoliticTextComponent(
+    modifier: Modifier = Modifier,
+    onPrivacyPolicyClick: () -> Unit
+) {
+    val linkTag = "privacy_policy"
+    val linkText = stringResource(AuthR.string.login_privacy_policy_link)
+    val text = buildAnnotatedString {
+        append(stringResource(AuthR.string.login_privacy_policy_prefix))
+        append("\n")
+        append("\t\t")
+        pushStringAnnotation(
+            tag = linkTag,
+            annotation = linkText
+        )
+        withStyle(
+            style = SpanStyle(
+                color = buttonPrimary,
+                textDecoration = TextDecoration.Underline
+            )
+        ) {
+            append(linkText)
+        }
+        pop()
+    }
+
+    ClickableText(
         modifier = modifier,
-        text = buildAnnotatedString {
-            append("Продолжая, вы принимаете условия \n")
-            withStyle(style = SpanStyle(color = Color(0xFF686868))) { // здесь меняем цвет
-                append("\t\tполитики конфиденциальности")
+        text = text,
+        style = androidx.compose.ui.text.TextStyle(
+            color = Color.Black,
+            fontSize = 14.sp
+        ),
+        onClick = { offset ->
+            text.getStringAnnotations(
+                tag = linkTag,
+                start = offset,
+                end = offset
+            ).firstOrNull()?.let {
+                onPrivacyPolicyClick()
             }
-        },
-        fontSize = 14.sp
+        }
     )
 }
 

@@ -18,6 +18,7 @@ import domain.models.FilterDto
 import domain.models.FoundPetInfo
 import domain.models.PetInfo
 import domain.models.PetUiPreview
+import domain.models.ReportAnnouncementResult
 import domain.repository.SearchRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -143,6 +144,39 @@ class SearchRepositoryImpl(
         }
     }
 
+    override suspend fun reportAnnouncement(
+        announcementId: String,
+        comment: String
+    ): ReportAnnouncementResult {
+        val request = announcementService.reportAnnouncement(
+            announcementId = announcementId,
+            comment = comment
+        )
+        return when (request) {
+            is SendResult.BadRequest -> request.toReportAnnouncementResult()
+            is SendResult.Error -> ReportAnnouncementResult.NoInternet
+            SendResult.Success -> ReportAnnouncementResult.Success
+        }
+    }
+
+    private fun SendResult.BadRequest.toReportAnnouncementResult(): ReportAnnouncementResult {
+        return when {
+            isAlreadyReportedError() -> ReportAnnouncementResult.AlreadyReported
+            statusCode == 401 -> ReportAnnouncementResult.Unauthorized
+            statusCode == 403 -> ReportAnnouncementResult.Forbidden
+            statusCode == 404 -> ReportAnnouncementResult.NotFound
+            else -> ReportAnnouncementResult.Error
+        }
+    }
+
+    private fun SendResult.BadRequest.isAlreadyReportedError(): Boolean {
+        val details = errorDetails ?: return false
+        return details.code.equals(DOMAIN_RULE_VIOLATION, ignoreCase = true) &&
+                details.details.orEmpty().any { detail ->
+                    detail.field.equals(ANNOUNCEMENT_ID_FIELD, ignoreCase = true) &&
+                            detail.issue.equals(NOT_UNIQUE_ISSUE, ignoreCase = true)
+                }
+    }
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun convertToPetInfo(petResponse: FoundPetResponse): FoundPetInfo {
@@ -151,9 +185,10 @@ class SearchRepositoryImpl(
             house = petResponse.house,
             district = petResponse.district,
             imagePath = petResponse.imagesPaths?.firstOrNull(),
+            imagePaths = petResponse.imagesPaths.orEmpty(),
             creator = Creator(
                 id = petResponse.creator.id,
-                firstName = petResponse.creator.firstName,
+                firstName = petResponse.creator.firstName.orEmpty().ifBlank { "Пользователь" },
                 avatarPath = petResponse.creator.avatarPath,
                 description = petResponse.creator.description,
                 vk = petResponse.creator.contacts.findContactUrl(VK_CONTACT_TYPE),
@@ -163,9 +198,9 @@ class SearchRepositoryImpl(
             petInfo = PetInfo(
                 petType = petResponse.petType,
                 gender = petResponse.gender,
-                color = petResponse.color,
-                breed = petResponse.breed,
-                description = petResponse.description
+                color = petResponse.color.orEmpty(),
+                breed = petResponse.breed.orEmpty(),
+                description = petResponse.description.orEmpty()
             ),
             lon = petResponse.location.longitude,
             lat = petResponse.location.latitude,
@@ -208,5 +243,8 @@ class SearchRepositoryImpl(
         const val VK_CONTACT_TYPE = 0
         const val TG_CONTACT_TYPE = 1
         const val WHATSAPP_CONTACT_TYPE = 2
+        const val DOMAIN_RULE_VIOLATION = "DOMAIN_RULE_VIOLATION"
+        const val ANNOUNCEMENT_ID_FIELD = "AnnouncementId"
+        const val NOT_UNIQUE_ISSUE = "NOT_UNIQUE"
     }
 }

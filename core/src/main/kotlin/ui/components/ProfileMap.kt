@@ -1,9 +1,11 @@
 package ui.components
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.PointF
 import android.util.Log
+import android.view.MotionEvent
 import androidx.annotation.DrawableRes
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.compose.foundation.Image
@@ -70,6 +72,7 @@ fun ensureYandexMapKitInitialized(context: Context) {
 }
 
 @Composable
+@SuppressLint("ClickableViewAccessibility")
 fun ProfileMap(
     modifier: Modifier = Modifier,
     onMapReady: (MapView) -> Unit = {},
@@ -119,6 +122,21 @@ fun ProfileMap(
             modifier = Modifier.testTag("map"),
             factory = {
                 val map = mapView.map
+                mapView.setOnTouchListener { view, event ->
+                    when (event.actionMasked) {
+                        MotionEvent.ACTION_DOWN,
+                        MotionEvent.ACTION_MOVE,
+                        MotionEvent.ACTION_POINTER_DOWN -> {
+                            view.parent?.requestDisallowInterceptTouchEvent(true)
+                        }
+
+                        MotionEvent.ACTION_UP,
+                        MotionEvent.ACTION_CANCEL -> {
+                            view.parent?.requestDisallowInterceptTouchEvent(false)
+                        }
+                    }
+                    false
+                }
 
                 val myCollection = map.mapObjects.addCollection().also { collectionRef = it }
 

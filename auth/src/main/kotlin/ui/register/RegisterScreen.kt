@@ -16,6 +16,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -44,7 +45,7 @@ import ui.theme.textHint
 @Composable
 fun RegisterScreen(
     registerViewModel: RegisterViewModel,
-    goToLoginScreen: () -> Unit,
+    goToEmailConfirmationScreen: (String) -> Unit,
     goPreviewScreen: () -> Unit
 ) {
     Box(
@@ -52,7 +53,14 @@ fun RegisterScreen(
             .fillMaxSize()
             .background(Color.White)
     ) {
-        val registerUiState by registerViewModel.registerUiState.collectAsState("")
+        val registerUiState by registerViewModel.registerUiState.collectAsState(AuthScreenState.Idle)
+        val userState by registerViewModel.userDataInfoState.collectAsState()
+
+        LaunchedEffect(registerUiState) {
+            if (registerUiState is AuthScreenState.Success) {
+                goToEmailConfirmationScreen(userState.email)
+            }
+        }
 
         SvgOverlay(Modifier.fillMaxSize())
         RegisterBottomComponent(
@@ -67,7 +75,9 @@ fun RegisterScreen(
 
         when (registerUiState) {
             AuthScreenState.Idle -> {}
-            AuthScreenState.Success -> goToLoginScreen()
+            AuthScreenState.Loading -> {}
+            AuthScreenState.Success -> {}
+            is AuthScreenState.EmailNotConfirmed -> {}
             is AuthScreenState.Error -> {
                 AnimatedToast((registerUiState as AuthScreenState.Error).message)
             }
@@ -310,5 +320,3 @@ fun SvgOverlay(modifier: Modifier) {
         )
     }
 }
-
-

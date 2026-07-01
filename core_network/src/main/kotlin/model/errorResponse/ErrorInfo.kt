@@ -4,7 +4,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class ErrorInfo(
-    val field: String,
-    val issue: String,
-    val message: String
+    val field: String? = null,
+    val issue: String? = null,
+    val message: String? = null
 )
