@@ -3,6 +3,10 @@ package com.example.alinaposledam
 import android.app.Application
 import dataStoreModule
 import di.getActionViewModel
+import di.getAiSearchInteractor
+import di.getAiSearchRepository
+import di.getAiSearchService
+import di.getAiSearchViewModel
 import di.getAnnouncementInteractor
 import di.getAnnouncementRepository
 import di.getAnnouncementService
@@ -63,6 +67,10 @@ class App : Application() {
                     dataStoreModule,
                     userInfoRepository,
                     getStreetService(),
+                    getAiSearchService(),
+                    getAiSearchRepository(),
+                    getAiSearchInteractor(),
+                    getAiSearchViewModel(),
                     coreDi,
                     // Background location worker is temporarily disabled for moderation.
                     // getWorkerModule(),

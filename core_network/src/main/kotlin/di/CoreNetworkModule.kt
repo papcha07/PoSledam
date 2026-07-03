@@ -2,6 +2,7 @@ package di
 
 import YandexGeocodeService
 import android.content.Context
+import apiService.AiSearchService
 import apiService.AnnouncementService
 import apiService.AuthService
 import apiService.StreetService
@@ -44,6 +45,14 @@ fun getStreetService() = module {
     single {
         StreetService(
             get()
+        )
+    }
+}
+
+fun getAiSearchService() = module {
+    single {
+        AiSearchService(
+            client = get() // общий HttpClient из ktorClientModule
         )
     }
 }

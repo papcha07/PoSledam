@@ -99,7 +99,10 @@ fun NavGraphBuilder.mainNavGraph(navController: NavController, route: String = "
                         }
 
                         REPORT_FOUND_ANNOUNCEMENT -> {
-                            navController.navigate(profileDetailRoute(id, MISSING_PROFILE_ANNOUNCEMENT))
+                            // ReportFound = завершение нейропоиска: id — это id запроса на поиск,
+                            // а не объявления. Открываем экран результата умного поиска
+                            // (GET /api/search/{id}); маршрут объявлен в ai_search/AiSearchNavGraph.
+                            navController.navigate("aiSearchResult/$id")
                         }
                     }
                 },
