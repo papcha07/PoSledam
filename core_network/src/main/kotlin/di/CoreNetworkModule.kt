@@ -5,6 +5,7 @@ import android.content.Context
 import apiService.AiSearchService
 import apiService.AnnouncementService
 import apiService.AuthService
+import apiService.PetMarketService
 import apiService.StreetService
 import client.KtorClient
 import client.YandexKtorClient
@@ -57,6 +58,14 @@ fun getAiSearchService() = module {
     }
 }
 
+fun getPetMarketService() = module {
+    single {
+        PetMarketService(
+            client = get()
+        )
+    }
+}
+
 fun getYandexSuggestService() = module {
     single {
         YandexGeocodeService(
@@ -98,4 +107,3 @@ fun getYandexInteractor() = module {
         )
     }
 }
-

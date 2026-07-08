@@ -13,6 +13,10 @@ import di.getAnnouncementService
 import di.getCoreNetworkModule
 import di.getFilterViewModel
 import di.getImageLoaderModule
+import di.getMarketInteractor
+import di.getMarketRepository
+import di.getMarketViewModel
+import di.getPetMarketService
 import di.getProfileSettingsViewModel
 import di.getSearchInteractor
 import di.getSearchRepository
@@ -68,9 +72,13 @@ class App : Application() {
                     userInfoRepository,
                     getStreetService(),
                     getAiSearchService(),
+                    getPetMarketService(),
                     getAiSearchRepository(),
                     getAiSearchInteractor(),
                     getAiSearchViewModel(),
+                    getMarketRepository(),
+                    getMarketInteractor(),
+                    getMarketViewModel(),
                     coreDi,
                     // Background location worker is temporarily disabled for moderation.
                     // getWorkerModule(),

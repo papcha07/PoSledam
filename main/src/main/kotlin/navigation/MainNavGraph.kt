@@ -145,7 +145,8 @@ fun NavGraphBuilder.mainNavGraph(navController: NavController, route: String = "
                 placeAnimal = {
                     navController.popBackStack()
                     navController.navigate(MainRoute.PlaceAnimalScreen.route)
-                }
+                },
+                catchAnimation = true
             )
         }
 

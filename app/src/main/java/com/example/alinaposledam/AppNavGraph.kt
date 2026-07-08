@@ -29,11 +29,13 @@ import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.launch
 import navigation.AiSearchRoute
 import navigation.MainRoute
+import navigation.MarketRoute
 import navigation.ProfileRoute
 import navigation.SearchRoute
 import navigation.aiSearchNavGraph
 import navigation.authNavGraph
 import navigation.mainNavGraph
+import navigation.marketNavGraph
 import navigation.profileNavGraph
 import navigation.searchNavGraph
 import org.koin.androidx.compose.koinViewModel
@@ -177,6 +179,7 @@ fun AppNavGraph(
                 mainNavGraph(navController)
                 profileNavGraph(navController)
                 searchNavGraph(navController)
+                marketNavGraph(navController)
                 aiSearchNavGraph(navController) { announcementId, type ->
                     openAnnouncementByType(navController, announcementId, type)
                 }

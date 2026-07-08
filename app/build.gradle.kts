@@ -56,6 +56,7 @@ dependencies {
     implementation(project(":core_datastore"))
     implementation(project(":search"))
     implementation(project(":ai_search"))
+    implementation(project(":market"))
     implementation("io.insert-koin:koin-androidx-compose:3.4.2")
     implementation(libs.koin.core)
     implementation(libs.koin.android)
