@@ -213,17 +213,22 @@ fun PetImageComponent(
             )
         }
 
-        Image(
+        Box(
             modifier = Modifier
                 .align(Alignment.TopStart)
-                .padding(start = 16.dp)
-                .padding(top = 60.dp)
+                .padding(start = 4.dp, top = 48.dp)
+                .size(48.dp)
                 .clickable {
                     goBackClick()
                 },
-            painter = painterResource(R.drawable.ic_back_found),
-            contentDescription = "Кнопка назад"
-        )
+            contentAlignment = Alignment.Center
+        ) {
+            Image(
+                modifier = Modifier.size(25.dp),
+                painter = painterResource(R.drawable.ic_back_found),
+                contentDescription = "Кнопка назад"
+            )
+        }
     }
 }
 

@@ -45,7 +45,8 @@ import java.io.File
 fun CameraScreen(
     modifier: Modifier = Modifier,
     cameraViewModel: CameraViewModel,
-    placeAnimal: () -> Unit
+    placeAnimal: () -> Unit,
+    catchAnimation: Boolean = false
 ) {
 
     val currentContext = LocalContext.current
@@ -66,11 +67,14 @@ fun CameraScreen(
     val showToast = remember {
         mutableStateOf(false)
     }
+    val pendingCatchPhoto = remember {
+        mutableStateOf<Uri?>(null)
+    }
 
     BottomSheetScaffold(
         scaffoldState = scaffoldState,
         sheetPeekHeight = 0.dp,
-        sheetSwipeEnabled = true,
+        sheetSwipeEnabled = pendingCatchPhoto.value == null,
         sheetContent = {
             PhotoBottomSheetContent(
                 uris = uris.value,
@@ -126,7 +130,13 @@ fun CameraScreen(
                         onClick = {
                             takePhoto(
                                 controller = controller,
-                                onPhotoTaken = cameraViewModel::addPhoto,
+                                onPhotoTaken = { uri ->
+                                    if (catchAnimation) {
+                                        pendingCatchPhoto.value = uri
+                                    } else {
+                                        cameraViewModel.addPhoto(uri)
+                                    }
+                                },
                                 context = currentContext
                             )
                         }
@@ -153,6 +163,15 @@ fun CameraScreen(
                         )
                     }
                 }
+            }
+            pendingCatchPhoto.value?.let { uri ->
+                PokemonCatchOverlay(
+                    modifier = Modifier.fillMaxSize(),
+                    onFinished = {
+                        pendingCatchPhoto.value = null
+                        cameraViewModel.addPhoto(uri)
+                    }
+                )
             }
             if (showToast.value) {
                 AnimatedToast(

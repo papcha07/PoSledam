@@ -3,12 +3,20 @@ package com.example.alinaposledam
 import android.app.Application
 import dataStoreModule
 import di.getActionViewModel
+import di.getAiSearchInteractor
+import di.getAiSearchRepository
+import di.getAiSearchService
+import di.getAiSearchViewModel
 import di.getAnnouncementInteractor
 import di.getAnnouncementRepository
 import di.getAnnouncementService
 import di.getCoreNetworkModule
 import di.getFilterViewModel
 import di.getImageLoaderModule
+import di.getMarketInteractor
+import di.getMarketRepository
+import di.getMarketViewModel
+import di.getPetMarketService
 import di.getProfileSettingsViewModel
 import di.getSearchInteractor
 import di.getSearchRepository
@@ -63,6 +71,14 @@ class App : Application() {
                     dataStoreModule,
                     userInfoRepository,
                     getStreetService(),
+                    getAiSearchService(),
+                    getPetMarketService(),
+                    getAiSearchRepository(),
+                    getAiSearchInteractor(),
+                    getAiSearchViewModel(),
+                    getMarketRepository(),
+                    getMarketInteractor(),
+                    getMarketViewModel(),
                     coreDi,
                     // Background location worker is temporarily disabled for moderation.
                     // getWorkerModule(),

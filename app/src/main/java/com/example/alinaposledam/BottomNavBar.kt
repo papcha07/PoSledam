@@ -29,12 +29,14 @@ import com.example.core.R
 sealed class BottomNavScreen(val route: String, @DrawableRes val icon: Int) {
     object Home : BottomNavScreen("mainScreen", R.drawable.ic_home_bottom)
     object Search : BottomNavScreen("searchMain", R.drawable.ic_search_bottom)
+    object AiSearch : BottomNavScreen("aiSearchMain", R.drawable.ic_ai_bottom)
     object Profile : BottomNavScreen("profileGraph", R.drawable.ic_profile)
 }
 
 private val bottomBarLeafRoutes = setOf(
     "mainScreen",
     "searchMain",
+    "aiSearchMain",
     "profileMain"
 )
 
@@ -44,6 +46,7 @@ fun BottomNavBar(navController: NavController) {
     val items = listOf(
         BottomNavScreen.Home,
         BottomNavScreen.Search,
+        BottomNavScreen.AiSearch,
         BottomNavScreen.Profile
     )
     val selectedColor = Color(0xFF571FFF)
@@ -114,6 +117,4 @@ fun BottomNavBar(navController: NavController) {
 private fun BottomNavBarPreview() {
     BottomNavBar(navController = rememberNavController())
 }
-
-
 

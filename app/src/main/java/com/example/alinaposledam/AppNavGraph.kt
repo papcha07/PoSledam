@@ -27,11 +27,15 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.launch
+import navigation.AiSearchRoute
 import navigation.MainRoute
+import navigation.MarketRoute
 import navigation.ProfileRoute
 import navigation.SearchRoute
+import navigation.aiSearchNavGraph
 import navigation.authNavGraph
 import navigation.mainNavGraph
+import navigation.marketNavGraph
 import navigation.profileNavGraph
 import navigation.searchNavGraph
 import org.koin.androidx.compose.koinViewModel
@@ -43,6 +47,7 @@ import ui.components.profilebar.ProfileBarComponent
 private val bottomBarLeafRoutes = setOf(
     MainRoute.MainScreen.route,
     SearchRoute.SearchScreen.route,
+    AiSearchRoute.Main.route,
     ProfileRoute.Profile.route
 )
 
@@ -174,6 +179,10 @@ fun AppNavGraph(
                 mainNavGraph(navController)
                 profileNavGraph(navController)
                 searchNavGraph(navController)
+                marketNavGraph(navController)
+                aiSearchNavGraph(navController) { announcementId, type ->
+                    openAnnouncementByType(navController, announcementId, type)
+                }
             }
         }
     }
@@ -225,16 +234,39 @@ private fun handleNotificationIntent(
             }
         }
 
+        // В этом бэкенде ReportFound = завершение нейропоиска: entity_id — это id запроса
+        // на поиск (не объявления). Открываем экран результата → GET /api/search/{id}.
         "ReportFound" -> {
             navController.navigate(
-                ProfileRoute.DetailScreen.createRoute(
-                    petId = entityId,
-                    announcementType = FIND
-                )
+                AiSearchRoute.Result.createRoute(entityId)
             ) {
                 launchSingleTop = true
             }
         }
+    }
+}
+
+/**
+ * Открытие существующих экранов деталей по типу похожего объявления из нейропоиска.
+ * type: 0 — находка, 1 — пропажа, 2 — уличное животное.
+ */
+private fun openAnnouncementByType(
+    navController: NavController,
+    announcementId: String,
+    type: Int
+) {
+    when (type) {
+        0 -> navController.navigate(
+            SearchRoute.FoundPetScreen.createRoute(announcementId, FIND)
+        ) { launchSingleTop = true }
+
+        1 -> navController.navigate(
+            SearchRoute.FoundPetScreen.createRoute(announcementId, MISS)
+        ) { launchSingleTop = true }
+
+        2 -> navController.navigate(
+            MainRoute.StreetDetailsScreen.createRoute(announcementId)
+        ) { launchSingleTop = true }
     }
 }
 

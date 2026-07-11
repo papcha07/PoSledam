@@ -1,21 +1,23 @@
 package di
 
-import YandexGeocodeService
+import GeoapifyGeocodeService
 import android.content.Context
+import apiService.AiSearchService
 import apiService.AnnouncementService
 import apiService.AuthService
+import apiService.PetMarketService
 import apiService.StreetService
+import client.GeoapifyKtorClient
 import client.KtorClient
-import client.YandexKtorClient
 import kotlinx.serialization.json.Json
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 import storage.TokenRepository
 import storage.UserInfoRepository
+import yandex_core.GeoapifyRepositoryImpl
 import yandex_core.YandexInteractor
 import yandex_core.YandexInteractorImpl
 import yandex_core.YandexRepository
-import yandex_core.YandexRepositoryImpl
 
 val ktorClientModule = module {
     single { KtorClient(get()) }
@@ -48,11 +50,33 @@ fun getStreetService() = module {
     }
 }
 
+fun getAiSearchService() = module {
+    single {
+        AiSearchService(
+            client = get() // общий HttpClient из ktorClientModule
+        )
+    }
+}
+
+fun getPetMarketService() = module {
+    single {
+        PetMarketService(
+            client = get()
+        )
+    }
+}
+
+// Геокодер переведён с Yandex на Geoapify. Реализация Yandex оставлена в проекте
+// (client/YandexKtorClient, geoCoderService/YandexGeocodeService, yandex_core/YandexRepositoryImpl),
+// но больше не подключается через DI. Имена DI-функций сохранены, чтобы не трогать App.kt
+// и feature-модули — контракт YandexInteractor/YandexRepository/AddressSuggestion не изменился.
+private const val GEOAPIFY_API_KEY = "22a41b300478445bba4e186c8f29f4b1"
+
 fun getYandexSuggestService() = module {
     single {
-        YandexGeocodeService(
-            client = YandexKtorClient.getInstance(),
-            apiKey = "17021327-d1ff-4d2d-9559-8ce95c2d55af"
+        GeoapifyGeocodeService(
+            client = GeoapifyKtorClient.getInstance(),
+            apiKey = GEOAPIFY_API_KEY
         )
     }
 }
@@ -76,7 +100,7 @@ val userInfoRepository = module {
 
 fun getYandexRepository() = module {
     factory<YandexRepository> {
-        YandexRepositoryImpl(
+        GeoapifyRepositoryImpl(
             service = get()
         )
     }
@@ -89,4 +113,3 @@ fun getYandexInteractor() = module {
         )
     }
 }
-

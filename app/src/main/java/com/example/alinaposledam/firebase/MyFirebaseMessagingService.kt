@@ -215,6 +215,9 @@ class MyFirebaseMessagingService : FirebaseMessagingService(), KoinComponent {
 
     companion object {
         private const val REPORT_SPOTTED = "ReportSpotted"
+
+        // В этом бэкенде ReportFound присылается при завершении нейропоиска.
+        // entity_id — id запроса на поиск, переход обрабатывается в AppNavGraph.
         private const val REPORT_FOUND = "ReportFound"
 
         private const val MISS_CREATED = "MissingAnnouncementCreated"
