@@ -1,6 +1,5 @@
 package ui.screen.mainScreen
 
-import NewsType
 import android.Manifest
 import android.app.Activity
 import android.content.Context
@@ -39,6 +38,7 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -51,29 +51,16 @@ import ui.components.other.PetInfoComponent
 import ui.components.other.NearPetCardComponent
 import ui.components.placeholder.ShimmerImagePlaceholder
 import ui.components.placeholder.ShimmerTextPlaceholder
-import ui.model.ArticleInfo
+import ui.model.StoryId
+import ui.model.StoryInfo
+import ui.model.storyInfoList
 import ui.theme.backgroundColor
-
-val articleInfoList = listOf(
-    ArticleInfo(
-        image = R.drawable.f_article,
-        newsType = NewsType.HowToUseAppNews
-    ),
-    ArticleInfo(
-        image = R.drawable.s_article,
-        newsType = NewsType.SelfWaklingNews
-    ),
-    ArticleInfo(
-        image = R.drawable.t_article,
-        newsType = NewsType.RobberyNews
-    )
-)
 
 @Composable
 fun MainScreen(
     navigateToStreetPetScreen: () -> Unit,
     navigateToCameraScreen: () -> Unit,
-    navigateToNewsScreen: (NewsType) -> Unit,
+    navigateToStoryScreen: (StoryId) -> Unit,
     mainScreenViewModel: MainScreenViewModel,
 ) {
     val latestStreetPetState by mainScreenViewModel.latestStreetPetState.collectAsStateWithLifecycle()
@@ -92,10 +79,10 @@ fun MainScreen(
             .background(color = backgroundColor),
     ) {
         item {
-            ArticleSectionComponent(
+            StorySectionComponent(
                 modifier = Modifier,
-                articleInfoList = articleInfoList,
-                navigateToNewsScreen = navigateToNewsScreen
+                storyInfoList = storyInfoList,
+                navigateToStoryScreen = navigateToStoryScreen
             )
         }
         item {
@@ -180,10 +167,10 @@ fun GetPhotoComponent(
 
 
 @Composable
-fun ArticleSectionComponent(
+fun StorySectionComponent(
     modifier: Modifier = Modifier,
-    articleInfoList: List<ArticleInfo>,
-    navigateToNewsScreen: (NewsType) -> Unit
+    storyInfoList: List<StoryInfo>,
+    navigateToStoryScreen: (StoryId) -> Unit
 ) {
     Box(
         modifier = modifier
@@ -197,16 +184,16 @@ fun ArticleSectionComponent(
         LazyRow(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 16.dp),
+                .padding(horizontal = 16.dp, vertical = 16.dp),
             horizontalArrangement = Arrangement.spacedBy(
-                space = 30.dp,
-                alignment = Alignment.CenterHorizontally
+                space = 12.dp,
+                alignment = Alignment.Start
             ),
         ) {
-            items(articleInfoList) { articleInfo ->
-                ArticleComponent(
-                    articleInfo = articleInfo,
-                    onClick = { navigateToNewsScreen(articleInfo.newsType) }
+            items(storyInfoList) { storyInfo ->
+                StoryPreviewComponent(
+                    storyInfo = storyInfo,
+                    onClick = { navigateToStoryScreen(storyInfo.id) }
                 )
             }
         }
@@ -218,17 +205,17 @@ fun ArticleSectionComponent(
 private fun ArticleSectionComponentPreview(
 
 ) {
-    ArticleSectionComponent(
-        articleInfoList = articleInfoList,
-        navigateToNewsScreen = {}
+    StorySectionComponent(
+        storyInfoList = storyInfoList,
+        navigateToStoryScreen = {}
     )
 }
 
 
 @Composable
-fun ArticleComponent(
+fun StoryPreviewComponent(
     modifier: Modifier = Modifier,
-    articleInfo: ArticleInfo,
+    storyInfo: StoryInfo,
     onClick: () -> Unit
 ) {
     Box(
@@ -237,14 +224,41 @@ fun ArticleComponent(
             .clickable {
                 onClick()
             }
-            .height(100.dp)
-            .width(90.dp)
+            .height(120.dp)
+            .width(96.dp)
 
     ) {
         Image(
-            modifier = Modifier.align(Alignment.BottomStart),
-            painter = painterResource(articleInfo.image),
-            contentDescription = "Статья"
+            modifier = Modifier.fillMaxSize(),
+            painter = painterResource(storyInfo.previewImage),
+            contentScale = ContentScale.Crop,
+            contentDescription = storyInfo.previewTitle
+        )
+
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(
+                    Brush.verticalGradient(
+                        colors = listOf(
+                            Color.Transparent,
+                            Color.Black.copy(alpha = 0.72f)
+                        ),
+                        startY = 35f
+                    )
+                )
+        )
+
+        Text(
+            modifier = Modifier
+                .align(Alignment.BottomStart)
+                .padding(horizontal = 8.dp, vertical = 10.dp),
+            text = storyInfo.previewTitle,
+            color = Color.White,
+            fontSize = 12.sp,
+            lineHeight = 13.sp,
+            maxLines = 3,
+            overflow = TextOverflow.Ellipsis
         )
     }
 }
@@ -437,11 +451,8 @@ private fun getPhoto(context: Context) {
 @Preview
 @Composable
 fun ArticleComponentPreview() {
-    ArticleComponent(
-        articleInfo = ArticleInfo(
-            image = R.drawable.f_article,
-            newsType = NewsType.HowToUseAppNews
-        ),
+    StoryPreviewComponent(
+        storyInfo = storyInfoList.first(),
         onClick = {
 
         }

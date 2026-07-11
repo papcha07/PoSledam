@@ -1,7 +1,6 @@
 package navigation
 
-import NewsScreen
-import NewsType
+import StoryScreen
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -21,6 +20,7 @@ import ui.screen.street.AddStreetAnimalScreen
 import ui.screen.street.StreetPetRoute
 import ui.screen.street.StreetPetViewModel
 import ui.screen.street.detailsScreen.StreetPetDetailRouter
+import ui.model.StoryId
 
 sealed class MainRoute(val route: String) {
     object MainScreen : MainRoute("mainScreen")
@@ -34,9 +34,9 @@ sealed class MainRoute(val route: String) {
         }
     }
 
-    object NewsScreen : MainRoute("newsScreen/{newsType}") {
-        fun createRoute(newsType: NewsType): String {
-            return "newsScreen/${newsType.name}"
+    object StoryScreen : MainRoute("storyScreen/{storyId}") {
+        fun createRoute(storyId: StoryId): String {
+            return "storyScreen/${storyId.name}"
         }
     }
 }
@@ -66,8 +66,8 @@ fun NavGraphBuilder.mainNavGraph(navController: NavController, route: String = "
                         launchSingleTop = true
                     }
                 },
-                navigateToNewsScreen = { newsType ->
-                    navController.navigate(MainRoute.NewsScreen.createRoute(newsType)) {
+                navigateToStoryScreen = { storyId ->
+                    navController.navigate(MainRoute.StoryScreen.createRoute(storyId)) {
                         launchSingleTop = true
                     }
                 },
@@ -190,25 +190,25 @@ fun NavGraphBuilder.mainNavGraph(navController: NavController, route: String = "
         }
 
         composable(
-            route = MainRoute.NewsScreen.route,
+            route = MainRoute.StoryScreen.route,
             arguments = listOf(
-                navArgument("newsType") {
+                navArgument("storyId") {
                     type = NavType.StringType
                 }
             )
         ) { backStackEntry ->
-            val newsType = backStackEntry.arguments
-                ?.getString("newsType")
-                ?.let { newsTypeName ->
-                    enumValues<NewsType>().firstOrNull { it.name == newsTypeName }
+            val storyId = backStackEntry.arguments
+                ?.getString("storyId")
+                ?.let { storyIdName ->
+                    enumValues<StoryId>().firstOrNull { it.name == storyIdName }
                 }
-                ?: NewsType.RobberyNews
+                ?: StoryId.PetEscapes
 
-            NewsScreen(
+            StoryScreen(
                 goBackClick = {
                     navController.popBackStack()
                 },
-                newsType = newsType,
+                storyId = storyId,
             )
         }
 
