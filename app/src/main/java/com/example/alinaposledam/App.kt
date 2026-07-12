@@ -35,6 +35,7 @@ import ui.di.getAuthRepository
 import ui.di.getAuthViewModel
 import ui.di.getConverter
 import ui.di.getMainModule
+
 // import androidx.work.Configuration
 // import worker.location_worker.factory.KoinWorkerFactory
 // import worker.location_worker.getWorkerModule
@@ -42,7 +43,8 @@ import ui.di.getMainModule
 class App : Application() {
     override fun onCreate() {
         super.onCreate()
-
+        val a = "test"
+        val b = "test2"
         startKoin {
             androidContext(this@App)
             modules(
