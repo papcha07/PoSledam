@@ -43,8 +43,6 @@ import ui.di.getMainModule
 class App : Application() {
     override fun onCreate() {
         super.onCreate()
-        val a = "test"
-        val b = "test2"
         startKoin {
             androidContext(this@App)
             modules(
