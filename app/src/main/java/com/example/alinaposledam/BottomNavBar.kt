@@ -33,14 +33,6 @@ sealed class BottomNavScreen(val route: String, @DrawableRes val icon: Int) {
     object Profile : BottomNavScreen("profileGraph", R.drawable.ic_profile)
 }
 
-private val bottomBarLeafRoutes = setOf(
-    "mainScreen",
-    "searchMain",
-    "aiSearchMain",
-    "profileMain"
-)
-
-
 @Composable
 fun BottomNavBar(navController: NavController) {
     val items = listOf(
