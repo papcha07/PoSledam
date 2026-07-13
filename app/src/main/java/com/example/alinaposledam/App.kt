@@ -27,6 +27,14 @@ import di.getYandexSuggestService
 import di.ktorClientModule
 import di.tokenRepositoryModule
 import di.userInfoRepository
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.runBlocking
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
 import ui.coreDi
@@ -35,6 +43,7 @@ import ui.di.getAuthRepository
 import ui.di.getAuthViewModel
 import ui.di.getConverter
 import ui.di.getMainModule
+import kotlin.coroutines.suspendCoroutine
 
 // import androidx.work.Configuration
 // import worker.location_worker.factory.KoinWorkerFactory
@@ -89,13 +98,11 @@ class App : Application() {
                 )
             )
         }
-
-
     }
 
     // Background location worker is temporarily disabled for moderation.
     // override val workManagerConfiguration: Configuration
     //     get() = Configuration.Builder()
-    //         .setWorkerFactory(KoinWorkerFactory())
+    //         .setWorkerFactory(KoinWorkerFacto    ry())
     //         .build()
 }
