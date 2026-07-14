@@ -9,6 +9,7 @@ import db.notification.NotificationDatabase
 import db.notification.NotificationEntity
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
+import org.hamcrest.MatcherAssert.assertThat
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
