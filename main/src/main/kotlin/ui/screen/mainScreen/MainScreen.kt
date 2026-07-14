@@ -7,6 +7,7 @@ import android.content.pm.PackageManager
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -18,7 +19,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -72,32 +72,27 @@ fun MainScreen(
         viewModel = mainScreenViewModel
     )
 
-    LazyColumn(
+    Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(color = backgroundColor),
+            .background(color = backgroundColor)
+            .border(
+                width = 1.dp,
+                color = Color(0xFFF1F1F1)
+            ),
     ) {
+        TargetPetsSection(
+            latestStreetPetState = latestStreetPetState,
+            navigateToStreetPetScreen = navigateToStreetPetScreen,
+            navigateToCameraScreen = navigateToCameraScreen
+        )
 
-        item {
-            TargetPetsSection(
-                latestStreetPetState = latestStreetPetState,
-                navigateToStreetPetScreen = navigateToStreetPetScreen,
-                navigateToCameraScreen = navigateToCameraScreen
-            )
-        }
-
-        item {
-            StorySectionComponent(
-                modifier = Modifier,
-                storyInfoList = storyInfoList,
-                navigateToStoryScreen = navigateToStoryScreen
-            )
-        }
-        item {
-            Spacer(Modifier.height(4.dp))
-        }
-
-
+        StorySectionComponent(
+            modifier = Modifier,
+            storyInfoList = storyInfoList,
+            navigateToStoryScreen = navigateToStoryScreen
+        )
+        Spacer(Modifier.height(4.dp))
     }
 }
 

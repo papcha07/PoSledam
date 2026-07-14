@@ -30,18 +30,14 @@ val PurpleButtonColor = Color(0xFF8C6BF0)
 
 //filters
 val addressSearchColor = Color(0xFFA1A1A1)
+
 //search
 val filterItemColor = Color(0xFFEDE9FF)
-val unselectedFilterItemColor = Color(0xF5F5F5)
 val districtDropDownMenuColor = Color(0xFFF5F5F5)
-
 
 //backgroundColor
 val backgroundColor = Color(0xFFF5F5F5)
 
-val chipRed = Color(0xFFE03232)
-val whereFind = Color(0xFF9B9B9B)
-val cher = Color(0xFF1E1E1E)
 
 val textHint = Color(0xFF787878)
 
@@ -51,22 +47,17 @@ val registerEditTextColor = Color(0xFFF8F8F8)
 val buttonPrimary = Color(0xFF210B17)
 val buttonSecondPrimary = Color(0xFFEAE7FB)
 
-
-
-//animalCard
-val animalCardBackground = Color(0xFFF1F1F1)
-
-
 //streetPet
 val streetPetChipColor = Color(0xFFD8E8FF)
 
 
 //eventDateComponent
 val eventDateComponentColor = Color(0xFFF9F9FF)
-val addressText = Color(0xFF212121)
-
 
 //status bar
 val blueStatusColorButton = Color(0xFF6155F5)
 val greyStatusColorButton = Color(0xFFE0E0E0)
 val purpleStatusColor = Color(0xFF8C6BF0)
+
+val deleteButtonColor = Color(0xFFEFDBDB)
+val deleteButtonText = Color(0xFF692D2D)

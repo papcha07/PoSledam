@@ -95,5 +95,9 @@
 </string>
 
     <string name="find_animal">Нашел животное</string>
+    <string name="radius">РАДИУС ПОИСКА</string>
+    <string name="time">ВРЕМЯ</string>
+    <string name="type">ТИП ЖИВОТНОГО</string>
+    <string name="gender">ПОЛ</string>
 
 </resources>

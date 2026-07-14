@@ -9,14 +9,12 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import ui.theme.buttonPrimary
 
 private val ButtonPrimary = Color(0xFF210B17)
 
@@ -26,7 +24,8 @@ fun DefaultButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    containerColor: Color = ButtonPrimary
+    containerColor: Color = ButtonPrimary,
+    textColor: Color = Color.White
 ) {
     Button(
         onClick = onClick,
@@ -52,6 +51,7 @@ fun DefaultButton(
             lineHeight = 20.sp,
             fontWeight = FontWeight.Medium,
             maxLines = 1,
+            color = textColor,
             overflow = TextOverflow.Ellipsis
         )
     }
