@@ -80,6 +80,7 @@ import ui.theme.Ser
 import ui.theme.backgroundColor
 import ui.theme.blueStatusColorButton
 import ui.theme.buttonPrimary
+import ui.theme.deleteButtonColor
 import ui.theme.greyStatusColorButton
 import ui.theme.purpleStatusColor
 import ui.theme.textHint
@@ -206,7 +207,7 @@ fun ProgressIndicator(
                 modifier = Modifier
                     .weight(1f)
                     .height(4.dp)
-                    .background(PurpleButtonColor)
+                    .background(buttonPrimary)
             )
 
             Box(
@@ -216,8 +217,8 @@ fun ProgressIndicator(
                     .background(
                         when (pageState) {
                             ActionPage.MAIN -> greyStatusColorButton
-                            ActionPage.ADDRESS -> purpleStatusColor
-                            ActionPage.RESULT -> blueStatusColorButton
+                            ActionPage.ADDRESS -> buttonPrimary
+                            ActionPage.RESULT -> deleteButtonColor
                         }
                     )
             )

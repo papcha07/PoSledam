@@ -1,6 +1,5 @@
 package ui.components.default_component
 
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -13,10 +12,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 private val ButtonPrimary = Color(0xFF210B17)
+
 
 @Composable
 fun DefaultButton(
@@ -25,7 +26,8 @@ fun DefaultButton(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     containerColor: Color = ButtonPrimary,
-    textColor: Color = Color.White
+    textColor: Color = Color.White,
+    fontSize: TextUnit = 16.sp
 ) {
     Button(
         onClick = onClick,
@@ -39,20 +41,16 @@ fun DefaultButton(
             contentColor = Color.White,
             disabledContainerColor = containerColor.copy(alpha = 0.4f),
             disabledContentColor = Color.White.copy(alpha = 0.6f)
-        ),
-        contentPadding = PaddingValues(
-            horizontal = 16.dp,
-            vertical = 0.dp
         )
     ) {
         Text(
             text = text,
-            fontSize = 16.sp,
+            fontSize = fontSize,
             lineHeight = 20.sp,
             fontWeight = FontWeight.Medium,
             maxLines = 1,
-            color = textColor,
-            overflow = TextOverflow.Ellipsis
+            overflow = TextOverflow.Ellipsis,
+            color = textColor
         )
     }
 }

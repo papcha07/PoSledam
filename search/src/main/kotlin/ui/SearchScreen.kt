@@ -7,31 +7,39 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -40,18 +48,21 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import coil.compose.AsyncImage
 import com.example.core.R
+import com.example.search.R as SearchR
 import domain.models.PetUiPreview
 import ui.components.default_component.TabRowSelection
 import ui.components.default_component.ToolBar
 import ui.components.default_component.ToolBarInfo
 import ui.components.placeholder.ErrorPlaceholder
 import ui.components.placeholder.NotFoundSearchPlaceholder
-import ui.components.placeholder.PetCardShimmerPlaceholder
+import ui.components.placeholder.ShimmerImagePlaceholder
 import ui.components.placeholder.ShimmerLoadingTransition
+import ui.components.placeholder.ShimmerTextPlaceholder
 import ui.model.TabRowInfo
 import ui.theme.addressSearchColor
 import ui.theme.backgroundColor
 import ui.theme.filterItemColor
+import ui.theme.textHint
 import ui.viewModel.FilterChipUi
 import ui.viewModel.FilterViewModel
 
@@ -224,102 +235,128 @@ private fun FilterChipItemPreview() {
 fun PetCardComponent(
     modifier: Modifier = Modifier,
     petInfo: PetUiPreview,
-    filterViewModel: FilterViewModel,
-    goToDetailsPetScreen: () -> Unit
+    isMissing: Boolean,
+    goToDetailsPetScreen: () -> Unit,
 ) {
+    val shape = RoundedCornerShape(16.dp)
 
-    val currentTab = filterViewModel.currentTab.collectAsState()
+    val title = petInfo.petName
+        ?: petInfo.breed
+        ?: stringResource(SearchR.string.search_pet_no_information)
 
-    Box(
+    val description = petInfo.description
+        ?: stringResource(SearchR.string.search_pet_no_description)
+
+    val district = petInfo.district?.toSearchDistrictLabel()
+        ?: stringResource(SearchR.string.search_pet_no_district).uppercase()
+
+    Column(
         modifier = modifier
-            .fillMaxWidth()
-            .shadow(
-                elevation = 8.dp,
-                shape = RoundedCornerShape(15.dp),
-                clip = false,
-                spotColor = Color.Black.copy(alpha = 0.35f),
-                ambientColor = Color.Black.copy(alpha = 0.35f)
+            .clip(RoundedCornerShape(20.dp))
+            .clickable(
+                onClick = goToDetailsPetScreen
             )
-            .background(
-                color = Color.White,
-                shape = RoundedCornerShape(15.dp)
+            .padding(4.dp)
+    ){
+
+        Box {
+            AsyncImage(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .aspectRatio(1f)
+                    .clip(shape),
+                model = petInfo.imageUrl,
+                contentScale = ContentScale.Crop,
+                placeholder = painterResource(R.drawable.ic_dog),
+                error = painterResource(R.drawable.ic_dog),
+                fallback = painterResource(R.drawable.ic_dog),
+                contentDescription = null
             )
-            .clip(RoundedCornerShape(15.dp))
-            .clickable {
-                goToDetailsPetScreen()
-            }
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 10.dp, vertical = 10.dp)
-        ) {
-            Box {
-                if (petInfo.imageUrl != null) {
-                    val imageUrl = "$BASE_URL/api/image/${petInfo.imageUrl}"
-                    println("Loading image from: $imageUrl")
-                    AsyncImage(
-                        modifier = Modifier
-                            .size(130.dp, 140.dp)
-                            .clip(RoundedCornerShape(8.dp)),
-                        contentScale = ContentScale.Crop,
-                        model = petInfo.imageUrl,
-                        placeholder = painterResource(R.drawable.ic_dog),
-                        error = painterResource(R.drawable.ic_dog),
-                        contentDescription = null,
-                        onError = {
-                            println("Image loading failed: ${it.result.throwable?.message}")
-                            it.result.throwable?.printStackTrace()
-                        },
-                    )
-                    Box(
-                        modifier = Modifier
-                            .size(10.dp)
-                            .clip(CircleShape)
-                            .background(color = if (currentTab.value == 1) Color.Red else Color.Green)
-                            .padding(10.dp)
-                    )
-                }
-
-            }
-
-            Spacer(Modifier.width(14.dp))
 
             Box(
-                modifier = Modifier.height(140.dp)
-            ) {
-                Column(
-                    Modifier.padding(top = 16.dp)
-                ) {
-
-                    Text(
-                        text = petInfo.petName ?: petInfo.breed ?: "",
-                        fontSize = 14.sp
-                    )
-                    Spacer(Modifier.height(8.dp))
-                    petInfo.description?.let {
-                        Text(
-                            text = if (it.length > 110) {
-                                "${
-                                    petInfo.description.dropLast(30)
-                                }..."
-                            } else {
-                                it
-                            },
-                            fontSize = 12.sp
-                        )
-                    }
-
-                }
-                Text(
-                    modifier = Modifier.align(Alignment.BottomStart),
-                    text = petInfo.district?.toUpperCase() ?: "Нет района",
-                    fontSize = 14.sp,
-                    color = addressSearchColor
-                )
-            }
-
+                modifier = Modifier
+                    .padding(10.dp)
+                    .size(9.dp)
+                    .clip(CircleShape)
+                    .background(if (isMissing) Color.Red else Color.Green)
+            )
         }
+
+        Spacer(Modifier.height(12.dp))
+
+        Text(
+            text = title,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            fontSize = 16.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = Color.Black
+        )
+
+        Spacer(Modifier.height(6.dp))
+
+        Text(
+            text = description,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis,
+            fontSize = 13.sp,
+            lineHeight = 16.sp,
+            color = textHint
+        )
+
+        Spacer(Modifier.height(6.dp))
+
+        Text(
+            text = district,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            fontSize = 11.sp,
+            fontWeight = FontWeight.Medium,
+            color = addressSearchColor
+        )
+    }
+}
+
+private fun String.toSearchDistrictLabel(): String {
+    return replace("административный район", "", ignoreCase = true)
+        .replace("район", "", ignoreCase = true)
+        .trim(' ', ',', '.', '-')
+        .uppercase()
+}
+
+@Preview(name = "320 dp", widthDp = 320, showBackground = true, backgroundColor = 0xFFFFFFFF)
+@Preview(name = "360 dp", widthDp = 360, showBackground = true, backgroundColor = 0xFFFFFFFF)
+@Preview(name = "393 dp", widthDp = 393, showBackground = true, backgroundColor = 0xFFFFFFFF)
+@Preview(name = "412 dp", widthDp = 412, showBackground = true, backgroundColor = 0xFFFFFFFF)
+@Composable
+private fun PetCardComponentPreview() {
+    val pet = PetUiPreview(
+        id = "preview-id",
+        petName = "Очень длинное имя породистого питомца",
+        description = "Длинное описание животного, которое занимает больше двух строк и должно завершиться многоточием",
+        district = "Центральный административный район",
+        imageUrl = null,
+        breed = "Бордер-колли"
+    )
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp),
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        PetCardComponent(
+            modifier = Modifier.weight(1f),
+            petInfo = pet,
+            isMissing = false,
+            goToDetailsPetScreen = {}
+        )
+        PetCardComponent(
+            modifier = Modifier.weight(1f),
+            petInfo = pet.copy(id = "preview-id-2"),
+            isMissing = true,
+            goToDetailsPetScreen = {}
+        )
     }
 }
 
@@ -360,9 +397,8 @@ fun FoundPetsScreen(
                         if (pets.itemCount > 0) {
                             PetsList(
                                 pets = pets,
-                                viewModel = viewModel,
                                 goToDetailsPetScreen = goToDetailsPetScreen,
-                                isFoundTab = true
+                                announcementType = FOUND_ANNOUNCEMENT_TYPE
                             )
                         } else {
                             val modifier = Modifier.align(Alignment.Center)
@@ -415,9 +451,8 @@ fun MissingPetsScreen(
                         if (pets.itemCount > 0) {
                             PetsList(
                                 pets = pets,
-                                viewModel = viewModel,
                                 goToDetailsPetScreen = goToDetailsPetScreen,
-                                isFoundTab = false
+                                announcementType = MISSING_ANNOUNCEMENT_TYPE
                             )
                         } else {
                             val modifier = Modifier.align(Alignment.Center)
@@ -437,16 +472,23 @@ fun MissingPetsScreen(
 fun PetsList(
     pets: LazyPagingItems<PetUiPreview>,
     modifier: Modifier = Modifier,
-    viewModel: FilterViewModel,
     goToDetailsPetScreen: (String, Int) -> Unit,
-    isFoundTab: Boolean
+    announcementType: Int
 ) {
-    val currentTabCategory = viewModel.currentTab.collectAsState()
-    val listState = rememberLazyListState()
+    val gridState = rememberLazyGridState()
 
-    LazyColumn(
-        modifier = modifier.padding(horizontal = 16.dp),
-        state = listState
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(2),
+        modifier = modifier.fillMaxSize(),
+        state = gridState,
+        contentPadding = PaddingValues(
+            start = 16.dp,
+            top = 16.dp,
+            end = 16.dp,
+            bottom = 24.dp
+        ),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
         items(
             count = pets.itemCount,
@@ -458,27 +500,34 @@ fun PetsList(
 
             if (petInfo != null) {
                 PetCardComponent(
+                    modifier = Modifier.fillMaxWidth(),
                     petInfo = petInfo,
-                    filterViewModel = viewModel
+                    isMissing = announcementType == MISSING_ANNOUNCEMENT_TYPE
                 ) {
                     goToDetailsPetScreen(
                         petInfo.id,
-                        currentTabCategory.value
+                        announcementType
                     )
                 }
-
-                Spacer(Modifier.height(8.dp))
             }
         }
 
-        item {
+        item(
+            key = "append-state",
+            span = { GridItemSpan(maxLineSpan) }
+        ) {
             val appendState = pets.loadState.append
             ShimmerLoadingTransition(
                 isLoading = appendState is LoadState.Loading,
                 modifier = Modifier.fillMaxWidth(),
                 loadingContent = {
-                    PetCardShimmerPlaceholder()
-                    Spacer(Modifier.height(8.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        SearchPetCardShimmerPlaceholder(Modifier.weight(1f))
+                        SearchPetCardShimmerPlaceholder(Modifier.weight(1f))
+                    }
                 }
             ) {
                 when (appendState) {
@@ -488,10 +537,15 @@ fun PetsList(
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(vertical = 16.dp),
+                                .padding(vertical = 8.dp),
                             contentAlignment = Alignment.Center
                         ) {
-                            Text("Ошибка загрузки")
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Text(stringResource(SearchR.string.search_append_load_error))
+                                TextButton(onClick = pets::retry) {
+                                    Text(stringResource(SearchR.string.search_retry))
+                                }
+                            }
                         }
                     }
 
@@ -505,14 +559,63 @@ fun PetsList(
 @Composable
 private fun SearchPetCardShimmerList(
     modifier: Modifier = Modifier,
-    count: Int = 4
+    count: Int = 6
 ) {
-    LazyColumn(
-        modifier = modifier.padding(horizontal = 16.dp)
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(2),
+        modifier = modifier.fillMaxSize(),
+        contentPadding = PaddingValues(
+            start = 16.dp,
+            top = 16.dp,
+            end = 16.dp,
+            bottom = 24.dp
+        ),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
         items(count) {
-            PetCardShimmerPlaceholder()
-            Spacer(Modifier.height(8.dp))
+            SearchPetCardShimmerPlaceholder()
         }
     }
 }
+
+@Composable
+private fun SearchPetCardShimmerPlaceholder(
+    modifier: Modifier = Modifier
+) {
+    Column(modifier = modifier.fillMaxWidth()) {
+        ShimmerImagePlaceholder(
+            modifier = Modifier
+                .fillMaxWidth()
+                .aspectRatio(1f)
+                .clip(RoundedCornerShape(16.dp))
+        )
+        Spacer(Modifier.height(10.dp))
+        ShimmerTextPlaceholder(
+            modifier = Modifier
+                .fillMaxWidth(0.8f)
+                .height(20.dp)
+        )
+        Spacer(Modifier.height(6.dp))
+        ShimmerTextPlaceholder(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(14.dp)
+        )
+        Spacer(Modifier.height(4.dp))
+        ShimmerTextPlaceholder(
+            modifier = Modifier
+                .fillMaxWidth(0.75f)
+                .height(14.dp)
+        )
+        Spacer(Modifier.height(10.dp))
+        ShimmerTextPlaceholder(
+            modifier = Modifier
+                .fillMaxWidth(0.65f)
+                .height(16.dp)
+        )
+    }
+}
+
+private const val FOUND_ANNOUNCEMENT_TYPE = 0
+private const val MISSING_ANNOUNCEMENT_TYPE = 1
