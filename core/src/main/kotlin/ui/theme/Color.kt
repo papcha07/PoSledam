@@ -48,7 +48,7 @@ val textHint = Color(0xFF787878)
 
 //register
 val registerEditTextColor = Color(0xFFF8F8F8)
-val buttonPrimary = Color(0xFF8C6BF0)
+val buttonPrimary = Color(0xFF210B17)
 val buttonSecondPrimary = Color(0xFFEAE7FB)
 
 
