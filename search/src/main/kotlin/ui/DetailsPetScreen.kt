@@ -163,16 +163,6 @@ fun DetailsPetScreenProvider(
     val isReportLoading = reportUiState.isLoading
     val isAnnouncementReportLoading = reportAnnouncementState.isReportLoading
 
-    fun closeBottomSheet() {
-        scope.launch {
-            scaffoldState.bottomSheetState.partialExpand()
-            if (activeBottomSheet == DetailsPetBottomSheetType.ReportAnnouncement) {
-                reportViewModel.closeReportAnnouncementSheet()
-            }
-            activeBottomSheet = null
-        }
-    }
-
     Box(modifier = modifier.fillMaxSize()) {
         BottomSheetScaffold(
             modifier = Modifier.fillMaxSize(),

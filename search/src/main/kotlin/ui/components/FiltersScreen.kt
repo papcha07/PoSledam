@@ -151,7 +151,7 @@ fun TypeOfPetRow(
                     .clip(RoundedCornerShape(10.dp))
                     .background(
                         color = if (isSelected) {
-                            filterItemColor
+                            deleteButtonColor
                         } else {
                             districtDropDownMenuColor
                         },
@@ -194,7 +194,7 @@ fun TimeFilterRow(
                     .clip(RoundedCornerShape(10.dp))
                     .background(
                         color = if (isSelected) {
-                            filterItemColor
+                            deleteButtonColor
                         } else {
                             districtDropDownMenuColor
                         },
@@ -243,7 +243,7 @@ fun GenderFilterRow(
                     .clip(RoundedCornerShape(10.dp))
                     .background(
                         color = if (isSelected) {
-                            filterItemColor
+                            deleteButtonColor
                         } else {
                             districtDropDownMenuColor
                         },

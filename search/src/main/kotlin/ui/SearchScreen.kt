@@ -61,6 +61,7 @@ import ui.components.placeholder.ShimmerTextPlaceholder
 import ui.model.TabRowInfo
 import ui.theme.addressSearchColor
 import ui.theme.backgroundColor
+import ui.theme.deleteButtonColor
 import ui.theme.filterItemColor
 import ui.theme.textHint
 import ui.viewModel.FilterChipUi
@@ -154,19 +155,6 @@ fun FiltersBar(
             .padding(horizontal = 16.dp, vertical = 14.dp)
     ) {
         Column {
-            val districtText = chips.firstOrNull() {
-                it.key == "district"
-            }?.text ?: ""
-
-            Row {
-                Image(
-                    painter = painterResource(R.drawable.ic_search_geo),
-                    contentDescription = null
-                )
-                Spacer(Modifier.width(8.dp))
-                Text("Красноярск ${districtText}")
-            }
-            Spacer(Modifier.height(10.dp))
             LazyRow(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -214,7 +202,7 @@ fun FilterChipItem(
     Row(
         modifier = Modifier
             .clip(RoundedCornerShape(10.dp))
-            .background(color = filterItemColor)
+            .background(color = deleteButtonColor)
             .border(1.dp, Color(0xFFE0DAFF), RoundedCornerShape(12.dp))
             .padding(horizontal = 14.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically
