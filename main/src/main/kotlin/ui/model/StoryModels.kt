@@ -5,6 +5,7 @@ import androidx.compose.ui.graphics.Color
 import com.example.core.R
 
 enum class StoryId {
+    LostPetFirstSteps,
     PetEscapes,
     NicheDogBreeds
 }
@@ -41,6 +42,41 @@ enum class StoryScrimStyle {
 }
 
 val storyInfoList = listOf(
+    StoryInfo(
+        id = StoryId.LostPetFirstSteps,
+        previewTitle = "Первые действия при пропаже питомца",
+        previewImage = R.drawable.story_lost_pet_intro,
+        slides = listOf(
+            StorySlide(
+                backgroundImage = R.drawable.story_lost_pet_intro,
+                title = "Первые действия, которые могут сильно помочь",
+                subtitle = "Не паникуйте. Первые 30 минут могут сыграть решающую роль",
+                layout = StorySlideLayout.Title
+            ),
+            StorySlide(
+                backgroundImage = R.drawable.story_lost_pet_last_place,
+                title = "Вернитесь в последнее место, где вы видели питомца",
+                body = "Ищите рядом: подъезды, подвалы, кусты, парковки, стройки"
+            ),
+            StorySlide(
+                backgroundImage = R.drawable.story_lost_pet_search_area,
+                title = "Осмотрите всё вокруг",
+                body = "Загляните:\n• под машины;\n• в кусты;\n• в подъезды, подвалы;\n• на стройки и парковки",
+                footerBody = "Испуганные питомцы часто выбирают укрытия"
+            ),
+            StorySlide(
+                backgroundImage = R.drawable.story_lost_pet_call_calmly,
+                title = "Зовите спокойно",
+                body = "Используйте привычную кличку и спокойный голос.\n\nВозьмите любимое лакомство или игрушку, знакомые запахи помогут питомцу выйти"
+            ),
+            StorySlide(
+                backgroundImage = R.drawable.story_lost_pet_announcement,
+                title = "Не откладывайте объявление",
+                body = "Добавьте:\n• чёткую фотографию;\n• место пропажи;\n• время;\n• особые приметы",
+                footerBody = "Чем раньше люди увидят информацию, тем выше шанс найти питомца"
+            )
+        )
+    ),
     StoryInfo(
         id = StoryId.PetEscapes,
         previewTitle = "Почему питомцы убегают",
