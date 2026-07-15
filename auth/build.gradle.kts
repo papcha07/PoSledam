@@ -41,6 +41,7 @@ dependencies {
 
     implementation(project(":core"))
     implementation(project(":core_network"))
+    implementation(libs.foundation.layout)
     implementation(libs.koin.core)
     implementation(libs.koin.android)
     implementation ("io.insert-koin:koin-androidx-compose:3.4.3")

@@ -61,3 +61,7 @@ val purpleStatusColor = Color(0xFF8C6BF0)
 
 val deleteButtonColor = Color(0xFFEFDBDB)
 val deleteButtonText = Color(0xFF692D2D)
+
+// Onboarding
+val OnboardingPrimary = Color(0xFF210B17)
+val OnboardingAccent = Color(0xFFEFDBDB)
