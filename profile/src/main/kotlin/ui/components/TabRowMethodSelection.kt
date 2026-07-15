@@ -17,11 +17,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import ui.model.TabRowInfo
-import ui.theme.PurpleButtonColor
+import ui.theme.buttonPrimary
 
 @Composable
 fun TabRowMethodSelection(
@@ -48,8 +47,7 @@ fun TabRowMethodSelection(
                         .clip(RoundedCornerShape(32.dp))
                         .weight(1f)
                         .testTag("tab_${tabRowInfo.name}")
-                        .semantics { selected = isSelected }
-                    ,
+                        .semantics { selected = isSelected },
                     selected = isSelected,
                     onClick = { onTabSelected(index) },
                     text = {
@@ -58,7 +56,7 @@ fun TabRowMethodSelection(
                                 .fillMaxWidth()
                                 .clip(RoundedCornerShape(32.dp))
                                 .background(
-                                    if (isSelected) PurpleButtonColor
+                                    if (isSelected) buttonPrimary
                                     else Color(0xFFF1F2F2)
                                 )
                                 .padding(vertical = 8.dp),

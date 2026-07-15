@@ -1,6 +1,7 @@
 package com.example.alinaposledam
 
 import android.app.Application
+import androidx.work.Configuration
 import dataStoreModule
 import di.getActionViewModel
 import di.getAiSearchInteractor
@@ -45,11 +46,10 @@ import ui.di.getConverter
 import ui.di.getMainModule
 import kotlin.coroutines.suspendCoroutine
 
-// import androidx.work.Configuration
 // import worker.location_worker.factory.KoinWorkerFactory
 // import worker.location_worker.getWorkerModule
 
-class App : Application() {
+class App : Application(), Configuration.Provider {
     override fun onCreate() {
         super.onCreate()
         val a = "test"
@@ -101,8 +101,8 @@ class App : Application() {
     }
 
     // Background location worker is temporarily disabled for moderation.
-    // override val workManagerConfiguration: Configuration
-    //     get() = Configuration.Builder()
-    //         .setWorkerFactory(KoinWorkerFacto    ry())
-    //         .build()
+    override fun getWorkManagerConfiguration(): Configuration {
+        return Configuration.Builder()
+            .build()
+    }
 }

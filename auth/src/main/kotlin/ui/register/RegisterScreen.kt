@@ -22,6 +22,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -39,6 +40,8 @@ import ui.model.data.getContact
 import ui.model.state.AuthScreenState
 import ui.theme.Primary
 import ui.theme.buttonPrimary
+import ui.theme.deleteButtonColor
+import ui.theme.deleteButtonText
 import ui.theme.textHint
 
 
@@ -107,12 +110,20 @@ fun RegisterBottomComponent(
             .background(color = Color.White)
             .padding(top = 24.dp)
     ) {
+
         Box(
             modifier = Modifier
                 .align(Alignment.TopStart)
                 .padding(start = 16.dp)
                 .size(48.dp)
+                .shadow(
+                    elevation = 12.dp,
+                    shape = CircleShape,
+                    ambientColor = Color.Black.copy(alpha = 0.80f),
+                    spotColor = Color.Black.copy(alpha = 0.15f)
+                )
                 .clip(CircleShape)
+                .background(Color.White)
                 .clickable {
                     if (currentPage.value == 0) {
                         goPreviewScreen()
@@ -123,9 +134,9 @@ fun RegisterBottomComponent(
             contentAlignment = Alignment.Center
         ) {
             Image(
-                painter = painterResource(R.drawable.ic_circle_back),
+                painter = painterResource(R.drawable.left_arrow),
                 contentDescription = "back",
-                modifier = Modifier.size(40.dp)
+                modifier = Modifier.size(16.dp)
             )
         }
 
@@ -134,7 +145,14 @@ fun RegisterBottomComponent(
                 .align(Alignment.TopEnd)
                 .padding(end = 16.dp)
                 .size(48.dp)
+                .shadow(
+                    elevation = 12.dp,
+                    shape = CircleShape,
+                    ambientColor = Color.Black.copy(alpha = 0.80f),
+                    spotColor = Color.Black.copy(alpha = 0.15f)
+                )
                 .clip(CircleShape)
+                .background(Color.White)
                 .clickable {
                     goPreviewScreen()
                 },
@@ -143,13 +161,15 @@ fun RegisterBottomComponent(
             Image(
                 painter = painterResource(R.drawable.ic_close),
                 contentDescription = "close",
-                modifier = Modifier.size(40.dp)
+                modifier = Modifier.size(34.dp)
             )
         }
 
         Column(
             modifier = Modifier
+                .align(Alignment.TopCenter) // добавьте нужный align под Column, иначе она тоже "повиснет"
                 .padding(horizontal = 16.dp)
+                .padding(top = 64.dp) // отступ, чтобы не перекрываться с кнопками сверху
         ) {
             when (currentPage.value) {
                 0 -> {
@@ -303,7 +323,7 @@ fun SvgOverlay(modifier: Modifier) {
     Box(
         modifier
             .fillMaxWidth()
-            .background(color = Primary)
+            .background(color = deleteButtonColor)
     ) {
         Image(
             modifier = Modifier.padding(top = 12.dp),

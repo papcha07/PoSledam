@@ -10,43 +10,39 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import ui.viewModel.FilterViewModel
+import com.example.core.R
+import domain.models.FilterDto
 import ui.components.default_component.DefaultButton
 import ui.components.default_component.ToolBar
 import ui.components.default_component.ToolBarInfo
-import domain.models.FilterDto
 import ui.models.TimeFilter
-import ui.theme.buttonPrimary
+import ui.theme.deleteButtonColor
+import ui.theme.deleteButtonText
 import ui.theme.districtDropDownMenuColor
 import ui.theme.filterItemColor
+import ui.viewModel.FilterViewModel
 
 @Composable
 fun FiltersScreen(
@@ -79,10 +75,8 @@ fun FiltersScreen(
                 )
                 Spacer(Modifier.height(20.dp))
                 //время
-                Text(
-                    text = "Время",
-                    fontSize = 16.sp
-                )
+                FilterText(text = stringResource(R.string.time))
+
                 Spacer(Modifier.height(8.dp))
                 TimeFilterRow(
                     timeList = listOf(
@@ -99,10 +93,7 @@ fun FiltersScreen(
                 Spacer(Modifier.height(20.dp))
 
                 //
-                Text(
-                    text = "Тип животного",
-                    fontSize = 16.sp
-                )
+                FilterText(text = stringResource(R.string.type))
                 Spacer(Modifier.height(8.dp))
                 TypeOfPetRow(
                     filterState = filterState,
@@ -111,10 +102,8 @@ fun FiltersScreen(
                 }
                 //gender
                 Spacer(Modifier.height(20.dp))
-                Text(
-                    text = "Пол",
-                    fontSize = 16.sp
-                )
+                FilterText(text = stringResource(R.string.gender))
+
                 Spacer(Modifier.height(8.dp))
                 GenderFilterRow(
                     filterState = filterState,
@@ -131,7 +120,8 @@ fun FiltersScreen(
                 Spacer(Modifier.height(12.dp))
                 DefaultButton(
                     text = "Очистить фильтры",
-                    containerColor = Color(0xFFE73E3E),
+                    containerColor = deleteButtonColor,
+                    textColor = deleteButtonText,
                     onClick = {
                         filtersViewModel.clearFilters()
                     }
@@ -161,7 +151,7 @@ fun TypeOfPetRow(
                     .clip(RoundedCornerShape(10.dp))
                     .background(
                         color = if (isSelected) {
-                            filterItemColor
+                            deleteButtonColor
                         } else {
                             districtDropDownMenuColor
                         },
@@ -204,7 +194,7 @@ fun TimeFilterRow(
                     .clip(RoundedCornerShape(10.dp))
                     .background(
                         color = if (isSelected) {
-                            filterItemColor
+                            deleteButtonColor
                         } else {
                             districtDropDownMenuColor
                         },
@@ -253,7 +243,7 @@ fun GenderFilterRow(
                     .clip(RoundedCornerShape(10.dp))
                     .background(
                         color = if (isSelected) {
-                            filterItemColor
+                            deleteButtonColor
                         } else {
                             districtDropDownMenuColor
                         },
@@ -279,6 +269,7 @@ fun GenderFilterRow(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchRadiusSlider(
     radius: Int?,
@@ -287,66 +278,79 @@ fun SearchRadiusSlider(
 ) {
     val currentRadius = radius?.toFloat() ?: 5f
 
-    Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(20.dp))
-            .background(Color(0xFFF7F7F7))
-            .padding(16.dp)
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = "Радиус поиска",
-                fontSize = 16.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = Color(0xFF222222)
-            )
+    val sliderColors = SliderDefaults.colors(
+        thumbColor = deleteButtonColor,
+        activeTrackColor = deleteButtonColor.copy(alpha = 0.55f),
+        inactiveTrackColor = Color(0xFFE8E8E8),
+        activeTickColor = Color.Transparent,
+        inactiveTickColor = Color.Transparent
+    )
 
+    Column(modifier = modifier.fillMaxWidth()) {
+        FilterText(text = stringResource(R.string.radius))
+        Spacer(modifier = Modifier.height(8.dp))
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(20.dp))
+                .background(Color.White)
+                .padding(horizontal = 16.dp, vertical = 20.dp)
+        ) {
             Text(
                 text = "${currentRadius.toInt()} км",
-                fontSize = 15.sp,
+                fontSize = 22.sp,
                 fontWeight = FontWeight.Medium,
-                color = buttonPrimary
-            )
-        }
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        Slider(
-            value = currentRadius,
-            onValueChange = { value ->
-                onRadiusChange(value.toInt())
-            },
-            valueRange = 1f..20f,
-            steps = 18,
-            colors = SliderDefaults.colors(
-                thumbColor = buttonPrimary,
-                activeTrackColor = buttonPrimary,
-                inactiveTrackColor = Color(0xFFE0E0E0),
-                activeTickColor = Color.Transparent,
-                inactiveTickColor = Color.Transparent
-            )
-        )
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(
-                text = "1 км",
-                fontSize = 12.sp,
-                color = Color.Gray
+                color = Color(0xFF1E1E1E),
+                modifier = Modifier.align(Alignment.CenterHorizontally)
             )
 
-            Text(
-                text = "20 км",
-                fontSize = 12.sp,
-                color = Color.Gray
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Slider(
+                value = currentRadius,
+                onValueChange = { value ->
+                    onRadiusChange(value.toInt())
+                },
+                valueRange = 1f..20f,
+                steps = 18,
+                colors = sliderColors,
+                thumb = {
+                    Box(
+                        modifier = Modifier
+                            .size(28.dp)
+                            .clip(CircleShape)
+                            .background(deleteButtonColor)
+                    )
+                },
+                track = { sliderState ->
+                    SliderDefaults.Track(
+                        sliderState = sliderState,
+                        colors = sliderColors,
+                        drawStopIndicator = null,
+                        thumbTrackGapSize = 0.dp,
+                        modifier = Modifier.height(6.dp)
+                    )
+                }
             )
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = "1 км",
+                    fontSize = 18.sp,
+                    color = Color(0xFF1E1E1E)
+                )
+
+                Text(
+                    text = "20 км",
+                    fontSize = 18.sp,
+                    color = Color(0xFF1E1E1E)
+                )
+            }
         }
     }
 }

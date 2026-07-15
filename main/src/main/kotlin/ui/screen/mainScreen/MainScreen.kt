@@ -7,6 +7,7 @@ import android.content.pm.PackageManager
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -17,12 +18,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -31,13 +29,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -47,14 +44,16 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.core.R
 import domain.models.StreetPetPreviewModel
-import ui.components.other.PetInfoComponent
+import ui.components.default_component.DefaultButton
 import ui.components.other.NearPetCardComponent
+import ui.components.other.PetInfoComponent
 import ui.components.placeholder.ShimmerImagePlaceholder
 import ui.components.placeholder.ShimmerTextPlaceholder
 import ui.model.StoryId
 import ui.model.StoryInfo
 import ui.model.storyInfoList
 import ui.theme.backgroundColor
+import ui.theme.buttonPrimary
 
 @Composable
 fun MainScreen(
@@ -73,97 +72,95 @@ fun MainScreen(
         viewModel = mainScreenViewModel
     )
 
-    LazyColumn(
+    Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(color = backgroundColor),
+            .background(color = backgroundColor)
+            .border(
+                width = 1.dp,
+                color = Color(0xFFF1F1F1)
+            ),
     ) {
-        item {
-            StorySectionComponent(
-                modifier = Modifier,
-                storyInfoList = storyInfoList,
-                navigateToStoryScreen = navigateToStoryScreen
-            )
-        }
-        item {
-            Spacer(Modifier.height(4.dp))
-        }
-
-        item {
-            TargetPetsSection(
-                latestStreetPetState = latestStreetPetState,
-                navigateToStreetPetScreen = navigateToStreetPetScreen,
-                navigateToCameraScreen = navigateToCameraScreen
-            )
-        }
-    }
-}
-
-@Composable
-fun GetPhotoComponent(
-    modifier: Modifier = Modifier,
-    onClick: () -> Unit
-) {
-    Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .height(80.dp)
-            .background(
-                brush = Brush.linearGradient(
-                    colors = listOf(Color(0xFF4F52EC), Color(0xFF97BBFF)),
-                    start = Offset(0f, 0f),
-                    end = Offset(1000f, 1000f)
-                ),
-                shape = RoundedCornerShape(20.dp)
-            )
-            .clip(RoundedCornerShape(20.dp))
-    ) {
-
-        Column(
-            modifier = Modifier.padding(top = 12.dp, start = 16.dp)
-        ) {
-
-            Text(
-                text = "Замечен!",
-                fontSize = 14.sp,
-                color = Color.White
-            )
-            Spacer(Modifier.height(5.dp))
-            Text(
-                text = "Сфотографируйте и поставьте\nотметку - так вы поможете в поисках ",
-                fontSize = 12.sp,
-                color = Color.White
-            )
-        }
-
-        Image(
-            modifier = Modifier
-                .align(Alignment.BottomEnd),
-            painter = painterResource(R.drawable.ic_lenta),
-            contentDescription = null
+        TargetPetsSection(
+            latestStreetPetState = latestStreetPetState,
+            navigateToStreetPetScreen = navigateToStreetPetScreen,
+            navigateToCameraScreen = navigateToCameraScreen
         )
 
-
-        Box(
-            modifier = Modifier
-                .padding(end = 10.dp)
-                .size(28.dp)
-                .clip(CircleShape)
-                .background(color = Color.Black)
-                .clickable {
-                    onClick()
-                }
-                .align(Alignment.CenterEnd),
-            contentAlignment = Alignment.Center
-        ) {
-            Image(
-                painter = painterResource(R.drawable.right_arrow),
-                contentDescription = "Загрузить животное",
-                colorFilter = ColorFilter.tint(Color.White),
-            )
-        }
+        StorySectionComponent(
+            modifier = Modifier,
+            storyInfoList = storyInfoList,
+            navigateToStoryScreen = navigateToStoryScreen
+        )
+        Spacer(Modifier.height(4.dp))
     }
 }
+
+//@Composable
+//fun GetPhotoComponent(
+//    modifier: Modifier = Modifier,
+//    onClick: () -> Unit
+//) {
+//    Box(
+//        modifier = modifier
+//            .fillMaxWidth()
+//            .height(80.dp)
+//            .background(
+//                brush = Brush.linearGradient(
+//                    colors = listOf(Color(0xFF4F52EC), Color(0xFF97BBFF)),
+//                    start = Offset(0f, 0f),
+//                    end = Offset(1000f, 1000f)
+//                ),
+//                shape = RoundedCornerShape(20.dp)
+//            )
+//            .clip(RoundedCornerShape(20.dp))
+//    ) {
+//
+//        Column(
+//            modifier = Modifier.padding(top = 12.dp, start = 16.dp)
+//        ) {
+//
+//            Text(
+//                text = "Замечен!",
+//                fontSize = 14.sp,
+//                color = Color.White
+//            )
+//            Spacer(Modifier.height(5.dp))
+//            Text(
+//                text = "Сфотографируйте и поставьте\nотметку - так вы поможете в поисках ",
+//                fontSize = 12.sp,
+//                color = Color.White
+//            )
+//        }
+//
+//        Image(
+//            modifier = Modifier
+//                .align(Alignment.BottomEnd),
+//            painter = painterResource(R.drawable.ic_lenta),
+//            contentDescription = null
+//        )
+//
+//
+//        Box(
+//            modifier = Modifier
+//                .padding(end = 10.dp)
+//                .size(28.dp)
+//                .clip(CircleShape)
+//                .background(color = Color.Black)
+//                .clickable {
+//                    onClick()
+//                }
+//                .align(Alignment.CenterEnd),
+//            contentAlignment = Alignment.Center
+//        ) {
+//            Image(
+//                painter = painterResource(R.drawable.right_arrow),
+//                contentDescription = "Загрузить животное",
+//                colorFilter = ColorFilter.tint(Color.White),
+//            )
+//        }
+//    }
+//}
 
 
 @Composable
@@ -284,13 +281,6 @@ fun TargetPetsSection(
                 .padding(horizontal = 16.dp)
                 .padding(top = 16.dp, bottom = 16.dp)
         ) {
-            GetPhotoComponent(
-                onClick = {
-                    getPhoto(context)
-                    navigateToCameraScreen()
-                }
-            )
-            Spacer(Modifier.height(32.dp))
             Text(
                 text = "Замеченные питомцы",
                 fontSize = 20.sp,
@@ -300,6 +290,16 @@ fun TargetPetsSection(
             LatestStreetPetCard(
                 state = latestStreetPetState,
                 onClick = navigateToStreetPetScreen
+            )
+            Spacer(Modifier.height(16.dp))
+            DefaultButton(
+                text = stringResource(R.string.find_animal),
+                onClick = {
+                    getPhoto(context)
+                    navigateToCameraScreen()
+                },
+                enabled = true,
+                containerColor = buttonPrimary
             )
         }
     }
@@ -457,15 +457,6 @@ fun ArticleComponentPreview() {
 
         }
     )
-}
-
-
-@Preview
-@Composable
-fun GetPhotoComponentPreview() {
-    GetPhotoComponent(Modifier) {
-
-    }
 }
 
 

@@ -22,8 +22,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -31,36 +33,8 @@ import androidx.compose.ui.unit.sp
 import com.example.core.R
 import ui.model.AnnouncementCancelReason
 import ui.model.AnnouncementCancelReasonOption
+import ui.theme.deleteButtonColor
 import ui.theme.purpleStatusColor
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun CancelAnnouncementBottomSheet(
-    selectedReasonId: Int,
-    onReasonSelected: (Int) -> Unit,
-    onDismiss: () -> Unit,
-    onCancelAnnouncement: (Int) -> Unit,
-    modifier: Modifier = Modifier,
-    reasons: List<AnnouncementCancelReasonOption> = AnnouncementCancelReason.defaultOptions
-) {
-    ModalBottomSheet(
-        onDismissRequest = onDismiss,
-        scrimColor = Color.Black.copy(alpha = 0.45f),
-        dragHandle = null
-    ) {
-        Surface(
-            modifier = modifier.fillMaxHeight(),
-            color = Color.White
-        ) {
-            CancelAnnouncementReasonContent(
-                selectedReasonId = selectedReasonId,
-                reasons = reasons,
-                onReasonSelected = onReasonSelected,
-                onCancelAnnouncement = onCancelAnnouncement
-            )
-        }
-    }
-}
 
 @Composable
 fun CancelAnnouncementReasonContent(
@@ -104,18 +78,24 @@ fun CancelAnnouncementReasonContent(
                 .fillMaxWidth()
                 .height(52.dp),
             onClick = { onCancelAnnouncement(selectedReasonId) },
-            enabled = reasons.any { reason -> reason.id == selectedReasonId },
+            enabled = reasons.any { it.id == selectedReasonId },
             colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFFFFE7E7),
+                containerColor = Color(0xFFEFDBDB),
                 contentColor = Color(0xFFFF3B3B),
-                disabledContainerColor = Color(0xFFFFE7E7).copy(alpha = 0.5f),
+                disabledContainerColor = Color(0xFFEFDBDB).copy(alpha = 0.5f),
                 disabledContentColor = Color(0xFFFF3B3B).copy(alpha = 0.5f)
             ),
-            shape = RoundedCornerShape(14.dp)
+            shape = RoundedCornerShape(14.dp),
+            elevation = ButtonDefaults.buttonElevation(
+                defaultElevation = 0.dp,
+                pressedElevation = 0.dp,
+                disabledElevation = 0.dp
+            )
         ) {
             Text(
                 text = actionText,
-                fontSize = 16.sp
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Medium
             )
         }
     }
@@ -132,9 +112,10 @@ private fun CancelAnnouncementReasonItem(
             .fillMaxWidth()
             .height(58.dp)
             .background(
-                color = if (selected) purpleStatusColor.copy(alpha = 0.16f) else Color.White,
+                color = if (selected) Color(0xFFF7EDED) else Color.White,
                 shape = RoundedCornerShape(12.dp)
             )
+            .clip(shape = RoundedCornerShape(12.dp))
             .clickable(onClick = onClick)
             .padding(horizontal = 14.dp),
         verticalAlignment = Alignment.CenterVertically

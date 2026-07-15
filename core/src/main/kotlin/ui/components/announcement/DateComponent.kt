@@ -2,6 +2,7 @@ package ui.components.announcement
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -16,8 +17,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.dropShadow
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.shadow.Shadow
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.core.R
@@ -31,8 +37,26 @@ fun EventDateComponent(
 ) {
     Box(
         modifier = modifier
-            .background(color = eventDateComponentColor, shape = RoundedCornerShape(10.dp))
-            .fillMaxWidth()
+            .dropShadow(
+                shape = RoundedCornerShape(24.dp),
+                shadow = Shadow(
+                    radius = 5.5.dp,
+                    spread = 0.dp,
+                    color = Color(0x0A292929),
+                    offset = DpOffset(0.dp, 1.dp)
+                )
+            )
+            .clip(RoundedCornerShape(14.dp))
+            .background(
+                Color.White,
+                RoundedCornerShape(14.dp)
+            )
+            .border(
+                width = 0.2.dp,
+                color =
+                    Color(0xFFE8E8E8),
+                shape = RoundedCornerShape(14.dp)
+            )            .fillMaxWidth()
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),

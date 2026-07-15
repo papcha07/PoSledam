@@ -20,9 +20,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.example.core.R
 import ui.components.AnimalCard
-import ui.components.PetButton
+import ui.components.default_component.DefaultButton
 import ui.components.default_component.TabRowSelection
 import ui.components.placeholder.EmptyAnimalList
 import ui.components.placeholder.ErrorPlaceholder
@@ -30,6 +33,7 @@ import ui.components.placeholder.PetCardShimmerPlaceholder
 import ui.components.placeholder.ShimmerLoadingTransition
 import ui.model.TabRowInfo
 import ui.theme.backgroundColor
+import ui.theme.buttonPrimary
 import ui.viewModel.ProfileScreenState
 import ui.viewModel.ProfileViewModel
 
@@ -118,14 +122,16 @@ fun MainContentComponent(
             }
 
         }
-        PetButton(
+
+        DefaultButton(
             modifier = Modifier
                 .padding(horizontal = 16.dp)
                 .padding(bottom = 20.dp)
                 .align(Alignment.BottomCenter),
-            onClick = {
-                navigateToActionScreen()
-            },
+            text = stringResource(R.string.add_announcement),
+            onClick = navigateToActionScreen,
+            containerColor = buttonPrimary,
+            fontSize = 14.sp
         )
     }
 

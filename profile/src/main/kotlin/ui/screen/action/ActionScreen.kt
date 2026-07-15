@@ -41,17 +41,17 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.dropShadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.shadow.Shadow
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.role
-import androidx.compose.ui.semantics.selected
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -75,13 +75,11 @@ import ui.model.ActionScreenState
 import ui.model.TabRowInfo
 import ui.screen.PlaceAnnouncementComponent
 import ui.theme.BrushColor
-import ui.theme.PurpleButtonColor
 import ui.theme.Ser
 import ui.theme.backgroundColor
-import ui.theme.blueStatusColorButton
 import ui.theme.buttonPrimary
+import ui.theme.deleteButtonColor
 import ui.theme.greyStatusColorButton
-import ui.theme.purpleStatusColor
 import ui.theme.textHint
 import ui.viewModel.ActionPage
 import ui.viewModel.ActionScreenData
@@ -206,7 +204,7 @@ fun ProgressIndicator(
                 modifier = Modifier
                     .weight(1f)
                     .height(4.dp)
-                    .background(PurpleButtonColor)
+                    .background(buttonPrimary)
             )
 
             Box(
@@ -216,8 +214,8 @@ fun ProgressIndicator(
                     .background(
                         when (pageState) {
                             ActionPage.MAIN -> greyStatusColorButton
-                            ActionPage.ADDRESS -> purpleStatusColor
-                            ActionPage.RESULT -> blueStatusColorButton
+                            ActionPage.ADDRESS -> buttonPrimary
+                            ActionPage.RESULT -> deleteButtonColor
                         }
                     )
             )
@@ -467,8 +465,27 @@ fun AddressRow(
         modifier = modifier
             .testTag("address_input")
             .fillMaxWidth()
-            .border(width = 1.dp, color = BrushColor, shape = RoundedCornerShape(10.dp))
-            .clip(RoundedCornerShape(10.dp))
+            .dropShadow(
+                shape = RoundedCornerShape(24.dp),
+                shadow = Shadow(
+                    radius = 5.5.dp,
+                    spread = 0.dp,
+                    color = Color(0x0A292929),
+                    offset = DpOffset(0.dp, 1.dp)
+                )
+            )
+            .clip(RoundedCornerShape(14.dp))
+            .background(
+                Color.White,
+                RoundedCornerShape(14.dp)
+            )
+            .border(
+                width = 0.2.dp,
+                color =
+                    Color(0xFFE8E8E8),
+                shape = RoundedCornerShape(14.dp)
+            )
+            .clip(RoundedCornerShape(14.dp))
             .defaultMinSize(minHeight = 42.dp)
     ) {
         Row(
@@ -529,15 +546,27 @@ fun SelectTimeButton(
     Box(
         modifier = modifier
             .height(42.dp)
-            .border(
-                width = 1.dp,
-                color = BrushColor,
-                shape = RoundedCornerShape(10.dp)
+            .dropShadow(
+                shape = RoundedCornerShape(24.dp),
+                shadow = Shadow(
+                    radius = 5.5.dp,
+                    spread = 0.dp,
+                    color = Color(0x0A292929),
+                    offset = DpOffset(0.dp, 1.dp)
+                )
             )
-            .clip(RoundedCornerShape(10.dp))
+            .clip(RoundedCornerShape(14.dp))
             .background(
-                color = Color.White
+                Color.White,
+                RoundedCornerShape(14.dp)
             )
+            .border(
+                width = 0.2.dp,
+                color =
+                    Color(0xFFE8E8E8),
+                shape = RoundedCornerShape(14.dp)
+            )
+            .clip(RoundedCornerShape(14.dp))
             .clickable {
                 onClick()
             }
@@ -630,7 +659,7 @@ fun ActionMainComponent(
             PetTextField(
                 modifier = Modifier.testTag("breed input"),
                 label = "Введите породу",
-                value = announcementInfo.breed ?: "",
+                value = announcementInfo.breed,
                 onValueChange = {
                     actionViewModel.updateBreed(it)
                 },
@@ -663,7 +692,7 @@ fun ActionMainComponent(
                     .testTag("description input"),
                 label = "Опишите животного",
                 maxLines = 10,
-                value = announcementInfo.description ?: "",
+                value = announcementInfo.description,
                 onValueChange = {
                     actionViewModel.updateDescription(it)
                 },
@@ -778,39 +807,58 @@ private const val MALE = 0
 private const val FEMALE = 1
 
 @Composable
-private fun GenderButton(
+fun GenderButton(
     genderId: Int,
-    @DrawableRes genderDrawableRes: Int,
+    genderDrawableRes: Int, // оставляем, чтобы не ломать вызовы
     selectedGender: Int?,
     onSelect: (Int) -> Unit
 ) {
-    val bg = when {
-        selectedGender == genderId && genderId == MALE -> Color.Blue.copy(alpha = 0.1f)
-        selectedGender == genderId && genderId == FEMALE -> Color.Magenta.copy(alpha = 0.1f)
-        else -> Color.Transparent
-    }
-    val isSelected = selectedGender == genderId
+    val selected = selectedGender == genderId
 
+    val text = when (genderId) {
+        MALE -> "Самец"
+        FEMALE -> "Самка"
+        else -> ""
+    }
 
     Box(
         modifier = Modifier
-            .size(60.dp)
-            .testTag("gender_$genderId")
-            .semantics(mergeDescendants = true) {
-                selected = isSelected
-                role = Role.RadioButton
-            }
-            .clip(RoundedCornerShape(10.dp))
-            .background(bg)
-            .border(1.dp, BrushColor, shape = RoundedCornerShape(10.dp))
-            .clickable { onSelect(genderId) }
+            .height(48.dp)
+            .dropShadow(
+                shape = RoundedCornerShape(24.dp),
+                shadow = Shadow(
+                    radius = 5.5.dp,
+                    spread = 0.dp,
+                    color = Color(0x0A292929),
+                    offset = DpOffset(0.dp, 1.dp)
+                )
+            )
+            .clip(RoundedCornerShape(14.dp))
+            .background(
+                if (selected) deleteButtonColor else Color.White,
+                RoundedCornerShape(14.dp)
+            )
+            .border(
+                width = 0.2.dp,
+                color = if (selected)
+                    deleteButtonColor.copy(alpha = 0.8f)
+                else
+                    Color(0xFFE8E8E8),
+                shape = RoundedCornerShape(14.dp)
+            )
+            .selectable(
+                selected = selected,
+                role = Role.RadioButton,
+                onClick = { onSelect(genderId) }
+            )
+            .padding(horizontal = 28.dp),
+        contentAlignment = Alignment.Center
     ) {
-        Image(
-            modifier = Modifier
-                .padding(14.dp)
-                .align(Alignment.Center),
-            painter = painterResource(genderDrawableRes),
-            contentDescription = "Гендер"
+        Text(
+            text = text,
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Medium,
+            color = if (selected) Color.White else Color.Black
         )
     }
 }
@@ -853,24 +901,42 @@ fun PetButton(
     Box(
         modifier = Modifier
             .testTag("pet_$petId")
-            .width(108.dp)
-            .height(38.dp)
-            .clip(RoundedCornerShape(8.dp))
-            .background(
-                color = if (selected) Color.Magenta.copy(alpha = 0.1f) else Color.Transparent,
-                shape = RoundedCornerShape(8.dp)
+            .dropShadow(
+                shape = RoundedCornerShape(24.dp),
+                shadow = Shadow(
+                    radius = 5.5.dp,
+                    spread = 0.dp,
+                    color = Color(0x0A292929),
+                    offset = DpOffset(0.dp, 1.dp)
+                )
             )
-            .border(1.dp, BrushColor, shape = RoundedCornerShape(8.dp))
+            .clip(RoundedCornerShape(14.dp))
+            .background(
+                if (selected) deleteButtonColor else Color.White,
+                RoundedCornerShape(14.dp)
+            )
+            .border(
+                width = 0.2.dp,
+                color = if (selected)
+                    deleteButtonColor.copy(alpha = 0.8f)
+                else
+                    Color(0xFFE8E8E8),
+                shape = RoundedCornerShape(14.dp)
+            )
             .selectable(
                 selected = selected,
                 role = Role.RadioButton,
                 onClick = { onSelect(petId) }
             )
+            .height(48.dp)
+            .padding(horizontal = 20.dp),
+        contentAlignment = Alignment.Center
     ) {
         Text(
-            modifier = Modifier.align(Alignment.Center),
             text = petName,
-            fontSize = 14.sp
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Medium,
+            color = if (selected) Color.White else Color.Black
         )
     }
 }

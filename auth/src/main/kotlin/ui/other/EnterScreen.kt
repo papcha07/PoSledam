@@ -26,6 +26,7 @@ import ui.components.AuthButton
 import ui.register.RegisterViewModel
 import ui.theme.Primary
 import ui.theme.buttonPrimary
+import ui.theme.deleteButtonColor
 
 @Composable
 fun EnterScreen(
@@ -36,7 +37,7 @@ fun EnterScreen(
     ConstraintLayout(
         modifier = Modifier
             .fillMaxSize()
-            .background(color = Primary)
+            .background(color = deleteButtonColor)
     ) {
         val (imagebox, bottomBar) = createRefs()
 
@@ -72,7 +73,7 @@ fun SvgOverlay(modifier: Modifier) {
     Box(
         modifier
             .fillMaxWidth()
-            .background(color = Primary)
+            .background(color = deleteButtonColor)
     ) {
         Image(
             modifier = Modifier.padding(top = 12.dp),

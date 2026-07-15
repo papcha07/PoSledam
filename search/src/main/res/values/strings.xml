@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="search_pet_no_information">Нет информации</string>
+    <string name="search_pet_no_description">Нет описания</string>
+    <string name="search_pet_no_district">Нет района</string>
+    <string name="search_append_load_error">Ошибка загрузки</string>
+    <string name="search_retry">Повторить</string>
+</resources>

@@ -6,19 +6,17 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
-import androidx.navigation.navigation
 import androidx.navigation.navArgument
+import androidx.navigation.navigation
 import org.koin.androidx.compose.koinViewModel
 import ui.email_confirmation.EmailConfirmationRoute
 import ui.login.LoginRoute
 import ui.other.EnterScreen
-import ui.other.OnBoardingScreen
 import ui.privacy.PrivacyPolicyScreen
 import ui.register.RegisterScreen
 import ui.register.RegisterViewModel
 
 sealed class AuthRoute(val route: String) {
-    object OnBoarding : AuthRoute("onBoarding")
     object Login : AuthRoute("login")
     object Register : AuthRoute("register")
     object EnterScreen : AuthRoute("enterScreen")
@@ -32,16 +30,9 @@ sealed class AuthRoute(val route: String) {
 
 fun NavGraphBuilder.authNavGraph(navController: NavController, route: String = "auth") {
     navigation(
-        startDestination = AuthRoute.OnBoarding.route,
+        startDestination = AuthRoute.EnterScreen.route,
         route = route
     ) {
-        composable(AuthRoute.OnBoarding.route) {
-            OnBoardingScreen(
-                navigate = {
-                    navController.navigate(AuthRoute.EnterScreen.route)
-                }
-            )
-        }
 
         composable(AuthRoute.EnterScreen.route) { backStackEntry ->
             val parentEntry = remember(backStackEntry) {

@@ -26,6 +26,7 @@ firebaseCommonKtx = "22.0.1"
 runner = "1.7.0"
 roomKtx = "2.8.4"
 coreKtxVersion = "1.7.0"
+androidxFoundationLayout = "1.11.4"
 
 
 [libraries]
@@ -73,6 +74,7 @@ firebase-common-ktx = { group = "com.google.firebase", name = "firebase-common-k
 androidx-runner = { group = "androidx.test", name = "runner", version.ref = "runner" }
 androidx-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "roomKtx" }
 core-ktx = { group = "androidx.test", name = "core-ktx", version.ref = "coreKtxVersion" }
+foundation-layout = { group = "androidx.compose.foundation", name = "foundation-layout", version.ref = "androidxFoundationLayout" }
 
 
 [plugins]
