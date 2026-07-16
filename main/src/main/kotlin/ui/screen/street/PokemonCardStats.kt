@@ -101,7 +101,7 @@ private val cardThemes = listOf(
 private val petTypes = listOf(
     PokemonPetType("Бродяга", Color(0xFF6B7A8F), PokemonCardIcon.Paw),
     PokemonPetType("Сосед", Color(0xFF5FA463), PokemonCardIcon.Home),
-    PokemonPetType("Криптид", Color(0xFF8E6BC0), PokemonCardIcon.Moon),
+    PokemonPetType("67", Color(0xFF8E6BC0), PokemonCardIcon.Moon),
     PokemonPetType("Сигма", Color(0xFFC08A3E), PokemonCardIcon.Bolt)
 )
 
