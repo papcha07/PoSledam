@@ -171,7 +171,7 @@ val storyInfoList = listOf(
     ),
     StoryInfo(
         id = StoryId.HelpProject,
-        previewTitle = "Помогите Posledam расти",
+        previewTitle = "Помогите нам расти",
         previewImage = R.drawable.story_help_3,
         slides = listOf(
             StorySlide(
@@ -182,7 +182,7 @@ val storyInfoList = listOf(
             ),
             StorySlide(
                 backgroundImage = R.drawable.story_help_2,
-                title = "📢 Расскажите о Posledam",
+                title = "📢 Расскажите о ПО СЛЕДАМ",
                 body = "Поделитесь приложением с друзьями, волонтёрами и любителями животных. Чем больше сообщество — тем быстрее находятся питомцы.",
                 layout = StorySlideLayout.Bottom,
                 textColor = Color.White
