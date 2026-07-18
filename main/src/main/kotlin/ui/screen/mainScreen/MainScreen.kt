@@ -64,10 +64,6 @@ fun MainScreen(
 ) {
     val latestStreetPetState by mainScreenViewModel.latestStreetPetState.collectAsStateWithLifecycle()
 
-    LaunchedEffect(Unit) {
-        Log.d("USER_LOCATION", "MainScreen composed")
-    }
-
     MainPermissionHandler(
         viewModel = mainScreenViewModel
     )

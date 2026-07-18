@@ -8,12 +8,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -29,15 +27,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.SubcomposeAsyncImage
@@ -129,8 +123,6 @@ fun BottomSettingsMainContent(
     save: () -> Unit,
     onLegalInfoClick: () -> Unit
 ) {
-    val user = userDataUi
-    Log.d("USERID", user.toString())
     Box(
         modifier = modifier
             .fillMaxWidth()
@@ -252,10 +244,6 @@ fun ProfileImageComponent(
     userDataUi: User,
     setImage: () -> Unit
 ) {
-    Log.d(
-        "AvatarImage",
-        userDataUi.avatarPath.toString()
-    )
     Box(
         modifier = modifier
             .clip(CircleShape)
@@ -287,9 +275,12 @@ fun ProfileImageComponent(
                 )
             },
             error = {
-                ShimmerImagePlaceholder(
+                Image(
+                    painter = painterResource(R.drawable.avatar),
+                    contentDescription = "Фотография профиля (ошибка)",
                     modifier = Modifier.matchParentSize()
                 )
+
             }
         )
     }
@@ -328,59 +319,4 @@ fun SettingsTextField(
         ),
         maxLines = 1,
     )
-}
-
-@Composable
-fun VerifyComponent(
-    modifier: Modifier = Modifier,
-    onVerifyClick: () -> Unit
-) {
-    Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(20.dp))
-            .background(
-                brush = Brush.linearGradient(
-                    colors = listOf(Color(0xFF3787FF), Color(0xFF0A3BEA)),
-                    start = Offset(0f, 0f),
-                    end = Offset(1000f, 1000f)
-                )
-            )
-            .clickable { onVerifyClick() }
-    ) {
-        Row(
-            modifier = Modifier.padding(
-                start = 16.dp,
-                top = 12.dp,
-                bottom = 12.dp,
-                end = 80.dp
-            )
-        ) {
-            Column(Modifier.padding(top = 16.dp)) {
-                Text(
-                    text = "Верификация",
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = Color.White
-                )
-                Spacer(Modifier.height(5.dp))
-                Text(
-                    text = "Пройдите верификацию чтобы \nполучить полный доступ",
-                    fontSize = 14.sp,
-                    color = Color.White
-                )
-            }
-        }
-
-        Image(
-            modifier = Modifier
-                .size(110.dp)
-                .align(Alignment.BottomEnd)
-                .offset(x = 15.dp, y = 15.dp)
-                .rotate(-15f),
-            painter = painterResource(R.drawable.ic_lapa),
-            contentDescription = null
-        )
-
-    }
 }

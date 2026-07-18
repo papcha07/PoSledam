@@ -2,13 +2,13 @@ package ui.components.bottom_report
 
 import android.net.Uri
 import androidx.compose.foundation.background
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.yandex.mapkit.geometry.Point
 import ui.components.ButtonComponent
+import ui.components.bottom_spotted.lebowskiFont
 import ui.components.slider.PhotosPager
 import ui.theme.buttonPrimary
 
@@ -53,6 +54,7 @@ fun SeenPetBottomSheetContent(
                 text = "Где вы видели питомца?",
                 modifier = Modifier.padding(horizontal = 16.dp),
                 fontSize = 20.sp,
+                fontFamily = lebowskiFont,
                 fontWeight = FontWeight.SemiBold,
                 color = Color(0xFF222222)
             )
@@ -83,8 +85,9 @@ fun SeenPetBottomSheetContent(
             Text(
                 text = "Фото с места",
                 modifier = Modifier.padding(horizontal = 16.dp),
-                fontSize = 18.sp,
                 fontWeight = FontWeight.SemiBold,
+                fontFamily = lebowskiFont,
+                fontSize = 18.sp,
                 color = Color(0xFF222222)
             )
 

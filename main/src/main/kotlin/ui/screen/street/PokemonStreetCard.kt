@@ -20,6 +20,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -145,31 +146,59 @@ private fun PokemonCardHeader(
     cardStats: PokemonCardStats
 ) {
     val theme = cardStats.theme
+    val petNames = listOf(
+        "Уличный зверь",
+        "Дворовый бродяга",
+        "Городской странник",
+        "Ночной охотник",
+        "Серый скиталец",
+        "Тихий наблюдатель",
+        "Хвостатый боец",
+        "Король дворов",
+        "Хозяин района",
+        "Страж улиц",
+        "Легенда квартала",
+        "Следопыт улиц",
+        "Вольный зверь",
+        "Дикий пушистик",
+        "Четвероногий герой"
+    )
+    val petRare = listOf("БАЗОВЫЙ", "ЛЕГЕНДАРНЫЙ", "РЕДКИЙ")
+    val randomPetName = remember {
+        petNames.random()
+    }
+    val randomStatus = remember {
+        petRare.random()
+    }
+
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Box(
-            modifier = Modifier
-                .clip(CircleShape)
-                .background(Color.White)
-                .padding(horizontal = 12.dp, vertical = 5.dp),
-            contentAlignment = Alignment.Center
+            modifier = Modifier.weight(1f),
+            contentAlignment = Alignment.CenterStart
         ) {
-            Text(
-                text = "БАЗОВЫЙ",
-                color = Color(0xFF2B2B2B),
-                fontSize = 10.sp,
-                fontWeight = FontWeight.Bold,
-                maxLines = 1
-            )
+            Box(
+                modifier = Modifier
+                    .clip(CircleShape)
+                    .background(Color.White)
+                    .padding(horizontal = 12.dp, vertical = 5.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = randomStatus,
+                    color = Color(0xFF2B2B2B),
+                    fontSize = 10.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
         }
 
-        Spacer(Modifier.width(8.dp))
-
         Text(
-            modifier = Modifier.weight(1f),
-            text = "Уличный зверь",
+            modifier = Modifier.weight(2f),
+            textAlign = TextAlign.Center,
+            text = randomPetName,
             color = theme.ink,
             fontFamily = LebowskiByPragmatica,
             fontSize = 22.sp,
@@ -178,8 +207,12 @@ private fun PokemonCardHeader(
             overflow = TextOverflow.Ellipsis
         )
 
-        Spacer(Modifier.width(8.dp))
-        PokemonTypeBadge(type = cardStats.type)
+        Box(
+            modifier = Modifier.weight(1f),
+            contentAlignment = Alignment.CenterEnd
+        ) {
+            PokemonTypeBadge(type = cardStats.type)
+        }
     }
 }
 
@@ -408,7 +441,7 @@ private fun PokemonCardFooter(
         )
         Spacer(Modifier.height(14.dp))
         Text(
-            text = "©2026 ПО СЛЕДАМ   Илл. Вы   ${cardStats.cardNumber}/151",
+            text = "©2026 ПО СЛЕДАМ ${cardStats.cardNumber}/151",
             color = theme.ink.copy(alpha = 0.6f),
             fontSize = 10.sp,
             maxLines = 1,
@@ -620,9 +653,27 @@ private fun PokemonCardIconCanvas(
             }
 
             PokemonCardIcon.ForkKnife -> {
-                drawLine(tint, Offset(w * 0.24f, h * 0.15f), Offset(w * 0.24f, h * 0.9f), stroke, StrokeCap.Round)
-                drawLine(tint, Offset(w * 0.14f, h * 0.15f), Offset(w * 0.14f, h * 0.38f), stroke * 0.65f, StrokeCap.Round)
-                drawLine(tint, Offset(w * 0.34f, h * 0.15f), Offset(w * 0.34f, h * 0.38f), stroke * 0.65f, StrokeCap.Round)
+                drawLine(
+                    tint,
+                    Offset(w * 0.24f, h * 0.15f),
+                    Offset(w * 0.24f, h * 0.9f),
+                    stroke,
+                    StrokeCap.Round
+                )
+                drawLine(
+                    tint,
+                    Offset(w * 0.14f, h * 0.15f),
+                    Offset(w * 0.14f, h * 0.38f),
+                    stroke * 0.65f,
+                    StrokeCap.Round
+                )
+                drawLine(
+                    tint,
+                    Offset(w * 0.34f, h * 0.15f),
+                    Offset(w * 0.34f, h * 0.38f),
+                    stroke * 0.65f,
+                    StrokeCap.Round
+                )
                 drawRoundRect(
                     color = tint,
                     topLeft = Offset(w * 0.62f, h * 0.14f),
@@ -654,12 +705,27 @@ private fun PokemonCardIconCanvas(
                     size = Size(w * 0.7f, h * 0.55f),
                     cornerRadius = CornerRadius(w * 0.08f)
                 )
-                drawLine(background, Offset(w * 0.18f, h * 0.45f), Offset(w * 0.82f, h * 0.45f), stroke * 0.6f)
+                drawLine(
+                    background,
+                    Offset(w * 0.18f, h * 0.45f),
+                    Offset(w * 0.82f, h * 0.45f),
+                    stroke * 0.6f
+                )
             }
 
             PokemonCardIcon.Target -> {
-                drawCircle(tint, radius = w * 0.4f, center = Offset(w * 0.5f, h * 0.5f), style = Stroke(stroke))
-                drawCircle(tint, radius = w * 0.22f, center = Offset(w * 0.5f, h * 0.5f), style = Stroke(stroke))
+                drawCircle(
+                    tint,
+                    radius = w * 0.4f,
+                    center = Offset(w * 0.5f, h * 0.5f),
+                    style = Stroke(stroke)
+                )
+                drawCircle(
+                    tint,
+                    radius = w * 0.22f,
+                    center = Offset(w * 0.5f, h * 0.5f),
+                    style = Stroke(stroke)
+                )
                 drawCircle(tint, radius = w * 0.07f, center = Offset(w * 0.5f, h * 0.5f))
             }
 
@@ -711,11 +777,41 @@ private fun MetricIconCanvas(
             }
 
             MetricIcon.Height -> {
-                drawLine(tint, Offset(w * 0.5f, h * 0.12f), Offset(w * 0.5f, h * 0.88f), stroke, StrokeCap.Round)
-                drawLine(tint, Offset(w * 0.3f, h * 0.27f), Offset(w * 0.5f, h * 0.1f), stroke, StrokeCap.Round)
-                drawLine(tint, Offset(w * 0.7f, h * 0.27f), Offset(w * 0.5f, h * 0.1f), stroke, StrokeCap.Round)
-                drawLine(tint, Offset(w * 0.3f, h * 0.73f), Offset(w * 0.5f, h * 0.9f), stroke, StrokeCap.Round)
-                drawLine(tint, Offset(w * 0.7f, h * 0.73f), Offset(w * 0.5f, h * 0.9f), stroke, StrokeCap.Round)
+                drawLine(
+                    tint,
+                    Offset(w * 0.5f, h * 0.12f),
+                    Offset(w * 0.5f, h * 0.88f),
+                    stroke,
+                    StrokeCap.Round
+                )
+                drawLine(
+                    tint,
+                    Offset(w * 0.3f, h * 0.27f),
+                    Offset(w * 0.5f, h * 0.1f),
+                    stroke,
+                    StrokeCap.Round
+                )
+                drawLine(
+                    tint,
+                    Offset(w * 0.7f, h * 0.27f),
+                    Offset(w * 0.5f, h * 0.1f),
+                    stroke,
+                    StrokeCap.Round
+                )
+                drawLine(
+                    tint,
+                    Offset(w * 0.3f, h * 0.73f),
+                    Offset(w * 0.5f, h * 0.9f),
+                    stroke,
+                    StrokeCap.Round
+                )
+                drawLine(
+                    tint,
+                    Offset(w * 0.7f, h * 0.73f),
+                    Offset(w * 0.5f, h * 0.9f),
+                    stroke,
+                    StrokeCap.Round
+                )
             }
         }
     }

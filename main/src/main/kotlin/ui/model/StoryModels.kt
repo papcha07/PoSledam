@@ -7,12 +7,14 @@ import com.example.core.R
 enum class StoryId {
     LostPetFirstSteps,
     PetEscapes,
-    NicheDogBreeds
+    NicheDogBreeds,
+    HelpProject
 }
 
 enum class StorySlideLayout {
     Title,
     Body,
+    Bottom,
     Centered
 }
 
@@ -31,6 +33,8 @@ data class StorySlide(
     val body: String? = null,
     val footerTitle: String? = null,
     val footerBody: String? = null,
+    val primaryButtonText: String? = null,
+    val primaryButtonUrl: String? = null,
     val layout: StorySlideLayout = StorySlideLayout.Body,
     val textColor: Color = Color.White,
     val scrimStyle: StoryScrimStyle = StoryScrimStyle.Dark
@@ -162,6 +166,35 @@ val storyInfoList = listOf(
                 backgroundImage = R.drawable.story_breeds_final,
                 title = "Правда нишево?",
                 layout = StorySlideLayout.Centered
+            )
+        )
+    ),
+    StoryInfo(
+        id = StoryId.HelpProject,
+        previewTitle = "Помогите Posledam расти",
+        previewImage = R.drawable.story_help_3,
+        slides = listOf(
+            StorySlide(
+                backgroundImage = R.drawable.story_help_1,
+                title = "❤️ Помогите большему числу питомцев вернуться домой",
+                body = "Каждый новый пользователь повышает шанс найти потерявшееся животное. Вместе мы объединяем людей, которые любят животных и готовы помогать.",
+                textColor = Color.White
+            ),
+            StorySlide(
+                backgroundImage = R.drawable.story_help_2,
+                title = "📢 Расскажите о Posledam",
+                body = "Поделитесь приложением с друзьями, волонтёрами и любителями животных. Чем больше сообщество — тем быстрее находятся питомцы.",
+                layout = StorySlideLayout.Bottom,
+                textColor = Color.White
+            ),
+            StorySlide(
+                backgroundImage = R.drawable.story_help_3,
+                title = "💬 Присоединяйтесь к нашему Telegram",
+                body = "Следите за новостями проекта, предлагайте идеи и помогайте сделать приложение ещё лучше.",
+                footerTitle = "@posledamapp",
+                primaryButtonText = "Перейти в Telegram",
+                primaryButtonUrl = "https://t.me/posledamapp",
+                textColor = Color.White
             )
         )
     )

@@ -10,7 +10,9 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -19,6 +21,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -119,18 +122,28 @@ fun ProfileBarComponent(
 
             Spacer(modifier = Modifier.weight(1f))
 
-            Icon(
-                painter = if (!notificationsIsNotRead) {
-                    painterResource(R.drawable.ic_bell)
-                } else painterResource(R.drawable.isnotread),
-                contentDescription = "Уведомления",
-                tint = Color.Gray,
+            Box(
                 modifier = Modifier
-                    .clip(RoundedCornerShape(50))
-                    .background(Color(0xFFEDEDED))
-                    .clickable { onNotifyClick() }
-                    .padding(12.dp)
-            )
+                    .size(42.dp)
+                    .shadow(
+                        elevation = 4.dp,
+                        shape = CircleShape,
+                        ambientColor = Color.Black.copy(alpha = 0.05f),
+                        spotColor = Color.Black.copy(alpha = 0.05f)
+                    )
+                    .clip(CircleShape)
+                    .background(Color.White)
+                    .clickable { onNotifyClick() },
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    painter = if (!notificationsIsNotRead) {
+                        painterResource(R.drawable.new_bell)
+                    } else painterResource(R.drawable.isnotread),
+                    contentDescription = "Уведомления",
+                    modifier = Modifier.padding(12.dp)
+                )
+            }
         }
     }
 }

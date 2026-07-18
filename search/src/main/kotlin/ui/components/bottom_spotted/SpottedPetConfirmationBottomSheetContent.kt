@@ -5,19 +5,21 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
@@ -28,6 +30,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -38,7 +42,6 @@ import com.example.core.R
 import ui.components.ButtonComponent
 import ui.theme.Ser
 import ui.theme.buttonPrimary
-import ui.theme.buttonSecondPrimary
 
 @Composable
 fun SpottedPetConfirmationBottomSheetContent(
@@ -51,6 +54,7 @@ fun SpottedPetConfirmationBottomSheetContent(
     onRemovePhotoClick: (Uri) -> Unit = {},
     onSendClick: () -> Unit
 ) {
+
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -62,7 +66,8 @@ fun SpottedPetConfirmationBottomSheetContent(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 24.dp),
-            text = "Подтвердите, что вы нашли питомца",
+            text = "Подтвердите что нашли питомца",
+            fontFamily = lebowskiFont,
             textAlign = TextAlign.Center,
             fontSize = 24.sp,
             lineHeight = 30.sp,
@@ -70,20 +75,21 @@ fun SpottedPetConfirmationBottomSheetContent(
             color = Color(0xFF1E1E1E)
         )
 
-        Spacer(Modifier.height(14.dp))
+        Spacer(Modifier.height(10.dp))
 
         Text(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 32.dp),
-            text = "Выберите фотографии из галереи или сделайте фото",
+            text = "Прикрепите несколько фотографий\nвладелец проверит их",
             textAlign = TextAlign.Center,
-            fontSize = 18.sp,
-            lineHeight = 24.sp,
+            fontFamily = lebowskiFont,
+            fontSize = 16.sp,
+            lineHeight = 20.sp,
             color = Ser
         )
 
-        Spacer(Modifier.height(34.dp))
+        Spacer(Modifier.height(24.dp))
 
         PhotoSlider(
             photos = photos,
@@ -93,16 +99,20 @@ fun SpottedPetConfirmationBottomSheetContent(
             onRemovePhotoClick = onRemovePhotoClick
         )
 
-        Spacer(Modifier.height(32.dp))
+        Spacer(Modifier.height(24.dp))
 
         Text(
-            modifier = Modifier.padding(horizontal = 24.dp),
-            text = "Владелец проверит фотографии",
-            fontSize = 18.sp,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp),
+            text = "В среднем проверка занимает 2 часа",
+            textAlign = TextAlign.Center,
+            fontSize = 12.sp,
+            letterSpacing = 0.5.sp,
             color = Ser
         )
 
-        Spacer(Modifier.height(24.dp))
+        Spacer(Modifier.height(16.dp))
 
         ButtonComponent(
             modifier = Modifier
@@ -110,7 +120,7 @@ fun SpottedPetConfirmationBottomSheetContent(
                 .padding(horizontal = 16.dp)
                 .height(48.dp),
             color = buttonPrimary,
-            text = "Отправить владельцу",
+            text = "Проверить",
             textColor = Color.White,
             enabled = isSendEnabled,
             radius = 40.dp,
@@ -129,9 +139,11 @@ private fun PhotoSlider(
     onRemovePhotoClick: (Uri) -> Unit
 ) {
     LazyRow(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier
+            .fillMaxWidth()
+            .height(PhotoItemHeight),
         contentPadding = PaddingValues(horizontal = 24.dp),
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
+        horizontalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         if (canAddPhoto) {
             item {
@@ -159,22 +171,23 @@ private fun AddPhotoItem(
 ) {
     Box(
         modifier = modifier
-            .size(PhotoItemSize)
-            .clip(RoundedCornerShape(18.dp))
+            .width(AddPhotoItemWidth)
+            .fillMaxHeight()
+            .clip(RoundedCornerShape(PhotoItemRadius))
             .background(Color.White)
             .border(
                 width = 1.dp,
-                color = buttonSecondPrimary,
-                shape = RoundedCornerShape(18.dp)
+                color = Color(0xFF210B17),
+                shape = RoundedCornerShape(PhotoItemRadius)
             )
-            .clickable(onClick = onClick),
-        contentAlignment = Alignment.Center
+            .clickable(onClick = onClick)
     ) {
         Text(
+            modifier = Modifier.align(Alignment.Center),
             text = "+",
-            fontSize = 40.sp,
+            fontSize = 32.sp,
             fontWeight = FontWeight.Light,
-            color = buttonSecondPrimary
+            color = Color(0xFF210B17)
         )
     }
 }
@@ -188,12 +201,13 @@ private fun PhotoItem(
 ) {
     Box(
         modifier = modifier
-            .size(PhotoItemSize)
-            .clip(RoundedCornerShape(18.dp))
+            .width(220.dp)
+            .fillMaxHeight()
+            .clip(RoundedCornerShape(PhotoItemRadius))
             .border(
                 width = 1.dp,
-                color = buttonSecondPrimary,
-                shape = RoundedCornerShape(18.dp)
+                color = Color(0xFF210B17),
+                shape = RoundedCornerShape(PhotoItemRadius)
             )
     ) {
         AsyncImage(
@@ -225,7 +239,12 @@ private fun PhotoItem(
     }
 }
 
-private val PhotoItemSize = 156.dp
+private val AddPhotoItemWidth = 100.dp
+private val PhotoItemHeight = 373.dp
+private val PhotoItemRadius = 12.dp
+internal val lebowskiFont = FontFamily(
+    Font(R.font.lebowski_by_pragmatica_regular)
+)
 
 @Preview(showBackground = true)
 @Composable
