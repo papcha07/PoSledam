@@ -31,9 +31,8 @@ class KtorClient(
 
             install(DefaultRequest) {
                 url {
-                    host = "161.104.52.29"
-                    port = 8080
-                    protocol = URLProtocol.HTTP
+                    host = "api.txshare.ru"
+                    protocol = URLProtocol.HTTPS
                     contentType(ContentType.Application.Json)
                     accept(ContentType.Application.Json)
                 }
