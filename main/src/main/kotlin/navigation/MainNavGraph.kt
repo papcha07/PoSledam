@@ -71,6 +71,11 @@ fun NavGraphBuilder.mainNavGraph(navController: NavController, route: String = "
                         launchSingleTop = true
                     }
                 },
+                goToDetailsPetScreen = { petId, announcementType ->
+                    navController.navigate(SearchRoute.FoundPetScreen.createRoute(petId, announcementType)) {
+                        launchSingleTop = true
+                    }
+                },
                 mainScreenViewModel = mainViewModel
             )
         }

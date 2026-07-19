@@ -308,7 +308,7 @@ fun SocialMediaComponent(
             value = userState.value.getContact(2),
             textFieldData = ui.components.default_component.TextFieldData(
                 "",
-                "Вставьте ссылку на Whatsapp"
+                "Вставьте ссылку на MAX"
             ),
             onValueChange = registerViewModel::addWhatsApp,
             icon = R.drawable.ic_whatsapp

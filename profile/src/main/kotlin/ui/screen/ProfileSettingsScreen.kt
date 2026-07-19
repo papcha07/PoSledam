@@ -173,7 +173,7 @@ fun BottomSettingsMainContent(
             Spacer(Modifier.height(8.dp))
             SocialTextFieldComponent(
                 value = userDataUi.wh ?: "",
-                textFieldData = TextFieldData("", "Вставьте ссылку на WhatsApp"),
+                textFieldData = TextFieldData("", "Вставьте ссылку на MAX"),
                 onValueChange = addWhatsApp,
                 icon = R.drawable.ic_whatsapp
             )
