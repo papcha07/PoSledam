@@ -568,7 +568,7 @@ private fun SearchPetCardShimmerList(
 }
 
 @Composable
-private fun SearchPetCardShimmerPlaceholder(
+fun SearchPetCardShimmerPlaceholder(
     modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier.fillMaxWidth()) {

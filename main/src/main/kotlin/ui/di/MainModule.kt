@@ -43,7 +43,8 @@ fun getMainModule() = module {
             locationInteractor = get(),
             locationSyncRequestStore = get(),
             streetPetInteractor = get(),
-            userInteractor = get()
+            userInteractor = get(),
+            searchInteractor = get()
         )
     }
 

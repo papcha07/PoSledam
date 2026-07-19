@@ -12,6 +12,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -21,7 +22,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -32,6 +35,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -42,8 +46,14 @@ import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.paging.LoadState
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
 import com.example.core.R
+import domain.models.PetUiPreview
 import domain.models.StreetPetPreviewModel
+import ui.PetCardComponent
+import ui.SearchPetCardShimmerPlaceholder
 import ui.components.default_component.DefaultButton
 import ui.components.other.NearPetCardComponent
 import ui.components.other.PetInfoComponent
@@ -60,9 +70,11 @@ fun MainScreen(
     navigateToStreetPetScreen: () -> Unit,
     navigateToCameraScreen: () -> Unit,
     navigateToStoryScreen: (StoryId) -> Unit,
+    goToDetailsPetScreen: (String, Int) -> Unit,
     mainScreenViewModel: MainScreenViewModel,
 ) {
     val latestStreetPetState by mainScreenViewModel.latestStreetPetState.collectAsStateWithLifecycle()
+    val todayMissingPets = mainScreenViewModel.todayMissingPets.collectAsLazyPagingItems()
 
     MainPermissionHandler(
         viewModel = mainScreenViewModel
@@ -71,6 +83,7 @@ fun MainScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .verticalScroll(rememberScrollState())
             .background(color = backgroundColor)
             .border(
                 width = 1.dp,
@@ -89,6 +102,12 @@ fun MainScreen(
             navigateToStoryScreen = navigateToStoryScreen
         )
         Spacer(Modifier.height(4.dp))
+
+        TodayMissingPetsSection(
+            pets = todayMissingPets,
+            goToDetailsPetScreen = goToDetailsPetScreen
+        )
+        Spacer(Modifier.height(16.dp))
     }
 }
 
@@ -253,6 +272,83 @@ fun StoryPreviewComponent(
             maxLines = 3,
             overflow = TextOverflow.Ellipsis
         )
+    }
+}
+
+@Composable
+fun TodayMissingPetsSection(
+    modifier: Modifier = Modifier,
+    pets: LazyPagingItems<PetUiPreview>,
+    goToDetailsPetScreen: (String, Int) -> Unit
+) {
+    val refreshState = pets.loadState.refresh
+    val shouldShowSection = refreshState is LoadState.Loading ||
+            (refreshState is LoadState.NotLoading && pets.itemCount > 0)
+
+    if (!shouldShowSection) return
+
+    val cardWidth = (LocalConfiguration.current.screenWidthDp.dp - 44.dp) / 2
+
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .background(
+                color = Color.White,
+                shape = RoundedCornerShape(20.dp)
+            )
+    ) {
+        Column(
+            modifier = Modifier.padding(vertical = 16.dp)
+        ) {
+            Text(
+                modifier = Modifier.padding(horizontal = 16.dp),
+                text = "Потерялись сегодня",
+                fontSize = 20.sp,
+                color = Color.Black
+            )
+            Spacer(Modifier.height(16.dp))
+
+            when (refreshState) {
+                is LoadState.Loading -> {
+                    LazyRow(
+                        modifier = Modifier.fillMaxWidth(),
+                        contentPadding = PaddingValues(horizontal = 16.dp),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        items(TODAY_MISSING_SHIMMER_COUNT) {
+                            SearchPetCardShimmerPlaceholder(
+                                modifier = Modifier.width(cardWidth)
+                            )
+                        }
+                    }
+                }
+
+                is LoadState.NotLoading -> {
+                    LazyRow(
+                        modifier = Modifier.fillMaxWidth(),
+                        contentPadding = PaddingValues(horizontal = 16.dp),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        items(
+                            count = pets.itemCount,
+                            key = { index -> pets.peek(index)?.id ?: index }
+                        ) { index ->
+                            val pet = pets[index] ?: return@items
+
+                            PetCardComponent(
+                                modifier = Modifier.width(cardWidth),
+                                petInfo = pet,
+                                isMissing = true
+                            ) {
+                                goToDetailsPetScreen(pet.id, MISSING_ANNOUNCEMENT_TYPE)
+                            }
+                        }
+                    }
+                }
+
+                is LoadState.Error -> Unit
+            }
+        }
     }
 }
 
@@ -443,6 +539,9 @@ private fun getPhoto(context: Context) {
         ActivityCompat.requestPermissions(context as Activity, arrayOf(cameraPermission), 0)
     }
 }
+
+private const val MISSING_ANNOUNCEMENT_TYPE = 1
+private const val TODAY_MISSING_SHIMMER_COUNT = 2
 
 @Preview
 @Composable

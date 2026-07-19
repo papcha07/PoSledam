@@ -1,6 +1,7 @@
 package ui.components.photo
 
 import android.Manifest
+import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -84,6 +85,23 @@ fun rememberPhotoAttachmentPickerState(
         }
     }
 
+    val fallbackSingleGalleryLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri ->
+        if (uri != null && availableSlots > 0) {
+            onPhotosSelected(listOf(uri))
+        }
+    }
+
+    val fallbackMultipleGalleryLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetMultipleContents()
+    ) { uris ->
+        val selectedUris = uris.take(availableSlots)
+        if (selectedUris.isNotEmpty()) {
+            onPhotosSelected(selectedUris)
+        }
+    }
+
     val cameraLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicture()
     ) { isSaved ->
@@ -111,9 +129,21 @@ fun rememberPhotoAttachmentPickerState(
         showSourceDialog = false
         val request = PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
         if (availableSlots == 1) {
-            singleGalleryLauncher.launch(request)
+            try {
+                singleGalleryLauncher.launch(request)
+            } catch (_: ActivityNotFoundException) {
+                runCatching {
+                    fallbackSingleGalleryLauncher.launch(IMAGE_MIME_TYPE)
+                }
+            }
         } else if (availableSlots > 1) {
-            multipleGalleryLauncher.launch(request)
+            try {
+                multipleGalleryLauncher.launch(request)
+            } catch (_: ActivityNotFoundException) {
+                runCatching {
+                    fallbackMultipleGalleryLauncher.launch(IMAGE_MIME_TYPE)
+                }
+            }
         }
     }
 
@@ -301,6 +331,7 @@ private fun Context.isPermissionDeclared(permission: String): Boolean {
 private const val CAMERA_IMAGE_DIR = "camera_images"
 private const val CAMERA_IMAGE_PREFIX = "report_photo_"
 private const val CAMERA_IMAGE_SUFFIX = ".jpg"
+private const val IMAGE_MIME_TYPE = "image/*"
 
 private val LebowskiByPragmatica = FontFamily(
     Font(R.font.lebowski_by_pragmatica_regular)
