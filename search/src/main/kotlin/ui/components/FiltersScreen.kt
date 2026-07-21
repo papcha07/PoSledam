@@ -14,8 +14,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
@@ -41,7 +43,6 @@ import ui.models.TimeFilter
 import ui.theme.deleteButtonColor
 import ui.theme.deleteButtonText
 import ui.theme.districtDropDownMenuColor
-import ui.theme.filterItemColor
 import ui.viewModel.FilterViewModel
 
 @Composable
@@ -51,8 +52,12 @@ fun FiltersScreen(
     goToSearchScreen: () -> Unit
 ) {
     val filterState by filtersViewModel.filters.collectAsState()
-
-    Column(Modifier.padding(horizontal = 16.dp)) {
+    val scrollState = rememberScrollState()
+    Column(
+        Modifier
+            .verticalScroll(scrollState)
+            .padding(horizontal = 16.dp)
+    ) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()

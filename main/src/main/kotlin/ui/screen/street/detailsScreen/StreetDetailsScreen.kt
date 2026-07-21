@@ -51,10 +51,10 @@ import ui.components.placeholder.ShimmerLoadingTransition
 import ui.components.placeholder.ShimmerTextPlaceholder
 import ui.components.streetPager.StreetPhotoPager
 import ui.model.ScreenState
-import ui.screen.street.StreetReportEffect
-import ui.screen.street.StreetReportUiState
 import ui.screen.street.StreetPetViewModel
 import ui.screen.street.StreetPetViewModel.Companion.REPORT_COMMENT_LIMIT
+import ui.screen.street.StreetReportEffect
+import ui.screen.street.StreetReportUiState
 import ui.screen.street.detailsScreen.component.DescriptionComponent
 import ui.theme.Ser
 import ui.theme.backgroundColor
@@ -142,6 +142,7 @@ fun StreetDetailsScreen(
     returnBack: () -> Unit,
     onReportClick: () -> Unit
 ) {
+    val scroll = rememberScrollState()
     ShimmerLoadingTransition(
         isLoading = detailsState is ScreenState.Loading,
         modifier = modifier.fillMaxSize(),
@@ -166,12 +167,14 @@ fun StreetDetailsScreen(
                 }
 
                 is ScreenState.Success<StreetDetails> -> {
+
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
                     ) {
                         Column(
                             modifier = Modifier
+                                .verticalScroll(scroll)
                                 .background(color = backgroundColor)
                                 .fillMaxSize()
                         ) {
